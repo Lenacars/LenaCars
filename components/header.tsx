@@ -61,13 +61,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image
-                src="/placeholder.svg?height=50&width=150"
-                alt="LenaCars Logo"
-                width={150}
-                height={50}
-                className="mr-2"
-              />
+              <Image src="/logo.png" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
             </Link>
           </div>
 
@@ -286,13 +280,7 @@ export default function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4">
                 <Link href="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-                  <Image
-                    src="/placeholder.svg?height=50&width=150"
-                    alt="LenaCars Logo"
-                    width={150}
-                    height={50}
-                    className="mr-2"
-                  />
+                  <Image src="/logo.png" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
                 </Link>
                 <div className="flex items-center space-x-2 w-full">
                   <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
