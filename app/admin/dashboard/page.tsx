@@ -1,82 +1,24 @@
-<<<<<<< HEAD
-"use client";
-
-import React from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
-
-// Örnek veri
-=======
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
-
-// Sample data for charts
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
-const monthlyData = [
-  { name: "Oca", value: 45 },
-  { name: "Şub", value: 52 },
-  { name: "Mar", value: 61 },
-  { name: "Nis", value: 58 },
-  { name: "May", value: 65 },
-  { name: "Haz", value: 78 },
-  { name: "Tem", value: 85 },
-  { name: "Ağu", value: 83 },
-  { name: "Eyl", value: 75 },
-  { name: "Eki", value: 68 },
-  { name: "Kas", value: 72 },
-  { name: "Ara", value: 79 },
-<<<<<<< HEAD
-];
-=======
-]
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
-
-const categoryData = [
-  { name: "Ekonomik", value: 35 },
-  { name: "Orta Sınıf", value: 45 },
-  { name: "Premium", value: 25 },
-  { name: "SUV", value: 30 },
-  { name: "Elektrikli", value: 15 },
-<<<<<<< HEAD
-];
-=======
-]
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
+import { useEffect, useState } from "react"
 
 export default function AdminDashboard() {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return <div className="p-8">Yükleniyor...</div>
+  }
+
   return (
-    <div>
+    <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
-<<<<<<< HEAD
-      {/* Kartlar */}
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -128,118 +70,58 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-<<<<<<< HEAD
-      {/* Grafikler */}
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
       <Tabs defaultValue="overview" className="mb-8">
         <TabsList>
           <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
           <TabsTrigger value="analytics">Analitik</TabsTrigger>
           <TabsTrigger value="reports">Raporlar</TabsTrigger>
         </TabsList>
-<<<<<<< HEAD
-
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
         <TabsContent value="overview">
           <Card>
             <CardHeader>
               <CardTitle>Aylık Kiralama</CardTitle>
-<<<<<<< HEAD
-              <CardDescription>Son 12 ay</CardDescription>
-=======
               <CardDescription>Son 12 aydaki kiralama sayıları</CardDescription>
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#5d3b8b" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] bg-gray-100 rounded-md flex items-center justify-center">
+                <p className="text-gray-500">Grafik burada görüntülenecek</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-<<<<<<< HEAD
-
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
         <TabsContent value="analytics">
           <Card>
             <CardHeader>
               <CardTitle>Kategori Dağılımı</CardTitle>
-<<<<<<< HEAD
-              <CardDescription>Filodaki kategori oranı</CardDescription>
-=======
               <CardDescription>Araç kategorilerine göre kiralama dağılımı</CardDescription>
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categoryData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#5d3b8b" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] bg-gray-100 rounded-md flex items-center justify-center">
+                <p className="text-gray-500">Grafik burada görüntülenecek</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-<<<<<<< HEAD
-
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
         <TabsContent value="reports">
           <Card>
             <CardHeader>
               <CardTitle>Gelir Trendi</CardTitle>
-<<<<<<< HEAD
-              <CardDescription>Son 12 ayda kazanç</CardDescription>
-=======
               <CardDescription>Son 12 aydaki gelir trendi</CardDescription>
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="value" stroke="#5d3b8b" />
-                  </LineChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] bg-gray-100 rounded-md flex items-center justify-center">
+                <p className="text-gray-500">Grafik burada görüntülenecek</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-<<<<<<< HEAD
-      {/* Son İşlemler */}
-=======
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Son Kiralamalar</CardTitle>
-<<<<<<< HEAD
-            <CardDescription>Son 5 işlem</CardDescription>
-=======
             <CardDescription>Son 5 kiralama işlemi</CardDescription>
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -247,19 +129,10 @@ export default function AdminDashboard() {
                 <div key={i} className="flex items-center justify-between border-b pb-2">
                   <div>
                     <p className="font-medium">Ahmet Yılmaz</p>
-<<<<<<< HEAD
-                    <p className="text-sm text-muted-foreground">
-                      Toyota Corolla - 3 Ay
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">10.500 ₺</p>
-=======
                     <p className="text-sm text-muted-foreground">Toyota Corolla - 3 Ay</p>
                   </div>
                   <div className="text-right">
                     <p className="font-medium">10,500 ₺</p>
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
                     <p className="text-sm text-muted-foreground">15.03.2023</p>
                   </div>
                 </div>
@@ -309,11 +182,6 @@ export default function AdminDashboard() {
         </Card>
       </div>
     </div>
-<<<<<<< HEAD
-  );
-}
-=======
   )
 }
 
->>>>>>> 459ed2c5dd6392dc33e3481bdd72d06eb159e729
