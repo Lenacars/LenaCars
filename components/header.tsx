@@ -1,9 +1,8 @@
 "use client"
-
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Facebook, Instagram, Linkedin, Youtube, MapPin, Mail, Phone } from "lucide-react"
+import { Search, Facebook, Instagram, Linkedin, Youtube, MapPin, Mail, Phone, Menu, LayoutGrid } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -25,6 +24,12 @@ export default function Header() {
       {/* Top Bar */}
       <div className="w-full bg-[#5d3b8b] text-white py-2">
         <div className="container mx-auto flex justify-between items-center px-4">
+          {/* LOGO */}
+          <Link href="/">
+            <Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={160} height={50} priority />
+          </Link>
+
+          {/* Sağdaki menü ya da iconlar */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-1">
               <MapPin className="h-4 w-4" />
@@ -36,9 +41,11 @@ export default function Header() {
               <Phone className="h-4 w-4" />
             </div>
           </div>
+
           <div className="hidden md:block">
             <p className="text-sm">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
           </div>
+
           <div className="flex items-center space-x-2">
             <Link href="https://facebook.com" aria-label="Facebook">
               <Facebook className="h-4 w-4" />
@@ -61,7 +68,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image src="/logo.png" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
+              <Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
             </Link>
           </div>
 
@@ -75,22 +82,7 @@ export default function Header() {
           <div className="flex items-center space-x-2">
             <Link href="/garaj">
               <Button variant="outline" className="flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="mr-2"
-                >
-                  <path d="M3 3h18v18H3z" />
-                  <path d="M3 9h18" />
-                  <path d="M15 3v6" />
-                </svg>
+                <LayoutGrid className="h-4 w-4 mr-2" />
                 Garaj
               </Button>
             </Link>
@@ -106,6 +98,7 @@ export default function Header() {
         <div className="hidden md:flex mt-4 border-t border-b py-2">
           <NavigationMenu className="mx-auto">
             <NavigationMenuList>
+              {/* Kurumsal */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -113,8 +106,8 @@ export default function Header() {
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
                         <Link
-                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                           href="/hakkimizda"
+                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                         >
                           <div className="mb-2 mt-4 text-lg font-medium">Hakkımızda</div>
                           <p className="text-sm leading-tight text-muted-foreground">
@@ -148,6 +141,8 @@ export default function Header() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
+              {/* Kiralama */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -177,6 +172,8 @@ export default function Header() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
+              {/* İkinci El */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger>İkinci El</NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -195,6 +192,8 @@ export default function Header() {
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
+              {/* Elektrikli Araçlar */}
               <NavigationMenuItem>
                 <Link href="/elektrikli-araclar" legacyBehavior passHref>
                   <NavigationMenuLink
@@ -206,6 +205,7 @@ export default function Header() {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <Link href="/basin-kosesi" legacyBehavior passHref>
                   <NavigationMenuLink
@@ -217,6 +217,7 @@ export default function Header() {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <Link href="/bilgilendiriyor" legacyBehavior passHref>
                   <NavigationMenuLink
@@ -228,6 +229,7 @@ export default function Header() {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <Link href="/sss" legacyBehavior passHref>
                   <NavigationMenuLink
@@ -239,6 +241,7 @@ export default function Header() {
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
+
               <NavigationMenuItem>
                 <Link href="/nasil-calisir" legacyBehavior passHref>
                   <NavigationMenuLink
@@ -259,62 +262,51 @@ export default function Header() {
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
+                <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
+
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4">
                 <Link href="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-                  <Image src="/logo.png" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
+                  <Image
+                    src="/lenacars-logo.svg"
+                    alt="LenaCars Logo"
+                    width={50}
+                    height={50}
+                    className="mr-2"
+                    priority
+                  />
                 </Link>
+
                 <div className="flex items-center space-x-2 w-full">
                   <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
                   <Button variant="default" className="bg-[#e67e22] hover:bg-[#d35400] rounded-l-none rounded-r-md">
                     <Search className="h-4 w-4" />
                   </Button>
                 </div>
-                <Link href="/kurumsal" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  Kurumsal
-                </Link>
-                <Link href="/kiralama" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  Kiralama
-                </Link>
-                <Link href="/ikinci-el" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  İkinci El
-                </Link>
-                <Link href="/elektrikli-araclar" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  Elektrikli Araçlar
-                </Link>
-                <Link href="/basin-kosesi" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  Basın Köşesi
-                </Link>
-                <Link href="/bilgilendiriyor" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  LenaCars Bilgilendiriyor
-                </Link>
-                <Link href="/sss" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  S.S.S.
-                </Link>
-                <Link href="/nasil-calisir" className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
-                  Nasıl Çalışır
-                </Link>
+
+                {/* Menü Linkleri */}
+                {[
+                  { href: "/kurumsal", label: "Kurumsal" },
+                  { href: "/kiralama", label: "Kiralama" },
+                  { href: "/ikinci-el", label: "İkinci El" },
+                  { href: "/elektrikli-araclar", label: "Elektrikli Araçlar" },
+                  { href: "/basin-kosesi", label: "Basın Köşesi" },
+                  { href: "/bilgilendiriyor", label: "LenaCars Bilgilendiriyor" },
+                  { href: "/sss", label: "S.S.S." },
+                  { href: "/nasil-calisir", label: "Nasıl Çalışır" },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} className="py-2 border-b" onClick={() => setIsMenuOpen(false)}>
+                    {label}
+                  </Link>
+                ))}
               </nav>
             </SheetContent>
           </Sheet>
+
+          {/* Arama Alanı - Mobil */}
           <div className="flex items-center space-x-2">
             <div className="flex md:hidden items-center space-x-2 w-full">
               <Input type="search" placeholder="Araç Ara" className="w-32 rounded-l-md rounded-r-none" />

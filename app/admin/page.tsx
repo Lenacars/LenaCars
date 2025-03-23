@@ -1,8 +1,32 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
+"use client";
 
-// Sample data for charts
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+
+// Örnek veri
 const monthlyData = [
   { name: "Oca", value: 45 },
   { name: "Şub", value: 52 },
@@ -16,7 +40,7 @@ const monthlyData = [
   { name: "Eki", value: 68 },
   { name: "Kas", value: 72 },
   { name: "Ara", value: 79 },
-]
+];
 
 const categoryData = [
   { name: "Ekonomik", value: 35 },
@@ -24,13 +48,14 @@ const categoryData = [
   { name: "Premium", value: 25 },
   { name: "SUV", value: 30 },
   { name: "Elektrikli", value: 15 },
-]
+];
 
 export default function AdminDashboard() {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
 
+      {/* Kartlar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -82,17 +107,19 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Grafikler */}
       <Tabs defaultValue="overview" className="mb-8">
         <TabsList>
           <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
           <TabsTrigger value="analytics">Analitik</TabsTrigger>
           <TabsTrigger value="reports">Raporlar</TabsTrigger>
         </TabsList>
+
         <TabsContent value="overview">
           <Card>
             <CardHeader>
               <CardTitle>Aylık Kiralama</CardTitle>
-              <CardDescription>Son 12 aydaki kiralama sayıları</CardDescription>
+              <CardDescription>Son 12 ay</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -109,11 +136,12 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="analytics">
           <Card>
             <CardHeader>
               <CardTitle>Kategori Dağılımı</CardTitle>
-              <CardDescription>Araç kategorilerine göre kiralama dağılımı</CardDescription>
+              <CardDescription>Filodaki kategori oranı</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -130,11 +158,12 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
+
         <TabsContent value="reports">
           <Card>
             <CardHeader>
               <CardTitle>Gelir Trendi</CardTitle>
-              <CardDescription>Son 12 aydaki gelir trendi</CardDescription>
+              <CardDescription>Son 12 ayda kazanç</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -153,11 +182,12 @@ export default function AdminDashboard() {
         </TabsContent>
       </Tabs>
 
+      {/* Son İşlemler */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Son Kiralamalar</CardTitle>
-            <CardDescription>Son 5 kiralama işlemi</CardDescription>
+            <CardDescription>Son 5 işlem</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -165,10 +195,12 @@ export default function AdminDashboard() {
                 <div key={i} className="flex items-center justify-between border-b pb-2">
                   <div>
                     <p className="font-medium">Ahmet Yılmaz</p>
-                    <p className="text-sm text-muted-foreground">Toyota Corolla - 3 Ay</p>
+                    <p className="text-sm text-muted-foreground">
+                      Toyota Corolla - 3 Ay
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">10,500 ₺</p>
+                    <p className="font-medium">10.500 ₺</p>
                     <p className="text-sm text-muted-foreground">15.03.2023</p>
                   </div>
                 </div>
@@ -218,6 +250,5 @@ export default function AdminDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-
