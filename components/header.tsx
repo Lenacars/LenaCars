@@ -25,10 +25,6 @@ export default function Header() {
       {/* Top Bar */}
       <div className="w-full bg-[#5d3b8b] text-white py-2">
         <div className="container mx-auto flex justify-between items-center px-4">
-          {/* LOGO */}
-          <Link href="/">
-            <Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={160} height={50} priority />
-          </Link>
 
           {/* Sağdaki menü ya da iconlar */}
           <div className="flex items-center space-x-4">
@@ -69,7 +65,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={50} height={50} className="mr-2" priority />
+              <Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={160} height={50} className="mr-2" priority />
             </Link>
           </div>
 
@@ -270,17 +266,7 @@ export default function Header() {
 
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4">
-                <Link href="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-                  <Image
-                    src="/lenacars-logo.svg"
-                    alt="LenaCars Logo"
-                    width={50}
-                    height={50}
-                    className="mr-2"
-                    priority
-                  />
-                </Link>
-
+              
                 <div className="flex items-center space-x-2 w-full">
                   <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
                   <Button variant="default" className="bg-[#e67e22] hover:bg-[#d35400] rounded-l-none rounded-r-md">
