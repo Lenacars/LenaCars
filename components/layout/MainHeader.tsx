@@ -37,7 +37,7 @@ export default function MainHeader() {
             </Button>
           </Link>
           <Link href="/giris">
-            <Button className="bg-[#9A3C96] hover:bg-[#7f2d7c]">
+            <Button className="bg-[#6A3C96] hover:bg-[#7f2d7c]">
               Giriş Yap / Üye Ol
             </Button>
           </Link>
