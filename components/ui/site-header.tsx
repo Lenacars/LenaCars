@@ -63,56 +63,150 @@ export default function Header() {
           <Image src="/lenacars-logo.svg" alt="LenaCars" width={150} height={40} priority />
         </Link>
 
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="gap-4">
-            {menuItems.map((menu) => (
-              <NavigationMenuItem key={menu.title}>
-                <NavigationMenuTrigger>{menu.title}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[300px] gap-3 p-4">
-                    {menu.items.map((item) => (
-                      <li key={item.href}>
-                        <Link href={item.href} legacyBehavior passHref>
-                          <NavigationMenuLink
-                            className={cn(
-                              "block rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            )}
-                          >
-                            {item.label}
-                          </NavigationMenuLink>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            ))}
+<NavigationMenuList>
+  {/* Kurumsal */}
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <ul className="grid w-[400px] gap-3 p-4">
+        <li>
+          <Link href="/kurumsal/hakkimizda" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Hakkımızda</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/kurumsal/liderlik-ekibimiz" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Liderlik Ekibimiz</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/kurumsal/odullerimiz" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Ödüllerimiz</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/kurumsal/insan-kaynaklari" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">İnsan Kaynakları</div>
+          </Link>
+        </li>
+      </ul>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <Link href="/elektrikli-araclar" legacyBehavior passHref>
-                <NavigationMenuLink className="px-4 py-2 text-sm">Elektrikli Araçlar</NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+  {/* Kiralama */}
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <ul className="grid w-[400px] gap-3 p-4">
+        <li>
+          <Link href="/kisa-sureli-kiralama" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Kısa Süreli Kiralama</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/kiralamanin-avantajlari" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Kiralamanın Avantajları</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/kurumsal-uyelik-programi" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Kurumsal Üyelik Programı</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/lenacars-avantajlari" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">LenaCars Avantajları</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/tasarrufunu-hesapla" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Tasarrufunu Hesapla</div>
+          </Link>
+        </li>
+      </ul>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <Link href="/basin-kosesi" legacyBehavior passHref>
-                <NavigationMenuLink className="px-4 py-2 text-sm">Basın Köşesi</NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+  {/* İkinci El */}
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>İkinci El</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <ul className="grid w-[400px] gap-3 p-4">
+        <li>
+          <Link href="/ikinci-el/satilik-araclarimiz" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Satılık Araçlarımız</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/ikinci-el/karli-arac-satis-hizmeti" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Karlı Araç Satış Hizmeti</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/ikinci-el/tasit-kredisi" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Taşıt Kredisi</div>
+          </Link>
+        </li>
+      </ul>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <Link href="/sss" legacyBehavior passHref>
-                <NavigationMenuLink className="px-4 py-2 text-sm">S.S.S.</NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
+  {/* Elektrikli Araçlar */}
+  <NavigationMenuItem>
+    <Link href="/elektrikli-araclar" legacyBehavior passHref>
+      <NavigationMenuLink className={cn("inline-flex h-10 px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
+        Elektrikli Araçlar
+      </NavigationMenuLink>
+    </Link>
+  </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <Link href="/nasil-calisir" legacyBehavior passHref>
-                <NavigationMenuLink className="px-4 py-2 text-sm">Nasıl Çalışır</NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+  {/* Basın Köşesi */}
+  <NavigationMenuItem>
+    <Link href="/basin-kosesi" legacyBehavior passHref>
+      <NavigationMenuLink className={cn("inline-flex h-10 px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
+        Basın Köşesi
+      </NavigationMenuLink>
+    </Link>
+  </NavigationMenuItem>
+
+  {/* LenaCars Bilgilendiriyor */}
+  <NavigationMenuItem>
+    <NavigationMenuTrigger>LenaCars Bilgilendiriyor</NavigationMenuTrigger>
+    <NavigationMenuContent>
+      <ul className="grid w-[300px] gap-3 p-4">
+        <li>
+          <Link href="/bilgilendiriyor/blog" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Blog</div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/bilgilendiriyor/vlog" className="block p-3 rounded-md hover:bg-accent">
+            <div className="text-sm font-medium">Vlog</div>
+          </Link>
+        </li>
+      </ul>
+    </NavigationMenuContent>
+  </NavigationMenuItem>
+
+  {/* S.S.S */}
+  <NavigationMenuItem>
+    <Link href="/sss" legacyBehavior passHref>
+      <NavigationMenuLink className={cn("inline-flex h-10 px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
+        S.S.S.
+      </NavigationMenuLink>
+    </Link>
+  </NavigationMenuItem>
+
+  {/* Nasıl Çalışır */}
+  <NavigationMenuItem>
+    <Link href="/nasil-calisir" legacyBehavior passHref>
+      <NavigationMenuLink className={cn("inline-flex h-10 px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
+        Nasıl Çalışır
+      </NavigationMenuLink>
+    </Link>
+  </NavigationMenuItem>
+</NavigationMenuList>
+
 
         <div className="md:hidden">
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
