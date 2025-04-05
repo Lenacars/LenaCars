@@ -91,54 +91,54 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="hidden md:flex mt-4 border-t border-b py-2">
-          <NavigationMenu className="mx-auto">
-            <NavigationMenuList>
-              {/* Kurumsal */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4">
-                    <li className="row-span-3">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href="/hakkimizda"
-                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        >
-                          <div className="mb-2 mt-4 text-lg font-medium">Hakkımızda</div>
-                          <p className="text-sm leading-tight text-muted-foreground">
-                            LenaCars kurumsal araç kiralama çözümleri hakkında bilgi alın.
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <Link
-                        href="/vizyon-misyon"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Vizyon & Misyon</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Vizyonumuz ve misyonumuz hakkında bilgi alın.
-                        </p>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href="/ekibimiz"
-                        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                      >
-                        <div className="text-sm font-medium leading-none">Ekibimiz</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Uzman ekibimizle tanışın.
-                        </p>
-                      </Link>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
+<NavigationMenuContent>
+  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] lg:w-[600px]">
+    <li>
+      <Link
+        href="/kurumsal/hakkimizda"
+        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      >
+        <div className="text-sm font-medium leading-none">Hakkımızda</div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          LenaCars'ın vizyonunu ve geçmişini keşfedin.
+        </p>
+      </Link>
+    </li>
+    <li>
+      <Link
+        href="/kurumsal/liderlik-ekibimiz"
+        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      >
+        <div className="text-sm font-medium leading-none">Liderlik Ekibimiz</div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          Deneyimli kadromuzla tanışın.
+        </p>
+      </Link>
+    </li>
+    <li>
+      <Link
+        href="/kurumsal/odullerimiz"
+        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      >
+        <div className="text-sm font-medium leading-none">Ödüllerimiz</div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          Kazandığımız ödülleri ve başarılarımızı inceleyin.
+        </p>
+      </Link>
+    </li>
+    <li>
+      <Link
+        href="/kurumsal/insan-kaynaklari"
+        className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+      >
+        <div className="text-sm font-medium leading-none">İnsan Kaynakları</div>
+        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          Kariyer fırsatlarımızı ve insan kaynakları vizyonumuzu keşfedin.
+        </p>
+      </Link>
+    </li>
+  </ul>
+</NavigationMenuContent>
               {/* Kiralama */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
