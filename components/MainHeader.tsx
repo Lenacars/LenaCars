@@ -2,14 +2,19 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { LayoutGrid, Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { useState } from "react"
+import { Search, LayoutGrid, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import NavigationMenuComponent from "./NavigationMenu"
 
 export default function MainHeader() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   return (
-    <div className="container mx-auto py-4 px-4">
-      <div className="flex justify-between items-center">
+    <div className="w-full bg-white py-4 border-b">
+      <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
@@ -17,12 +22,11 @@ export default function MainHeader() {
             alt="LenaCars Logo"
             width={160}
             height={50}
-            className="mr-2"
             priority
           />
         </Link>
 
-        {/* Arama Alanı */}
+        {/* Arama Çubuğu */}
         <div className="hidden md:flex items-center space-x-2 w-1/3">
           <Input
             type="search"
@@ -37,7 +41,7 @@ export default function MainHeader() {
           </Button>
         </div>
 
-        {/* Sağ Butonlar */}
+        {/* Butonlar */}
         <div className="flex items-center space-x-2">
           <Link href="/garaj">
             <Button variant="outline" className="flex items-center">
@@ -48,14 +52,32 @@ export default function MainHeader() {
           <Link href="/giris">
             <Button
               variant="default"
-              className="bg-[#9A3C96] hover:bg-[#7e327b] text-white"
+              className="bg-[#9A3C96] hover:bg-[#7c2d7d]"
             >
               Giriş Yap / Üye Ol
             </Button>
           </Link>
         </div>
       </div>
+
+      {/* Navigasyon Menüsü (Masaüstü) */}
+      <div className="hidden md:flex mt-2 border-t border-b py-2">
+        <NavigationMenuComponent />
+      </div>
+
+      {/* Navigasyon Menüsü (Mobil) */}
+      <div className="md:hidden mt-2 px-4">
+        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+            <NavigationMenuComponent mobileMode onClose={() => setIsMenuOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   )
 }
-
