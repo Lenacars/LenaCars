@@ -3,123 +3,148 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Facebook, Instagram, Linkedin, Youtube, MapPin, Mail, Phone, Menu, LayoutGrid } from 'lucide-react'
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuLink,
 } from "@/components/ui/navigation-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const menuItems = [
+    {
+      title: "Kurumsal",
+      items: [
+        { href: "/kurumsal/hakkimizda", label: "Hakkımızda" },
+        { href: "/kurumsal/liderlik-ekibimiz", label: "Liderlik Ekibimiz" },
+        { href: "/kurumsal/odullerimiz", label: "Ödüllerimiz" },
+        { href: "/kurumsal/insan-kaynaklari", label: "İnsan Kaynakları" },
+      ],
+    },
+    {
+      title: "Kiralama",
+      items: [
+        { href: "/kiralama/kisa-sureli-kiralama", label: "Kısa Süreli Kiralama" },
+        { href: "/kiralama/kiralamanin-avantajlari", label: "Kiralamanın Avantajları" },
+        { href: "/kiralama/kurumsal-uyelik-programi", label: "Kurumsal Üyelik Programı" },
+        { href: "/kiralama/lenacars-avantajlari", label: "LenaCars Avantajları" },
+        { href: "/kiralama/tasarrufunu-hesapla", label: "Tasarrufunu Hesapla" },
+      ],
+    },
+    {
+      title: "İkinci El",
+      items: [
+        { href: "/ikinci-el/satilik-araclarimiz", label: "Satılık Araçlarımız" },
+        { href: "/ikinci-el/karli-arac-satis", label: "Karlı Araç Satış Hizmeti" },
+        { href: "/ikinci-el/tasit-kredisi", label: "Taşıt Kredisi" },
+      ],
+    },
+    {
+      title: "LenaCars Bilgilendiriyor",
+      items: [
+        { href: "/bilgilendiriyor/blog", label: "Blog" },
+        { href: "/bilgilendiriyor/vlog", label: "Vlog" },
+      ],
+    },
+  ]
+
   return (
-    <header className="w-full">
-      {/* Top Bar */}
-      <div className="w-full bg-[#5d3b8b] text-white py-2">
-        <div className="container mx-auto flex justify-between items-center px-4">
-          <div className="flex items-center space-x-4">
-            <MapPin className="h-4 w-4" />
-            <Mail className="h-4 w-4" />
-            <Phone className="h-4 w-4" />
-          </div>
-          <div className="hidden md:block">
-            <p className="text-sm">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Link href="https://facebook.com"><Facebook className="h-4 w-4" /></Link>
-            <Link href="https://instagram.com"><Instagram className="h-4 w-4" /></Link>
-            <Link href="https://linkedin.com"><Linkedin className="h-4 w-4" /></Link>
-            <Link href="https://youtube.com"><Youtube className="h-4 w-4" /></Link>
-          </div>
-        </div>
-      </div>
+    <header className="w-full border-b">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <Link href="/">
+          <Image src="/lenacars-logo.svg" alt="LenaCars" width={150} height={40} priority />
+        </Link>
 
-      {/* Main Header */}
-      <div className="container mx-auto py-4 px-4">
-        <div className="flex justify-between items-center">
-          <Link href="/"><Image src="/lenacars-logo.svg" alt="LenaCars Logo" width={160} height={50} priority /></Link>
-          <div className="hidden md:flex items-center space-x-2 w-1/3">
-            <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
-            <Button className="bg-[#e67e22] hover:bg-[#d35400] rounded-l-none rounded-r-md">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Link href="/garaj"><Button variant="outline"><LayoutGrid className="h-4 w-4 mr-2" />Garaj</Button></Link>
-            <Link href="/giris"><Button className="bg-[#5d3b8b] hover:bg-[#4a2e70]">Giriş Yap / Üye Ol</Button></Link>
-          </div>
-        </div>
+        <NavigationMenu className="hidden md:flex">
+          <NavigationMenuList className="gap-4">
+            {menuItems.map((menu) => (
+              <NavigationMenuItem key={menu.title}>
+                <NavigationMenuTrigger>{menu.title}</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[300px] gap-3 p-4">
+                    {menu.items.map((item) => (
+                      <li key={item.href}>
+                        <Link href={item.href} legacyBehavior passHref>
+                          <NavigationMenuLink
+                            className={cn(
+                              "block rounded-md p-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                            )}
+                          >
+                            {item.label}
+                          </NavigationMenuLink>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ))}
 
-        {/* Navigation Menu */}
-        <NavigationMenu>
-          <NavigationMenuList>
-            {/* Kurumsal */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px]">
-                  <li><Link href="/kurumsal/hakkimizda">Hakkımızda</Link></li>
-                  <li><Link href="/kurumsal/liderlik-ekibimiz">Liderlik Ekibimiz</Link></li>
-                  <li><Link href="/kurumsal/odullerimiz">Ödüllerimiz</Link></li>
-                  <li><Link href="/kurumsal/insan-kaynaklari">İnsan Kaynakları</Link></li>
-                </ul>
-              </NavigationMenuContent>
+              <Link href="/elektrikli-araclar" legacyBehavior passHref>
+                <NavigationMenuLink className="px-4 py-2 text-sm">Elektrikli Araçlar</NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
 
-            {/* Kiralama */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px]">
-                  <li><Link href="/kiralama/kisa-sureli-kiralama">Kısa Süreli Kiralama</Link></li>
-                  <li><Link href="/kiralama/kiralamanin-avantajlari">Kiralamanın Avantajları</Link></li>
-                  <li><Link href="/kiralama/kurumsal-uyelik-programi">Kurumsal Üyelik Programı</Link></li>
-                  <li><Link href="/kiralama/lenacars-avantajlari">LenaCars Avantajları</Link></li>
-                  <li><Link href="/kiralama/tasarrufunu-hesapla">Tasarrufunu Hesapla</Link></li>
-                </ul>
-              </NavigationMenuContent>
+              <Link href="/basin-kosesi" legacyBehavior passHref>
+                <NavigationMenuLink className="px-4 py-2 text-sm">Basın Köşesi</NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
 
-            {/* İkinci El */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>İkinci El</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px]">
-                  <li><Link href="/ikinci-el/satilik-araclarimiz">Satılık Araçlarımız</Link></li>
-                  <li><Link href="/ikinci-el/karli-arac-satis-hizmeti">Karlı Araç Satış Hizmeti</Link></li>
-                  <li><Link href="/ikinci-el/tasit-kredisi">Taşıt Kredisi</Link></li>
-                </ul>
-              </NavigationMenuContent>
+              <Link href="/sss" legacyBehavior passHref>
+                <NavigationMenuLink className="px-4 py-2 text-sm">S.S.S.</NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
 
-            <NavigationMenuItem><Link href="/elektrikli-araclar"><NavigationMenuLink>Elektrikli Araçlar</NavigationMenuLink></Link></NavigationMenuItem>
-            <NavigationMenuItem><Link href="/basin-kosesi"><NavigationMenuLink>Basın Köşesi</NavigationMenuLink></Link></NavigationMenuItem>
-
-            {/* LenaCars Bilgilendiriyor */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>LenaCars Bilgilendiriyor</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px]">
-                  <li><Link href="/bilgilendiriyor/blog">Blog</Link></li>
-                  <li><Link href="/bilgilendiriyor/vlog">Vlog</Link></li>
-                </ul>
-              </NavigationMenuContent>
+              <Link href="/nasil-calisir" legacyBehavior passHref>
+                <NavigationMenuLink className="px-4 py-2 text-sm">Nasıl Çalışır</NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
-
-            <NavigationMenuItem><Link href="/sss"><NavigationMenuLink>S.S.S</NavigationMenuLink></Link></NavigationMenuItem>
-            <NavigationMenuItem><Link href="/nasil-calisir"><NavigationMenuLink>Nasıl Çalışır</NavigationMenuLink></Link></NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Mobile Menu (Aynı yapı mobilde Sheet içinde kullanılabilir) */}
+        <div className="md:hidden">
+          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col gap-4 mt-6">
+                {menuItems.map((menu) => (
+                  <div key={menu.title}>
+                    <p className="font-semibold text-sm">{menu.title}</p>
+                    <ul className="pl-2">
+                      {menu.items.map((item) => (
+                        <li key={item.href}>
+                          <Link href={item.href} onClick={() => setIsMenuOpen(false)} className="text-sm block py-1">
+                            {item.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                <Link href="/elektrikli-araclar" onClick={() => setIsMenuOpen(false)}>Elektrikli Araçlar</Link>
+                <Link href="/basin-kosesi" onClick={() => setIsMenuOpen(false)}>Basın Köşesi</Link>
+                <Link href="/sss" onClick={() => setIsMenuOpen(false)}>S.S.S.</Link>
+                <Link href="/nasil-calisir" onClick={() => setIsMenuOpen(false)}>Nasıl Çalışır</Link>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   )
