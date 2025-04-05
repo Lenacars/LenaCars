@@ -205,3 +205,28 @@ export default function Home() {
     </>
   )
 }
+import { getAllVehicles } from "@/lib/api"
+
+export default async function HomePage() {
+  const vehicles = await getAllVehicles()
+
+  return (
+    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {vehicles.map((vehicle: any) => (
+        <div key={vehicle.id} className="border rounded-lg p-4 shadow bg-white">
+          <div className="mb-2">
+            <h3 className="text-lg font-semibold">{vehicle.name}</h3>
+            <p className="text-sm text-gray-500">{vehicle.category}</p>
+          </div>
+          <div className="mb-4">
+            <p className="text-xl font-bold">{vehicle.price || "?"} ₺ <span className="text-sm">/ aylık</span></p>
+          </div>
+          <div className="flex justify-between gap-2">
+            <a href={`/vehicles/${vehicle.id}`} className="text-sm px-4 py-2 bg-[#5d3b8b] text-white rounded">Detaylar</a>
+            <button className="text-sm px-4 py-2 border rounded">Garaja Ekle</button>
+          </div>
+        </div>
+      ))}
+    </section>
+  )
+}
