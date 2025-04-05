@@ -1,12 +1,16 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
 import { Search, LayoutGrid, Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+} from "@/components/ui/sheet"
 import NavigationMenuComponent from "./NavigationMenu"
 
 export default function MainHeader() {
@@ -16,27 +20,31 @@ export default function MainHeader() {
     <div className="w-full bg-white py-4 border-b">
       <div className="container mx-auto px-4 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <Image src="/lenacars-logo.svg" alt="LenaCars" width={150} height={40} priority />
+        <Link href="/">
+          <Image
+            src="/lenacars-logo.svg"
+            alt="LenaCars"
+            width={160}
+            height={50}
+            priority
+          />
         </Link>
 
         {/* Arama + Butonlar */}
-<div className="hidden md:flex items-center space-x-4 w-1/3">
-  <div className="flex items-center rounded-md overflow-hidden border border-[#6A3C96] w-full">
-    <Input
-      type="search"
-      placeholder="Araç Ara"
-      className="rounded-none border-none focus:outline-none focus:ring-0 w-full"
-    />
-    <Button className="bg-[#e67e22] text-white rounded-none px-4">
-      <Search className="h-4 w-4" />
-    </Button>
-  </div>
-</div>
-        </div>
+        <div className="hidden md:flex items-center space-x-4 w-1/2 justify-end">
+          {/* Arama kutusu ve buton */}
+          <div className="flex items-center rounded-md overflow-hidden border border-[#6A3C96] w-full max-w-md">
+            <Input
+              type="search"
+              placeholder="Araç Ara"
+              className="rounded-none border-none focus:outline-none focus:ring-0 w-full"
+            />
+            <Button className="bg-[#e67e22] text-white rounded-none px-4">
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
 
-        {/* Sağ Butonlar */}
-        <div className="hidden md:flex items-center space-x-2">
+          {/* Garaj ve Giriş Butonları */}
           <Link href="/garaj">
             <Button variant="outline" className="flex items-center">
               <LayoutGrid className="h-4 w-4 mr-2" />
@@ -44,7 +52,7 @@ export default function MainHeader() {
             </Button>
           </Link>
           <Link href="/giris">
-            <Button className="bg-[#6A3C96] hover:bg-[#7f2d7c]">
+            <Button className="bg-[#6A3C96] text-white">
               Giriş Yap / Üye Ol
             </Button>
           </Link>
