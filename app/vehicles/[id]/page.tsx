@@ -16,19 +16,20 @@ interface VehiclePageProps {
 export default async function VehiclePage({ params }: VehiclePageProps) {
   const vehicle = await getVehicleById(params.id)
 
+  // 👇 Hata oluşmaması için veri kontrolü
+  if (!vehicle) {
+    return <div className="p-6 text-red-500 text-center">Araç bulunamadı veya veri eksik.</div>
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="mb-6">
             <div className="flex items-center mb-2">
-              <Link href="/" className="text-sm text-gray-500 hover:underline">
-                Ana Sayfa
-              </Link>
+              <Link href="/" className="text-sm text-gray-500 hover:underline">Ana Sayfa</Link>
               <span className="mx-2 text-gray-500">/</span>
-              <Link href="/arac-filomuz" className="text-sm text-gray-500 hover:underline">
-                Araç Filomuz
-              </Link>
+              <Link href="/arac-filomuz" className="text-sm text-gray-500 hover:underline">Araç Filomuz</Link>
               <span className="mx-2 text-gray-500">/</span>
               <span className="text-sm">{vehicle.name}</span>
             </div>
@@ -36,9 +37,9 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
             <div className="flex items-center mt-2">
               <div className="flex items-center mr-4">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                <span className="text-sm">{vehicle.rating} (32 değerlendirme)</span>
+                <span className="text-sm">{vehicle.rating || 0} (32 değerlendirme)</span>
               </div>
-              <Badge className="bg-[#5d3b8b]">{vehicle.category}</Badge>
+              <Badge className="bg-[#5d3b8b]">{vehicle.category || "Genel"}</Badge>
             </div>
           </div>
 
@@ -61,7 +62,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
 
                   <h3 className="text-lg font-semibold mb-3">Özellikler</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    {vehicle.features.map((feature: string, index: number) => (
+                    {(vehicle.features || []).map((feature: string, index: number) => (
                       <div key={index} className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
                         <span>{feature}</span>
@@ -71,9 +72,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
 
                   <div className="flex items-center p-4 bg-blue-50 rounded-lg">
                     <Info className="h-6 w-6 text-blue-500 mr-3" />
-                    <p className="text-sm">
-                      Uzun dönem kiralama için özel fiyatlar için lütfen bizimle iletişime geçin.
-                    </p>
+                    <p className="text-sm">Uzun dönem kiralama için özel fiyatlar için lütfen bizimle iletişime geçin.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -84,7 +83,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Teknik Özellikler</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(vehicle.specifications).map(([key, value]) => (
+                    {Object.entries(vehicle.specifications || {}).map(([key, value]) => (
                       <div key={key} className="flex justify-between p-3 border-b">
                         <span className="font-medium">
                           {key === "engine" ? "Motor" :
@@ -115,7 +114,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
                   </div>
 
                   <div className="space-y-6">
-                    {vehicle.reviews.map((review: any) => (
+                    {(vehicle.reviews || []).map((review: any) => (
                       <div key={review.id} className="border-b pb-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -144,15 +143,15 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
                 <Image
-                  src={vehicle.brand.logo || "/placeholder.svg"}
-                  alt={vehicle.brand.name}
+                  src={vehicle.brand?.logo || "/placeholder.svg"}
+                  alt={vehicle.brand?.name || "Marka"}
                   width={100}
                   height={50}
                   className="mr-4"
                 />
-                <h2 className="text-xl font-semibold">{vehicle.brand.name}</h2>
+                <h2 className="text-xl font-semibold">{vehicle.brand?.name}</h2>
               </div>
-              <p>{vehicle.brand.description}</p>
+              <p>{vehicle.brand?.description}</p>
             </CardContent>
           </Card>
         </div>
@@ -192,7 +191,4 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
       </div>
     </div>
   )
-}
-if (!vehicle) {
-  return <div className="p-6 text-red-500 text-center">Araç bulunamadı.</div>
 }
