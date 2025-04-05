@@ -1,8 +1,6 @@
-"use client"
-
-import TopBar from "./topbar"
-import MainHeader from "./mainheader"
-import NavigationMenu from "./navigationmenu"
+import TopBar from "@/components/layout/TopBar"
+import MainHeader from "@/components/layout/MainHeader"
+import NavigationMenu from "@/components/layout/NavigationMenu"
 
 export default function SiteHeader() {
   return (
