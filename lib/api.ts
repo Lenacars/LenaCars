@@ -17,3 +17,14 @@ export async function getVehicleById(id: string) {
 
   return found;
 }
+export async function getAllVehicles() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+    cache: "no-store",
+  })
+
+  if (!res.ok) {
+    throw new Error("Araç listesi alınamadı.")
+  }
+
+  return res.json()
+}
