@@ -5,7 +5,7 @@ import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from "luc
 
 export default function TopBar() {
   return (
-    <div className="w-full bg-[#9A3C96] text-white py-2 text-sm">
+    <div className="w-full bg-[#6A3C96] text-white py-2 text-sm">
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-1">
