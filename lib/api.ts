@@ -1,5 +1,5 @@
 export async function getVehicleById(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/vehicles/${id}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
     cache: "no-store",
   })
 
@@ -7,5 +7,8 @@ export async function getVehicleById(id: string) {
     throw new Error("Araç bilgisi alınamadı.")
   }
 
-  return res.json()
+  const data = await res.json()
+
+  // ID'ye göre filtreleme yapıyoruz
+  return data.find((item: any) => String(item.id) === id)
 }
