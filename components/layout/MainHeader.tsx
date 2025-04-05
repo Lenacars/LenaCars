@@ -21,13 +21,18 @@ export default function MainHeader() {
         </Link>
 
         {/* Arama + Butonlar */}
-        <div className="hidden md:flex items-center space-x-4 w-1/3">
-          <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
-        <Button
-  className="bg-[#e67e22] text-white rounded-l-none rounded-r-md hover:bg-[#e67e22]"
->
-  <Search className="h-4 w-4" />
-</Button>
+<div className="hidden md:flex items-center space-x-4 w-1/3">
+  <div className="flex items-center rounded-md overflow-hidden border border-[#6A3C96] w-full">
+    <Input
+      type="search"
+      placeholder="Araç Ara"
+      className="rounded-none border-none focus:outline-none focus:ring-0 w-full"
+    />
+    <Button className="bg-[#e67e22] text-white rounded-none px-4">
+      <Search className="h-4 w-4" />
+    </Button>
+  </div>
+</div>
         </div>
 
         {/* Sağ Butonlar */}
