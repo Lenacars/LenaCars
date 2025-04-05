@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getVehicleById } from "@/lib/api"
 
 interface VehiclePageProps {
   params: {
@@ -12,60 +13,8 @@ interface VehiclePageProps {
   }
 }
 
-export default function VehiclePage({ params }: VehiclePageProps) {
-  // In a real application, you would fetch this data from an API
-  const vehicle = {
-    id: Number.parseInt(params.id),
-    name: "Toyota Corolla",
-    image: "/placeholder.svg?height=400&width=600",
-    category: "Orta Sınıf",
-    price: 3500,
-    features: ["Benzin", "Otomatik", "4 Kapı", "Klima"],
-    rating: 4.7,
-    description:
-      "Toyota Corolla, güvenilirliği ve yakıt ekonomisi ile öne çıkan bir sedan modelidir. Şehir içi kullanım için ideal olan bu araç, konforlu iç mekanı ve teknolojik özellikleri ile uzun yolculuklarda da rahat bir sürüş deneyimi sunar.",
-    specifications: {
-      engine: "1.6L",
-      power: "132 HP",
-      transmission: "CVT Otomatik",
-      fuel: "Benzin",
-      consumption: "5.6L/100km",
-      trunk: "470L",
-      seats: "5",
-      doors: "4",
-      color: "Beyaz",
-      year: "2023",
-    },
-    brand: {
-      name: "Toyota",
-      logo: "/placeholder.svg?height=50&width=100",
-      description:
-        "Toyota, dünyanın en büyük otomobil üreticilerinden biridir. Güvenilirlik, kalite ve dayanıklılık konusundaki ünü ile tanınır.",
-    },
-    reviews: [
-      {
-        id: 1,
-        user: "Ahmet Y.",
-        rating: 5,
-        date: "15.03.2023",
-        comment: "Çok memnun kaldım, temiz ve bakımlı bir araçtı.",
-      },
-      {
-        id: 2,
-        user: "Mehmet K.",
-        rating: 4,
-        date: "22.02.2023",
-        comment: "Yakıt tüketimi çok iyi, tavsiye ederim.",
-      },
-      {
-        id: 3,
-        user: "Ayşe S.",
-        rating: 5,
-        date: "10.01.2023",
-        comment: "Kiralama süreci çok kolay ve hızlıydı. Araç da beklentilerimi karşıladı.",
-      },
-    ],
-  }
+export default async function VehiclePage({ params }: VehiclePageProps) {
+  const vehicle = await getVehicleById(params.id)
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -103,6 +52,7 @@ export default function VehiclePage({ params }: VehiclePageProps) {
               <TabsTrigger value="specifications">Teknik Özellikler</TabsTrigger>
               <TabsTrigger value="reviews">Değerlendirmeler</TabsTrigger>
             </TabsList>
+
             <TabsContent value="overview" className="mt-4">
               <Card>
                 <CardContent className="p-6">
@@ -111,7 +61,7 @@ export default function VehiclePage({ params }: VehiclePageProps) {
 
                   <h3 className="text-lg font-semibold mb-3">Özellikler</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    {vehicle.features.map((feature, index) => (
+                    {vehicle.features.map((feature: string, index: number) => (
                       <div key={index} className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
                         <span>{feature}</span>
@@ -128,55 +78,34 @@ export default function VehiclePage({ params }: VehiclePageProps) {
                 </CardContent>
               </Card>
             </TabsContent>
+
             <TabsContent value="specifications" className="mt-4">
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Teknik Özellikler</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Motor</span>
-                      <span>{vehicle.specifications.engine}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Güç</span>
-                      <span>{vehicle.specifications.power}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Şanzıman</span>
-                      <span>{vehicle.specifications.transmission}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Yakıt</span>
-                      <span>{vehicle.specifications.fuel}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Yakıt Tüketimi</span>
-                      <span>{vehicle.specifications.consumption}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Bagaj Hacmi</span>
-                      <span>{vehicle.specifications.trunk}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Koltuk Sayısı</span>
-                      <span>{vehicle.specifications.seats}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Kapı Sayısı</span>
-                      <span>{vehicle.specifications.doors}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Renk</span>
-                      <span>{vehicle.specifications.color}</span>
-                    </div>
-                    <div className="flex justify-between p-3 border-b">
-                      <span className="font-medium">Model Yılı</span>
-                      <span>{vehicle.specifications.year}</span>
-                    </div>
+                    {Object.entries(vehicle.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between p-3 border-b">
+                        <span className="font-medium">
+                          {key === "engine" ? "Motor" :
+                          key === "power" ? "Güç" :
+                          key === "transmission" ? "Şanzıman" :
+                          key === "fuel" ? "Yakıt" :
+                          key === "consumption" ? "Yakıt Tüketimi" :
+                          key === "trunk" ? "Bagaj Hacmi" :
+                          key === "seats" ? "Koltuk Sayısı" :
+                          key === "doors" ? "Kapı Sayısı" :
+                          key === "color" ? "Renk" :
+                          key === "year" ? "Model Yılı" : key}
+                        </span>
+                        <span>{value}</span>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
+
             <TabsContent value="reviews" className="mt-4">
               <Card>
                 <CardContent className="p-6">
@@ -186,7 +115,7 @@ export default function VehiclePage({ params }: VehiclePageProps) {
                   </div>
 
                   <div className="space-y-6">
-                    {vehicle.reviews.map((review) => (
+                    {vehicle.reviews.map((review: any) => (
                       <div key={review.id} className="border-b pb-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -251,10 +180,7 @@ export default function VehiclePage({ params }: VehiclePageProps) {
               </div>
 
               <Button className="w-full mb-3 bg-[#5d3b8b] hover:bg-[#4a2e70]">Garaja Ekle</Button>
-
-              <Button variant="outline" className="w-full mb-6">
-                Teklif İste
-              </Button>
+              <Button variant="outline" className="w-full mb-6">Teklif İste</Button>
 
               <div className="text-center text-sm text-gray-500">
                 <p>Daha fazla bilgi için</p>
@@ -267,4 +193,3 @@ export default function VehiclePage({ params }: VehiclePageProps) {
     </div>
   )
 }
-
