@@ -16,14 +16,27 @@ interface VehiclePageProps {
 export default async function VehiclePage({ params }: VehiclePageProps) {
   const vehicle = await getVehicleById(params.id)
 
-  // 👇 Hata oluşmaması için veri kontrolü
   if (!vehicle) {
     return <div className="p-6 text-red-500 text-center">Araç bulunamadı veya veri eksik.</div>
   }
 
+  const {
+    name,
+    image,
+    category = "Genel",
+    rating = 0,
+    description,
+    features = [],
+    specifications = {},
+    reviews = [],
+    brand = {},
+    price = 0,
+  } = vehicle
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Sol kısım */}
         <div className="lg:col-span-2">
           <div className="mb-6">
             <div className="flex items-center mb-2">
@@ -31,20 +44,20 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
               <span className="mx-2 text-gray-500">/</span>
               <Link href="/arac-filomuz" className="text-sm text-gray-500 hover:underline">Araç Filomuz</Link>
               <span className="mx-2 text-gray-500">/</span>
-              <span className="text-sm">{vehicle.name}</span>
+              <span className="text-sm">{name}</span>
             </div>
-            <h1 className="text-3xl font-bold">{vehicle.name}</h1>
+            <h1 className="text-3xl font-bold">{name}</h1>
             <div className="flex items-center mt-2">
               <div className="flex items-center mr-4">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                <span className="text-sm">{vehicle.rating || 0} (32 değerlendirme)</span>
+                <span className="text-sm">{rating} (32 değerlendirme)</span>
               </div>
-              <Badge className="bg-[#5d3b8b]">{vehicle.category || "Genel"}</Badge>
+              <Badge className="bg-[#5d3b8b]">{category}</Badge>
             </div>
           </div>
 
           <div className="relative h-[400px] mb-6 rounded-lg overflow-hidden">
-            <Image src={vehicle.image || "/placeholder.svg"} alt={vehicle.name} fill className="object-cover" />
+            <Image src={image || "/placeholder.svg"} alt={name} fill className="object-cover" />
           </div>
 
           <Tabs defaultValue="overview" className="mb-6">
@@ -58,11 +71,11 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Araç Hakkında</h2>
-                  <p className="mb-6">{vehicle.description}</p>
+                  <p className="mb-6">{description || "Açıklama mevcut değil."}</p>
 
                   <h3 className="text-lg font-semibold mb-3">Özellikler</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    {(vehicle.features || []).map((feature: string, index: number) => (
+                    {features.map((feature: string, index: number) => (
                       <div key={index} className="flex items-center">
                         <Check className="h-5 w-5 text-green-500 mr-2" />
                         <span>{feature}</span>
@@ -83,19 +96,21 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Teknik Özellikler</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(vehicle.specifications || {}).map(([key, value]) => (
+                    {Object.entries(specifications).map(([key, value]) => (
                       <div key={key} className="flex justify-between p-3 border-b">
                         <span className="font-medium">
-                          {key === "engine" ? "Motor" :
-                          key === "power" ? "Güç" :
-                          key === "transmission" ? "Şanzıman" :
-                          key === "fuel" ? "Yakıt" :
-                          key === "consumption" ? "Yakıt Tüketimi" :
-                          key === "trunk" ? "Bagaj Hacmi" :
-                          key === "seats" ? "Koltuk Sayısı" :
-                          key === "doors" ? "Kapı Sayısı" :
-                          key === "color" ? "Renk" :
-                          key === "year" ? "Model Yılı" : key}
+                          {{
+                            engine: "Motor",
+                            power: "Güç",
+                            transmission: "Şanzıman",
+                            fuel: "Yakıt",
+                            consumption: "Yakıt Tüketimi",
+                            trunk: "Bagaj Hacmi",
+                            seats: "Koltuk Sayısı",
+                            doors: "Kapı Sayısı",
+                            color: "Renk",
+                            year: "Model Yılı",
+                          }[key] || key}
                         </span>
                         <span>{value}</span>
                       </div>
@@ -114,7 +129,7 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
                   </div>
 
                   <div className="space-y-6">
-                    {(vehicle.reviews || []).map((review: any) => (
+                    {(reviews || []).map((review: any) => (
                       <div key={review.id} className="border-b pb-4">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -143,24 +158,25 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
                 <Image
-                  src={vehicle.brand?.logo || "/placeholder.svg"}
-                  alt={vehicle.brand?.name || "Marka"}
+                  src={brand.logo || "/placeholder.svg"}
+                  alt={brand.name || "Marka"}
                   width={100}
                   height={50}
                   className="mr-4"
                 />
-                <h2 className="text-xl font-semibold">{vehicle.brand?.name}</h2>
+                <h2 className="text-xl font-semibold">{brand.name}</h2>
               </div>
-              <p>{vehicle.brand?.description}</p>
+              <p>{brand.description}</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Sağ sabit kutu */}
         <div>
           <Card className="sticky top-6">
             <CardContent className="p-6">
               <div className="text-3xl font-bold text-[#5d3b8b] mb-2">
-                {vehicle.price} ₺ <span className="text-sm font-normal text-gray-500">/ aylık</span>
+                {price.toLocaleString()} ₺ <span className="text-sm font-normal text-gray-500">/ aylık</span>
               </div>
 
               <div className="space-y-4 mb-6">
