@@ -23,7 +23,7 @@ export default function MainHeader() {
         {/* Arama + Butonlar */}
         <div className="hidden md:flex items-center space-x-4 w-1/3">
           <Input type="search" placeholder="Araç Ara" className="rounded-l-md rounded-r-none" />
-          <Button className="bg-[#9A3C96] hover:bg-[#7f2d7c] rounded-l-none rounded-r-md">
+          <Button className="bg-[#6A3C96] hover:bg-[#7f2d7c] rounded-l-none rounded-r-md">
             <Search className="h-4 w-4" />
           </Button>
         </div>
