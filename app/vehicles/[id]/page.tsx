@@ -193,3 +193,6 @@ export default async function VehiclePage({ params }: VehiclePageProps) {
     </div>
   )
 }
+if (!vehicle) {
+  return <div className="p-6 text-red-500 text-center">Araç bulunamadı.</div>
+}
