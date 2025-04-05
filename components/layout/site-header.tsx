@@ -1,5 +1,5 @@
 import TopBar from "@/components/layout/TopBar"
-import MainHeader from "@/components/layout/mainheader"
+import MainHeader from "@/components/MainHeader"
 import NavigationMenu from "@/components/layout/NavigationMenu"
 
 export default function SiteHeader() {
