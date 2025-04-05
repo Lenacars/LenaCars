@@ -2,79 +2,84 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { Star } from "lucide-react"
 import { useState } from "react"
-import { Star, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { toast } from "@/hooks/use-toast"
 
 interface VehicleCardProps {
   vehicle: {
-    id: number
+    id: string
     name: string
-    image: string
-    category: string
-    price: number
-    features: string[]
-    rating: number
+    image?: string
+    slug?: string
+    category?: string
+    rating?: number
+    features?: string[]
+    price?: number
   }
 }
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
-  const handleAddToGarage = () => {
-    toast({
-      title: "Araç garaja eklendi",
-      description: `${vehicle.name} başarıyla garajınıza eklendi.`,
-    })
-  }
+  const {
+    id,
+    name,
+    image,
+    category,
+    rating = 4.5,
+    features = [],
+    price = 0,
+  } = vehicle
 
   return (
-    <Card
-      className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+    <div
+      className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-48">
+      {/* Görsel */}
+      <div className="relative h-48 bg-gray-100">
         <Image
-          src={vehicle.image || "/placeholder.svg"}
-          alt={vehicle.name}
+          src={image || "/placeholder.svg"}
+          alt={name}
           fill
-          className="object-cover transition-transform duration-500"
+          className="object-cover transition-transform duration-300"
           style={{ transform: isHovered ? "scale(1.05)" : "scale(1)" }}
         />
-        <Badge className="absolute top-2 left-2 bg-[#5d3b8b]">{vehicle.category}</Badge>
       </div>
-      <CardContent className="p-4">
+
+      {/* İçerik */}
+      <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold">{vehicle.name}</h3>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-            <span className="text-sm">{vehicle.rating}</span>
+          <h3 className="text-lg font-bold">{name}</h3>
+          <div className="flex items-center text-sm">
+            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
+            {rating}
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {vehicle.features.map((feature, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
+
+        <div className="flex flex-wrap gap-2 mb-4 text-xs text-muted-foreground">
+          {features.map((feature, i) => (
+            <span key={i} className="px-2 py-1 bg-gray-100 rounded">
               {feature}
-            </Badge>
+            </span>
           ))}
         </div>
-        <div className="text-xl font-bold text-[#5d3b8b]">
-          {vehicle.price} ₺ <span className="text-sm font-normal text-gray-500">/ aylık</span>
+
+        <div className="text-xl font-bold text-[#5d3b8b] mb-4">
+          {price.toLocaleString()} ₺ <span className="text-sm font-normal text-gray-500">/ aylık</span>
         </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between">
-        <Link href={`/arac/${vehicle.id}`}>
-          <Button variant="outline">Detaylar</Button>
-        </Link>
-        <Button onClick={handleAddToGarage} className="bg-[#5d3b8b] hover:bg-[#4a2e70]">
-          <Plus className="h-4 w-4 mr-2" /> Garaja Ekle
-        </Button>
-      </CardFooter>
-    </Card>
+
+        <div className="flex justify-between gap-2">
+          <Link
+            href={`/vehicles/${id}`}
+            className="text-sm px-4 py-2 bg-[#5d3b8b] text-white rounded hover:bg-[#4a2e70]"
+          >
+            Detaylar
+          </Link>
+          <button className="text-sm px-4 py-2 border rounded">Garaja Ekle</button>
+        </div>
+      </div>
+    </div>
   )
 }
-
