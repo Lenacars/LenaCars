@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, LayoutGrid, Menu } from "lucide-react"
+import { Search, LayoutGrid, Menu, MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -58,7 +58,42 @@ export default function Header() {
   ]
 
   return (
-    <header className="w-full border-b">
+    <header className="w-full">
+      {/* ✅ Top Bar */}
+      <div className="w-full bg-[#5d3b8b] text-white py-2">
+        <div className="container mx-auto flex justify-between items-center px-4">
+          {/* Sol ikonlar */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <MapPin className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">Merkez Ofis</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Mail className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">info@lenacars.com</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Phone className="h-4 w-4" />
+              <span className="text-sm hidden sm:inline">+90 850 532 7929</span>
+            </div>
+          </div>
+
+          {/* Orta yazı */}
+          <div className="hidden md:block">
+            <p className="text-sm">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
+          </div>
+
+          {/* Sağ sosyal medya */}
+          <div className="flex items-center space-x-2">
+            <Link href="https://facebook.com" aria-label="Facebook"><Facebook className="h-4 w-4" /></Link>
+            <Link href="https://instagram.com" aria-label="Instagram"><Instagram className="h-4 w-4" /></Link>
+            <Link href="https://linkedin.com" aria-label="LinkedIn"><Linkedin className="h-4 w-4" /></Link>
+            <Link href="https://youtube.com" aria-label="YouTube"><Youtube className="h-4 w-4" /></Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ Main Header */}
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/">
           <Image src="/lenacars-logo.svg" alt="LenaCars" width={150} height={40} priority />
@@ -115,7 +150,7 @@ export default function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Elektrikli Araçlar */}
+              {/* Diğer menüler */}
               <NavigationMenuItem>
                 <Link href="/elektrikli-araclar" legacyBehavior passHref>
                   <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -124,7 +159,6 @@ export default function Header() {
                 </Link>
               </NavigationMenuItem>
 
-              {/* Basın Köşesi */}
               <NavigationMenuItem>
                 <Link href="/basin-kosesi" legacyBehavior passHref>
                   <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -133,7 +167,6 @@ export default function Header() {
                 </Link>
               </NavigationMenuItem>
 
-              {/* LenaCars Bilgilendiriyor */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger>LenaCars Bilgilendiriyor</NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -149,7 +182,6 @@ export default function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* SSS */}
               <NavigationMenuItem>
                 <Link href="/sss" legacyBehavior passHref>
                   <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -158,7 +190,6 @@ export default function Header() {
                 </Link>
               </NavigationMenuItem>
 
-              {/* Nasıl Çalışır */}
               <NavigationMenuItem>
                 <Link href="/nasil-calisir" legacyBehavior passHref>
                   <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
