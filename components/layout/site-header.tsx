@@ -6,7 +6,8 @@ import NavigationMenu from "@/components/layout/NavigationMenu"
 export default function SiteHeader() {
   return (
     <header className="w-full">
-      <TopBar />
+      <TopBarDesktop />
+      <TopBarMobile />
       <MainHeader />
       <div className="hidden md:block">
         <NavigationMenu />
