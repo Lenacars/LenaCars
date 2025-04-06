@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function MainHeaderMobile() {
+  // Doğrudan yönlendirme fonksiyonu
+  const goToAuth = () => {
+    window.location.href = '/auth'
+  }
+
   return (
     <div className="flex flex-col w-full py-3 px-4">
       {/* Üst Kısım: Logo ve Menü */}
@@ -15,13 +20,14 @@ export default function MainHeaderMobile() {
         </a>
         
         <div className="flex items-center space-x-2">
-          {/* Doğrudan anchor etiketi kullanın */}
-          <a 
-            href="/auth" 
+          {/* JavaScript ile yönlendirme */}
+          <button 
+            type="button"
+            onClick={goToAuth} 
             className="bg-[#6A3C96] hover:bg-[#5A2C86] text-white px-3 py-1 text-sm rounded-md inline-flex items-center justify-center no-underline font-medium"
           >
             Giriş Yap / Üye Ol
-          </a>
+          </button>
           
           <Button variant="ghost" size="icon" className="text-[#6A3C96]">
             <Menu className="h-6 w-6" />
