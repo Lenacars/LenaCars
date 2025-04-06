@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { ChevronDown } from 'lucide-react'
 
@@ -15,49 +15,34 @@ const menuItems = [
       { label: "İnsan Kaynakları", href: "/kurumsal/insan-kaynaklari" },
     ],
   },
-  {
-    title: "Kiralama",
-    items: [
-      { label: "Kısa Süreli Kiralama", href: "/kiralama/kisa-sureli-kiralama" },
-      { label: "Kiralamanın Avantajları", href: "/kiralama/kiralamanin-avantajlari" },
-      { label: "Kurumsal Üyelik Programı", href: "/kiralama/kurumsal-uyelik-programi" },
-      { label: "LenaCars Avantajları", href: "/kiralama/lenacars-avantajlari" },
-      { label: "Tasarrufunu Hesapla", href: "/kiralama/tasarrufunu-hesapla" },
-    ],
-  },
-  {
-    title: "İkinci El",
-    items: [
-      { label: "Satılık Araçlarımız", href: "/ikinci-el/satilik-araclarimiz" },
-      { label: "Karlı Araç Satış Hizmeti", href: "/ikinci-el/karli-arac-satis-hizmeti" },
-      { label: "Taşıt Kredisi", href: "/ikinci-el/tasit-kredisi" },
-    ],
-  },
-  {
-    title: "LenaCars Bilgilendiriyor",
-    items: [
-      { label: "Blog", href: "/bilgilendiriyor/blog" },
-      { label: "Vlog", href: "/bilgilendiriyor/vlog" },
-    ],
-  },
+  // ... diğer menü öğeleri
 ];
 
 const singleMenuItems = [
   { label: "Elektrikli Araçlar", href: "/elektrikli-araclar" },
-  { label: "Basın Köşesi", href: "/basin-kosesi" },
-  { label: "S.S.S.", href: "/sss" },
-  { label: "Nasıl Çalışır", href: "/nasil-calisir" },
+  // ... diğer tek menü öğeleri
 ];
 
 export default function NavigationMenuDesktop() {
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState(null);
+  const menuRefs = useRef({});
 
-  const handleMouseEnter = (title: string) => {
-    setActiveMenu(title);
-  };
+  // Menü dışına tıklandığında menüyü kapat
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeMenu && !menuRefs.current[activeMenu]?.contains(event.target)) {
+        setActiveMenu(null);
+      }
+    };
 
-  const handleMouseLeave = () => {
-    setActiveMenu(null);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeMenu]);
+
+  const toggleMenu = (title) => {
+    setActiveMenu(activeMenu === title ? null : title);
   };
 
   return (
@@ -68,18 +53,19 @@ export default function NavigationMenuDesktop() {
             <div 
               key={menu.title}
               className="relative"
-              onMouseEnter={() => handleMouseEnter(menu.title)}
-              onMouseLeave={handleMouseLeave}
+              ref={(el) => (menuRefs.current[menu.title] = el)}
             >
-              <button className="flex items-center px-4 py-2 text-sm font-medium hover:text-[#6A3C96]">
+              <button 
+                className="flex items-center px-4 py-2 text-sm font-medium hover:text-[#6A3C96]"
+                onClick={() => toggleMenu(menu.title)}
+              >
                 {menu.title}
-                <ChevronDown className="ml-1 h-4 w-4" />
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${activeMenu === menu.title ? 'rotate-180' : ''}`} />
               </button>
               
               {activeMenu === menu.title && (
                 <div 
-                  className="absolute left-0 top-full z-10 mt-1 w-[300px] rounded-md border bg-white shadow-lg"
-                  style={{ minWidth: '250px' }}
+                  className="absolute left-0 top-full z-50 mt-1 w-[300px] rounded-md border bg-white shadow-lg"
                 >
                   <ul className="py-2">
                     {menu.items.map((item) => (
@@ -87,6 +73,7 @@ export default function NavigationMenuDesktop() {
                         <Link 
                           href={item.href} 
                           className="block px-4 py-2 text-sm hover:bg-gray-100"
+                          onClick={() => setActiveMenu(null)}
                         >
                           {item.label}
                         </Link>
