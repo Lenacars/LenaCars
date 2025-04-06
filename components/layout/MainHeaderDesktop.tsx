@@ -32,9 +32,13 @@ export default function MainHeaderDesktop() {
           <LayoutGrid className="w-4 h-4" />
           Garaj
         </Button>
-        <Button className="bg-[#6A3C96] text-white px-4 py-2 rounded-md">
-          Giriş Yap / Üye Ol
-        </Button>
+        
+        {/* Giriş Yap / Üye Ol butonunu Link ile sarın */}
+        <Link href="/auth">
+          <Button className="bg-[#6A3C96] text-white px-4 py-2 rounded-md">
+            Giriş Yap / Üye Ol
+          </Button>
+        </Link>
       </div>
     </div>
   )
