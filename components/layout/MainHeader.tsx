@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic"
 
-const MainHeaderDesktop = dynamic(() => import("./MainHeaderDesktop"), { ssr: false })
-const MainHeaderMobile = dynamic(() => import("./MainHeaderMobile"), { ssr: false })
+const MainHeaderDesktop = dynamic(() => import("./MainHeaderDesktop"))
+const MainHeaderMobile = dynamic(() => import("./MainHeaderMobile"))
 
 export default function MainHeader() {
   return (
