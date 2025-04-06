@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
 import { Search, LayoutGrid } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -10,9 +9,9 @@ export default function MainHeaderDesktop() {
   return (
     <div className="hidden md:flex justify-between items-center w-full py-4 container mx-auto">
       {/* Logo */}
-      <Link href="/">
+      <a href="/">
         <Image src="/lenacars-logo.svg" alt="LenaCars" width={180} height={40} priority />
-      </Link>
+      </a>
 
       {/* Arama Kutusu */}
       <div className="flex items-center w-1/2 rounded-md overflow-hidden border border-[#6A3C96]">
@@ -33,12 +32,10 @@ export default function MainHeaderDesktop() {
           Garaj
         </Button>
         
-        {/* Giriş Yap / Üye Ol butonunu Link ile sarın */}
-        <Link href="/auth">
-          <Button className="bg-[#6A3C96] text-white px-4 py-2 rounded-md">
-            Giriş Yap / Üye Ol
-          </Button>
-        </Link>
+        {/* Doğrudan anchor etiketi kullanın */}
+        <a href="/auth" className="bg-[#6A3C96] text-white px-4 py-2 rounded-md inline-flex items-center justify-center">
+          Giriş Yap / Üye Ol
+        </a>
       </div>
     </div>
   )
