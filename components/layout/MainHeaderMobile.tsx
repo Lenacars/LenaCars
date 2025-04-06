@@ -16,7 +16,10 @@ export default function MainHeaderMobile() {
         
         <div className="flex items-center space-x-2">
           {/* Doğrudan anchor etiketi kullanın */}
-          <a href="/auth" className="bg-[#6A3C96] text-white px-3 py-1 text-sm rounded-md inline-flex items-center justify-center">
+          <a 
+            href="/auth" 
+            className="bg-[#6A3C96] hover:bg-[#5A2C86] text-white px-3 py-1 text-sm rounded-md inline-flex items-center justify-center no-underline font-medium"
+          >
             Giriş Yap / Üye Ol
           </a>
           
