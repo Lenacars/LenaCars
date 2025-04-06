@@ -2,15 +2,13 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Menu } from 'lucide-react'
+import { Menu, ChevronDown } from 'lucide-react'
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,39 +21,40 @@ export default function NavigationMenuComponent() {
     <>
       {/* Masaüstü Menüsü */}
       <div className="hidden md:flex justify-center border-t border-b py-2">
-        <NavigationMenu className="mx-auto">
-          <NavigationMenuList className="space-x-6">
-            {menuItems.map((menu) => (
-              <NavigationMenuItem key={menu.title}>
-                <NavigationMenuTrigger>{menu.title}</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[300px] gap-3 p-4">
-                    {menu.items.map((item) => (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="block p-2 rounded hover:bg-accent text-sm font-medium"
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            ))}
-            
-            {singleMenuItems.map((item) => (
-              <NavigationMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
-                    {item.label}
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex items-center justify-center space-x-6">
+          {menuItems.map((menu) => (
+            <DropdownMenu key={menu.title}>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center px-4 py-2 text-sm font-medium hover:text-accent-foreground group">
+                  {menu.title}
+                  <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[300px]">
+                {menu.items.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link
+                      href={item.href}
+                      className="w-full p-2 rounded hover:bg-accent text-sm font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+          
+          {singleMenuItems.map((item) => (
+            <Link 
+              key={item.href}
+              href={item.href}
+              className="px-4 py-2 text-sm font-medium hover:text-accent-foreground"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Mobil Menü */}
