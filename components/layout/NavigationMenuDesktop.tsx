@@ -49,47 +49,53 @@ const singleMenuItems = [
   { label: "Nasıl Çalışır", href: "/nasil-calisir" },
 ];
 
-// Dropdown Menü Bileşeni
-const DropdownMenu = ({ title, items }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
-      <button 
-        className="flex items-center px-4 py-2 text-sm font-medium hover:text-[#6A3C96]"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {title}
-        <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-      
-      {isOpen && (
-        <div className="absolute left-0 top-full z-10 mt-1 w-[300px] rounded-md border bg-white shadow-lg">
-          <ul className="grid gap-2 p-4">
-            {items.map((item) => (
-              <li key={item.href}>
-                <Link 
-                  href={item.href} 
-                  className="block p-2 rounded hover:bg-gray-100 text-sm font-medium"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-};
-
 export default function NavigationMenuDesktop() {
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
+  const handleMouseEnter = (title: string) => {
+    setActiveMenu(title);
+  };
+
+  const handleMouseLeave = () => {
+    setActiveMenu(null);
+  };
+
   return (
     <div className="hidden md:block border-t border-b py-2">
       <div className="container mx-auto">
-        <div className="flex items-center justify-center space-x-2">
+        <nav className="flex items-center justify-center">
           {menuItems.map((menu) => (
-            <DropdownMenu key={menu.title} title={menu.title} items={menu.items} />
+            <div 
+              key={menu.title}
+              className="relative"
+              onMouseEnter={() => handleMouseEnter(menu.title)}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button className="flex items-center px-4 py-2 text-sm font-medium hover:text-[#6A3C96]">
+                {menu.title}
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              
+              {activeMenu === menu.title && (
+                <div 
+                  className="absolute left-0 top-full z-10 mt-1 w-[300px] rounded-md border bg-white shadow-lg"
+                  style={{ minWidth: '250px' }}
+                >
+                  <ul className="py-2">
+                    {menu.items.map((item) => (
+                      <li key={item.href}>
+                        <Link 
+                          href={item.href} 
+                          className="block px-4 py-2 text-sm hover:bg-gray-100"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ))}
           
           {singleMenuItems.map((item) => (
@@ -101,7 +107,7 @@ export default function NavigationMenuDesktop() {
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
       </div>
     </div>
   );
