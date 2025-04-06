@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
+import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react'
 
 export default function TopBarMobile() {
   return (
@@ -16,4 +16,3 @@ export default function TopBarMobile() {
     </div>
   )
 }
-
