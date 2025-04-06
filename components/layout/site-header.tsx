@@ -1,5 +1,6 @@
-import TopBarDesktop from "@/components/layout/TopBarDesktop"
-import TopBarMobile from "@/components/layout/TopBarMobile"
+"use client"
+
+import TopBar from "@/components/layout/TopBar"
 import MainHeader from "@/components/layout/MainHeader"
 import NavigationMenuDesktop from "@/components/layout/NavigationMenuDesktop"
 import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
@@ -7,18 +8,13 @@ import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
 export default function SiteHeader() {
   return (
     <header className="w-full">
-      {/* Top Bar */}
-      <div className="hidden md:block">
-        <TopBarDesktop />
-      </div>
-      <div className="block md:hidden">
-        <TopBarMobile />
-      </div>
+      {/* Top Bar: Mobil ve Masaüstü ayrımı TopBar içinde yapılır */}
+      <TopBar />
 
       {/* Main Header */}
       <MainHeader />
 
-      {/* Navigation */}
+      {/* Navigation Menüler */}
       <div className="hidden md:block">
         <NavigationMenuDesktop />
       </div>
