@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function MainHeaderDesktop() {
+  // Doğrudan yönlendirme fonksiyonu
+  const goToAuth = () => {
+    window.location.href = '/auth'
+  }
+
   return (
     <div className="hidden md:flex justify-between items-center w-full py-4 container mx-auto">
       {/* Logo */}
@@ -32,13 +37,14 @@ export default function MainHeaderDesktop() {
           Garaj
         </Button>
         
-        {/* Doğrudan anchor etiketi kullanın */}
-        <a 
-          href="/auth" 
+        {/* JavaScript ile yönlendirme */}
+        <button 
+          type="button"
+          onClick={goToAuth} 
           className="bg-[#6A3C96] hover:bg-[#5A2C86] text-white px-4 py-2 rounded-md inline-flex items-center justify-center no-underline font-medium"
         >
           Giriş Yap / Üye Ol
-        </a>
+        </button>
       </div>
     </div>
   )
