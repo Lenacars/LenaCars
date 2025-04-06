@@ -1,16 +1,15 @@
-"use client"
-
 import TopBar from "@/components/layout/TopBar"
 import MainHeader from "@/components/layout/MainHeader"
+import NavigationMenu from "@/components/layout/NavigationMenu"
 
 export default function SiteHeader() {
   return (
     <header className="w-full">
-      {/* Üst Bar - iletişim ve sosyal medya */}
       <TopBar />
-
-      {/* Ana Header - Logo, arama, garaj/giriş, menü */}
       <MainHeader />
+      <div className="hidden md:block">
+        <NavigationMenu />
+      </div>
     </header>
   )
 }
