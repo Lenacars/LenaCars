@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
 import { Search, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -11,16 +10,15 @@ export default function MainHeaderMobile() {
     <div className="flex flex-col w-full py-3 px-4">
       {/* Üst Kısım: Logo ve Menü */}
       <div className="flex justify-between items-center w-full mb-3">
-        <Link href="/">
+        <a href="/">
           <Image src="/lenacars-logo.svg" alt="LenaCars" width={140} height={30} priority />
-        </Link>
+        </a>
         
         <div className="flex items-center space-x-2">
-          <Link href="/auth">
-            <Button className="bg-[#6A3C96] text-white px-3 py-1 text-sm rounded-md">
-              Giriş Yap / Üye Ol
-            </Button>
-          </Link>
+          {/* Doğrudan anchor etiketi kullanın */}
+          <a href="/auth" className="bg-[#6A3C96] text-white px-3 py-1 text-sm rounded-md inline-flex items-center justify-center">
+            Giriş Yap / Üye Ol
+          </a>
           
           <Button variant="ghost" size="icon" className="text-[#6A3C96]">
             <Menu className="h-6 w-6" />
