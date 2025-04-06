@@ -2,9 +2,8 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { LayoutGrid, Menu } from "lucide-react"
+import { LayoutGrid, Menu } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import NavigationMenuComponent from "./NavigationMenu"
 
 export default function MainHeaderMobile() {
   return (
