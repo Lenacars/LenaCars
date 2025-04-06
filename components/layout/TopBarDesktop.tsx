@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
+import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react'
 
 export default function TopBarDesktop() {
   return (
@@ -25,4 +25,3 @@ export default function TopBarDesktop() {
     </div>
   )
 }
-
