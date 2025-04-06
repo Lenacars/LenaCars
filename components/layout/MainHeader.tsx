@@ -1,75 +1,67 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Search, LayoutGrid, Menu } from "lucide-react"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-} from "@/components/ui/sheet"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import NavigationMenuComponent from "./NavigationMenu"
 
 export default function MainHeader() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   return (
     <div className="w-full bg-white py-4 border-b">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/">
-          <Image
-            src="/lenacars-logo.svg"
-            alt="LenaCars"
-            width={160}
-            height={50}
-            priority
-          />
-        </Link>
+      <div className="container mx-auto flex flex-wrap justify-between items-center px-4 gap-y-4">
 
-        {/* Arama + Butonlar */}
-        <div className="hidden md:flex items-center space-x-4 w-1/2 justify-end">
-          {/* Arama kutusu ve buton */}
-          <div className="flex items-center rounded-md overflow-hidden border border-[#6A3C96] w-full max-w-md">
-            <Input
-              type="search"
-              placeholder="Araç Ara"
-              className="rounded-none border-none focus:outline-none focus:ring-0 w-full"
+        {/* Logo + Mobil Menü */}
+        <div className="flex items-center space-x-4">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[250px]">
+              <NavigationMenuComponent />
+            </SheetContent>
+          </Sheet>
+
+          <Link href="/">
+            <Image
+              src="/lenacars-logo.svg"
+              alt="LenaCars Logo"
+              width={160}
+              height={50}
+              priority
             />
-            <Button className="bg-[#e67e22] text-white rounded-none px-4">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
+          </Link>
+        </div>
 
-          {/* Garaj ve Giriş Butonları */}
+        {/* Arama */}
+        <div className="flex-grow max-w-xl w-full hidden md:flex items-center overflow-hidden rounded-md border border-[#6A3C96]">
+          <Input
+            type="search"
+            placeholder="Araç Ara"
+            className="border-none focus:outline-none focus:ring-0"
+          />
+          <Button className="bg-[#e67e22] text-white rounded-none px-4">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Butonlar */}
+        <div className="flex items-center space-x-2 ml-auto">
           <Link href="/garaj">
-            <Button variant="outline" className="flex items-center">
+            <Button variant="outline" className="flex items-center border-[#6A3C96] text-[#6A3C96]">
               <LayoutGrid className="h-4 w-4 mr-2" />
               Garaj
             </Button>
           </Link>
           <Link href="/giris">
-            <Button className="bg-[#6A3C96] text-white">
+            <Button className="bg-[#6A3C96] hover:bg-[#5c3185] text-white">
               Giriş Yap / Üye Ol
             </Button>
           </Link>
-        </div>
-
-        {/* Mobil Menü */}
-        <div className="md:hidden">
-          <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <NavigationMenuComponent />
-            </SheetContent>
-          </Sheet>
         </div>
       </div>
     </div>
