@@ -1,4 +1,5 @@
-import TopBar from "@/components/layout/TopBar"
+import TopBarDesktop from "@/components/layout/TopBarDesktop"
+import TopBarMobile from "@/components/layout/TopBarMobile"
 import MainHeader from "@/components/layout/MainHeader"
 import NavigationMenu from "@/components/layout/NavigationMenu"
 import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
