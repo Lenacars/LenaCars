@@ -16,9 +16,11 @@ export default function NavigationMenuDesktop() {
     <div className="hidden md:flex mt-4 border-t border-b py-2">
       <NavigationMenu className="mx-auto">
         <NavigationMenuList>
+
+          {/* Kurumsal */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
-            <NavigationMenuContent>
+            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/kurumsal/hakkimizda" className="block p-2 rounded hover:bg-accent text-sm font-medium">Hakkımızda</Link></li>
                 <li><Link href="/kurumsal/liderlik-ekibimiz" className="block p-2 rounded hover:bg-accent text-sm font-medium">Liderlik Ekibimiz</Link></li>
@@ -28,9 +30,10 @@ export default function NavigationMenuDesktop() {
             </NavigationMenuContent>
           </NavigationMenuItem>
 
+          {/* Kiralama */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
-            <NavigationMenuContent>
+            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/kiralama/kisa-sureli-kiralama" className="block p-2 rounded hover:bg-accent text-sm font-medium">Kısa Süreli Kiralama</Link></li>
                 <li><Link href="/kiralama/kiralamanin-avantajlari" className="block p-2 rounded hover:bg-accent text-sm font-medium">Kiralamanın Avantajları</Link></li>
@@ -41,9 +44,10 @@ export default function NavigationMenuDesktop() {
             </NavigationMenuContent>
           </NavigationMenuItem>
 
+          {/* İkinci El */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>İkinci El</NavigationMenuTrigger>
-            <NavigationMenuContent>
+            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/ikinci-el/satilik-araclarimiz" className="block p-2 rounded hover:bg-accent text-sm font-medium">Satılık Araçlarımız</Link></li>
                 <li><Link href="/ikinci-el/karli-arac-satis-hizmeti" className="block p-2 rounded hover:bg-accent text-sm font-medium">Karlı Araç Satış Hizmeti</Link></li>
@@ -52,6 +56,7 @@ export default function NavigationMenuDesktop() {
             </NavigationMenuContent>
           </NavigationMenuItem>
 
+          {/* Elektrikli Araçlar */}
           <NavigationMenuItem>
             <Link href="/elektrikli-araclar" legacyBehavior passHref>
               <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -60,6 +65,7 @@ export default function NavigationMenuDesktop() {
             </Link>
           </NavigationMenuItem>
 
+          {/* Basın Köşesi */}
           <NavigationMenuItem>
             <Link href="/basin-kosesi" legacyBehavior passHref>
               <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -68,9 +74,10 @@ export default function NavigationMenuDesktop() {
             </Link>
           </NavigationMenuItem>
 
+          {/* LenaCars Bilgilendiriyor */}
           <NavigationMenuItem>
             <NavigationMenuTrigger>LenaCars Bilgilendiriyor</NavigationMenuTrigger>
-            <NavigationMenuContent>
+            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/bilgilendiriyor/blog" className="block p-2 rounded hover:bg-accent text-sm font-medium">Blog</Link></li>
                 <li><Link href="/bilgilendiriyor/vlog" className="block p-2 rounded hover:bg-accent text-sm font-medium">Vlog</Link></li>
@@ -78,6 +85,7 @@ export default function NavigationMenuDesktop() {
             </NavigationMenuContent>
           </NavigationMenuItem>
 
+          {/* S.S.S. */}
           <NavigationMenuItem>
             <Link href="/sss" legacyBehavior passHref>
               <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -86,6 +94,7 @@ export default function NavigationMenuDesktop() {
             </Link>
           </NavigationMenuItem>
 
+          {/* Nasıl Çalışır */}
           <NavigationMenuItem>
             <Link href="/nasil-calisir" legacyBehavior passHref>
               <NavigationMenuLink className={cn("px-4 py-2 text-sm font-medium hover:text-accent-foreground")}>
@@ -93,6 +102,7 @@ export default function NavigationMenuDesktop() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+
         </NavigationMenuList>
       </NavigationMenu>
     </div>
