@@ -15,12 +15,12 @@ export default function NavigationMenuDesktop() {
   return (
     <div className="hidden md:flex mt-4 border-t border-b py-2">
       <NavigationMenu className="mx-auto">
-        <NavigationMenuList>
+        <NavigationMenuList className="flex items-center justify-center space-x-2">
 
           {/* Kurumsal */}
-          <NavigationMenuItem>
+          <NavigationMenuItem className="relative">
             <NavigationMenuTrigger>Kurumsal</NavigationMenuTrigger>
-            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <NavigationMenuContent>
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/kurumsal/hakkimizda" className="block p-2 rounded hover:bg-accent text-sm font-medium">Hakkımızda</Link></li>
                 <li><Link href="/kurumsal/liderlik-ekibimiz" className="block p-2 rounded hover:bg-accent text-sm font-medium">Liderlik Ekibimiz</Link></li>
@@ -31,9 +31,9 @@ export default function NavigationMenuDesktop() {
           </NavigationMenuItem>
 
           {/* Kiralama */}
-          <NavigationMenuItem>
+          <NavigationMenuItem className="relative">
             <NavigationMenuTrigger>Kiralama</NavigationMenuTrigger>
-            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <NavigationMenuContent>
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/kiralama/kisa-sureli-kiralama" className="block p-2 rounded hover:bg-accent text-sm font-medium">Kısa Süreli Kiralama</Link></li>
                 <li><Link href="/kiralama/kiralamanin-avantajlari" className="block p-2 rounded hover:bg-accent text-sm font-medium">Kiralamanın Avantajları</Link></li>
@@ -45,9 +45,9 @@ export default function NavigationMenuDesktop() {
           </NavigationMenuItem>
 
           {/* İkinci El */}
-          <NavigationMenuItem>
+          <NavigationMenuItem className="relative">
             <NavigationMenuTrigger>İkinci El</NavigationMenuTrigger>
-            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <NavigationMenuContent>
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/ikinci-el/satilik-araclarimiz" className="block p-2 rounded hover:bg-accent text-sm font-medium">Satılık Araçlarımız</Link></li>
                 <li><Link href="/ikinci-el/karli-arac-satis-hizmeti" className="block p-2 rounded hover:bg-accent text-sm font-medium">Karlı Araç Satış Hizmeti</Link></li>
@@ -75,9 +75,9 @@ export default function NavigationMenuDesktop() {
           </NavigationMenuItem>
 
           {/* LenaCars Bilgilendiriyor */}
-          <NavigationMenuItem>
+          <NavigationMenuItem className="relative">
             <NavigationMenuTrigger>LenaCars Bilgilendiriyor</NavigationMenuTrigger>
-            <NavigationMenuContent className="left-1/2 -translate-x-1/2">
+            <NavigationMenuContent>
               <ul className="grid w-[300px] gap-3 p-4">
                 <li><Link href="/bilgilendiriyor/blog" className="block p-2 rounded hover:bg-accent text-sm font-medium">Blog</Link></li>
                 <li><Link href="/bilgilendiriyor/vlog" className="block p-2 rounded hover:bg-accent text-sm font-medium">Vlog</Link></li>
