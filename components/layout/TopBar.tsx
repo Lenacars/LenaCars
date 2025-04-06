@@ -1,15 +1,22 @@
 "use client"
 
 import Link from "next/link"
-import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from "lucide-react"
+import {
+  MapPin,
+  Mail,
+  Phone,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+} from "lucide-react"
 
 export default function TopBar() {
   return (
-    <div className="w-full bg-[#6A3C96] text-white py-2 text-sm">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        
-        {/* İletişim Bilgileri */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
+    <div className="w-full bg-[#6A3C96] text-white text-sm py-2">
+      <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-y-2 md:gap-y-0">
+        {/* Sol Bilgiler */}
+        <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
           <div className="flex items-center space-x-1">
             <MapPin className="h-4 w-4" />
             <span>Merkez Ofis</span>
@@ -24,20 +31,15 @@ export default function TopBar() {
           </div>
         </div>
 
-        {/* Ortadaki Slogan */}
-        <p className="text-center hidden md:block">
-          Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala
-        </p>
-        <p className="text-center block md:hidden text-xs">
-          Seç Beğen Güvenle Kirala
-        </p>
+        {/* Orta Metin */}
+        <p className="hidden md:block text-center">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
 
-        {/* Sosyal Medya İkonları */}
-        <div className="flex justify-center md:justify-end space-x-3">
-          <Link href="https://facebook.com" aria-label="Facebook"><Facebook className="h-4 w-4" /></Link>
-          <Link href="https://instagram.com" aria-label="Instagram"><Instagram className="h-4 w-4" /></Link>
-          <Link href="https://linkedin.com" aria-label="LinkedIn"><Linkedin className="h-4 w-4" /></Link>
-          <Link href="https://youtube.com" aria-label="YouTube"><Youtube className="h-4 w-4" /></Link>
+        {/* Sosyal Medya */}
+        <div className="flex items-center gap-2">
+          <Link href="https://facebook.com"><Facebook className="h-4 w-4" /></Link>
+          <Link href="https://instagram.com"><Instagram className="h-4 w-4" /></Link>
+          <Link href="https://linkedin.com"><Linkedin className="h-4 w-4" /></Link>
+          <Link href="https://youtube.com"><Youtube className="h-4 w-4" /></Link>
         </div>
       </div>
     </div>
