@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { menuItems, singleMenuItems } from "@/lib/menu-data"
 
 export default function NavigationMenuComponent() {
@@ -25,7 +24,7 @@ export default function NavigationMenuComponent() {
           {menuItems.map((menu) => (
             <DropdownMenu key={menu.title}>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center px-4 py-2 text-sm font-medium hover:text-accent-foreground group">
+                <button className="flex items-center px-4 py-2 text-sm font-medium hover:text-[#6A3C96] group">
                   {menu.title}
                   <ChevronDown className="ml-1 h-4 w-4 transition duration-200 group-data-[state=open]:rotate-180" />
                 </button>
@@ -49,7 +48,7 @@ export default function NavigationMenuComponent() {
             <Link 
               key={item.href}
               href={item.href}
-              className="px-4 py-2 text-sm font-medium hover:text-accent-foreground"
+              className="px-4 py-2 text-sm font-medium hover:text-[#6A3C96]"
             >
               {item.label}
             </Link>
