@@ -70,7 +70,7 @@ const NavDropdownMenu = ({ title, items }) => {
         </button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="start" className="w-[300px]">
+      <DropdownMenuContent align="center" className="w-[300px]">
         {items.map((item) => (
           <DropdownMenuItem key={item.href} asChild>
             <Link 
