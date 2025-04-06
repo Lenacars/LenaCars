@@ -6,10 +6,10 @@ import { MapPin, Mail, Phone, Facebook, Instagram, Linkedin, Youtube } from "luc
 export default function TopBar() {
   return (
     <div className="w-full bg-[#6A3C96] text-white py-2 text-sm">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+      <div className="container mx-auto px-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
         
-        {/* Sol taraf: İletişim Bilgileri */}
-        <div className="flex items-center space-x-4 mb-2 md:mb-0">
+        {/* İletişim Bilgileri */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0">
           <div className="flex items-center space-x-1">
             <MapPin className="h-4 w-4" />
             <span>Merkez Ofis</span>
@@ -24,13 +24,16 @@ export default function TopBar() {
           </div>
         </div>
 
-        {/* Orta: Slogan */}
-        <div className="w-full md:w-auto flex justify-center">
-          <p className="text-sm text-center">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
-        </div>
+        {/* Ortadaki Slogan */}
+        <p className="text-center hidden md:block">
+          Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala
+        </p>
+        <p className="text-center block md:hidden text-xs">
+          Seç Beğen Güvenle Kirala
+        </p>
 
-        {/* Sağ: Sosyal Medya */}
-        <div className="flex items-center space-x-3 mt-2 md:mt-0">
+        {/* Sosyal Medya İkonları */}
+        <div className="flex justify-center md:justify-end space-x-3">
           <Link href="https://facebook.com" aria-label="Facebook"><Facebook className="h-4 w-4" /></Link>
           <Link href="https://instagram.com" aria-label="Instagram"><Instagram className="h-4 w-4" /></Link>
           <Link href="https://linkedin.com" aria-label="LinkedIn"><Linkedin className="h-4 w-4" /></Link>
