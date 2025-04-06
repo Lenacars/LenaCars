@@ -2,14 +2,16 @@
 
 import TopBar from "@/components/layout/TopBar"
 import MainHeader from "@/components/layout/MainHeader"
-import NavigationMenuComponent from "@/components/layout/NavigationMenuComponent"
+import NavigationMenuDesktop from "@/components/layout/NavigationMenuDesktop"
+import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
 
 export default function SiteHeader() {
   return (
     <header className="w-full">
       <TopBar />
       <MainHeader />
-      <NavigationMenuComponent />
+      <NavigationMenuDesktop />
+      <NavigationMenuMobile />
     </header>
   )
 }
