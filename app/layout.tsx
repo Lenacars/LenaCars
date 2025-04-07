@@ -1,3 +1,5 @@
+// app/layout.tsx
+
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -12,7 +14,7 @@ export const metadata: Metadata = {
   title: "LenaCars - Kurumsal Araç Kiralama Çözümleri",
   description:
     "Kurumsal araç kiralama adımlarını LenaCars uzmanlığı ile tek bir ekranda çözebileceğiniz, yüzlerce araç seçeneğine ve en uygun fiyatlara hızlıca ulaşabileceğiniz online tabanlı araç kiralama platformu.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -32,7 +34,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
