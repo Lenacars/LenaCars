@@ -3,8 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from 'next/font/google'
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import MainHeader from "@/components/layout/MainHeaderMobile" // Güncellendi
-import Footer from "@/components/footer" // Güncellendi
+import MainHeader from "@/components/layout/MainHeaderMobile" // ✅ doğru klasörde
+import Footer from "@/components/footer" // ✅ küçük harf doğru
 
 const inter = Inter({ subsets: ["latin"] })
 
