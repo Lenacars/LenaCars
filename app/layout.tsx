@@ -3,8 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from 'next/font/google'
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import MainHeader from "@/components/MainHeader" // Header bileşeninizi import edin
-import Footer from "@/components/Footer" // Footer bileşeninizi import edin
+import MainHeader from "@/components/layout/MainHeaderMobile" // Güncellendi
+import Footer from "@/components/footer" // Güncellendi
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,9 +22,9 @@ export default function RootLayout({
     <html lang="tr">
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <MainHeader /> {/* Header bileşenini ekleyin */}
+          <MainHeader />
           {children}
-          <Footer /> {/* Footer bileşenini ekleyin */}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>
