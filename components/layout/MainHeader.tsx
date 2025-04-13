@@ -1,16 +1,43 @@
 "use client"
 
-<<<<<<< HEAD
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function MainHeader() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+
+  // Ekran boyutunu kontrol et
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => {
+      window.removeEventListener("resize", checkMobile)
+    }
+  }, [])
+
+  const toggleDropdown = (menu: string) => {
+    if (activeDropdown === menu) {
+      setActiveDropdown(null)
+    } else {
+      setActiveDropdown(menu)
+    }
+  }
 
   return (
     <header>
-      {/* Üst Bilgi Çubuğu - Tek bir tane */}
+      {/* Üst Bilgi Çubuğu */}
       <div className="bg-[#6A3C96] text-white py-3 px-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -72,8 +99,8 @@ export default function MainHeader() {
           <div className="text-center hidden md:block">
             <h2 className="text-lg font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
           </div>
-          <div className="flex items-center space-x-3">
-            {/* Sosyal Medya İkonları */}
+          <div className="hidden md:flex items-center space-x-3">
+            {/* Sosyal Medya İkonları - Sadece masaüstünde göster */}
             <Link href="https://facebook.com" target="_blank" className="hover:text-gray-200">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -148,8 +175,8 @@ export default function MainHeader() {
             />
           </Link>
 
-          {/* Arama Kutusu */}
-          <div className="flex-grow mx-4 max-w-md">
+          {/* Arama Kutusu - Mobilde gizle */}
+          <div className="hidden md:block flex-grow mx-4 max-w-md">
             <div className="relative">
               <input
                 type="text"
@@ -180,8 +207,38 @@ export default function MainHeader() {
             </div>
           </div>
 
-          {/* Garaj ve Giriş Butonları */}
-          <div className="flex items-center space-x-3">
+          {/* Mobil Menü Butonu */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+            >
+              {isMobileMenuOpen ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {/* Garaj ve Giriş Butonları - Mobilde gizle */}
+          <div className="hidden md:flex items-center space-x-3">
             <Link
               href="/garaj"
               className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md flex items-center hover:bg-gray-50 transition-colors"
@@ -212,242 +269,462 @@ export default function MainHeader() {
         </div>
       </div>
 
-      {/* Alt Menü - Tek bir tane */}
-      <nav className="bg-white border-t border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <ul className="flex flex-wrap justify-center md:justify-start space-x-1 md:space-x-6">
-            <li className="relative group py-4">
-              <Link
-                href="/kurumsal"
-                className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+      {/* Mobil Arama Kutusu - Sadece mobilde göster */}
+      {isMobile && (
+        <div className="bg-white py-2 px-4 border-t border-gray-200">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Araç Ara"
+              className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button
+              className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md hover:bg-[#D35400] transition-colors"
+              aria-label="Ara"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Kurumsal
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <ul className="py-2">
-                  <li>
-                    <Link
-                      href="/kurumsal/hakkimizda"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Hakkımızda
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kurumsal/insan-kaynaklari"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      İnsan Kaynakları
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kurumsal/liderlik-ekibimiz"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Liderlik Ekibimiz
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kurumsal/odullerimiz"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Ödüllerimiz
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="relative group py-4">
-              <Link
-                href="/kiralama"
-                className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
-              >
-                Kiralama
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <ul className="py-2">
-                  <li>
-                    <Link
-                      href="https://kirala.lenacars.com/"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Kısa Süreli Kiralama
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kiralama/avantajlar"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Kiralamanın Avantajları
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kiralama/kurumsal-uyelik"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Kurumsal Üyelik Programı
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kiralama/lenacars-avantajlari"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      LenaCars Avantajları
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/kiralama/tasarruf-hesapla"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Tasarrufunu Hesapla
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="relative group py-4">
-              <Link
-                href="/ikinci-el"
-                className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
-              >
-                İkinci El
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <ul className="py-2">
-                  <li>
-                    <Link
-                      href="/ikinci-el/satilik-araclar"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Satılık Araçlar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/ikinci-el/aracimi-sat"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Aracımı Sat
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="relative group py-4">
-              <Link
-                href="/lenacars-bilgilendiriyor"
-                className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
-              >
-                LenaCars Bilgilendiriyor
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </Link>
-              <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <ul className="py-2">
-                  <li>
-                    <Link
-                      href="/lenacars-bilgilendiriyor/blog"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/lenacars-bilgilendiriyor/haberler"
-                      className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
-                    >
-                      Haberler
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="py-4">
-              <Link
-                href="/elektrikli-araclar"
-                className="text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
-              >
-                Elektrikli Araçlar
-              </Link>
-            </li>
-            <li className="py-4">
-              <Link href="/basin-kosesi" className="text-gray-800 hover:text-[#6A3C96] font-medium transition-colors">
-                Basın Köşesi
-              </Link>
-            </li>
-          </ul>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
-      </nav>
+      )}
+
+      {/* Mobil Menü */}
+      {isMobile && isMobileMenuOpen && (
+        <div className="bg-white border-t border-b border-gray-200 py-2">
+          <div className="container mx-auto px-4">
+            <ul className="space-y-2">
+              <li>
+                <button
+                  onClick={() => toggleDropdown("kurumsal")}
+                  className="w-full flex justify-between items-center py-2 text-gray-800"
+                >
+                  <span className="font-medium">Kurumsal</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "kurumsal" ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {activeDropdown === "kurumsal" && (
+                  <ul className="pl-4 mt-2 space-y-2 border-l-2 border-gray-200">
+                    <li>
+                      <Link href="/kurumsal/hakkimizda" className="block py-1 text-gray-600">
+                        Hakkımızda
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kurumsal/insan-kaynaklari" className="block py-1 text-gray-600">
+                        İnsan Kaynakları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kurumsal/liderlik-ekibimiz" className="block py-1 text-gray-600">
+                        Liderlik Ekibimiz
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kurumsal/odullerimiz" className="block py-1 text-gray-600">
+                        Ödüllerimiz
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
+
+              <li>
+                <button
+                  onClick={() => toggleDropdown("kiralama")}
+                  className="w-full flex justify-between items-center py-2 text-gray-800"
+                >
+                  <span className="font-medium">Kiralama</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "kiralama" ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {activeDropdown === "kiralama" && (
+                  <ul className="pl-4 mt-2 space-y-2 border-l-2 border-gray-200">
+                    <li>
+                      <Link
+                        href="https://kirala.lenacars.com/"
+                        className="block py-1 text-gray-600"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Kısa Süreli Kiralama
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kiralama/avantajlar" className="block py-1 text-gray-600">
+                        Kiralamanın Avantajları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kiralama/kurumsal-uyelik" className="block py-1 text-gray-600">
+                        Kurumsal Üyelik Programı
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kiralama/lenacars-avantajlari" className="block py-1 text-gray-600">
+                        LenaCars Avantajları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/kiralama/tasarruf-hesapla" className="block py-1 text-gray-600">
+                        Tasarrufunu Hesapla
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
+
+              {/* Diğer mobil menü öğeleri benzer şekilde */}
+              <li>
+                <button
+                  onClick={() => toggleDropdown("ikinci-el")}
+                  className="w-full flex justify-between items-center py-2 text-gray-800"
+                >
+                  <span className="font-medium">İkinci El</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "ikinci-el" ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {activeDropdown === "ikinci-el" && (
+                  <ul className="pl-4 mt-2 space-y-2 border-l-2 border-gray-200">
+                    <li>
+                      <Link href="/ikinci-el/satilik-araclar" className="block py-1 text-gray-600">
+                        Satılık Araçlar
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/ikinci-el/aracimi-sat" className="block py-1 text-gray-600">
+                        Aracımı Sat
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
+
+              <li>
+                <button
+                  onClick={() => toggleDropdown("bilgilendiriyor")}
+                  className="w-full flex justify-between items-center py-2 text-gray-800"
+                >
+                  <span className="font-medium">LenaCars Bilgilendiriyor</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "bilgilendiriyor" ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {activeDropdown === "bilgilendiriyor" && (
+                  <ul className="pl-4 mt-2 space-y-2 border-l-2 border-gray-200">
+                    <li>
+                      <Link href="/lenacars-bilgilendiriyor/blog" className="block py-1 text-gray-600">
+                        Blog
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/lenacars-bilgilendiriyor/haberler" className="block py-1 text-gray-600">
+                        Haberler
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
+
+              <li>
+                <Link href="/elektrikli-araclar" className="block py-2 text-gray-800 font-medium">
+                  Elektrikli Araçlar
+                </Link>
+              </li>
+
+              <li>
+                <Link href="/basin-kosesi" className="block py-2 text-gray-800 font-medium">
+                  Basın Köşesi
+                </Link>
+              </li>
+
+              {/* Mobil Garaj ve Giriş Butonları */}
+              <li className="pt-4 flex flex-col space-y-2">
+                <Link
+                  href="/garaj"
+                  className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
+                  </svg>
+                  Garaj
+                </Link>
+                <Link
+                  href="/giris"
+                  className="bg-[#6A3C96] text-white px-4 py-2 rounded-md flex items-center justify-center hover:bg-[#5a3080] transition-colors"
+                >
+                  Giriş Yap / Üye Ol
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Masaüstü Menü */}
+      {!isMobile && (
+        <nav className="bg-white border-t border-b border-gray-200">
+          <div className="container mx-auto px-4">
+            <ul className="flex flex-wrap justify-center md:justify-start space-x-1 md:space-x-6">
+              <li className="relative group py-4">
+                <Link
+                  href="/kurumsal"
+                  className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+                >
+                  Kurumsal
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Link>
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <ul className="py-2">
+                    <li>
+                      <Link
+                        href="/kurumsal/hakkimizda"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Hakkımızda
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kurumsal/insan-kaynaklari"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        İnsan Kaynakları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kurumsal/liderlik-ekibimiz"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Liderlik Ekibimiz
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kurumsal/odullerimiz"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Ödüllerimiz
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="relative group py-4">
+                <Link
+                  href="/kiralama"
+                  className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+                >
+                  Kiralama
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Link>
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <ul className="py-2">
+                    <li>
+                      <Link
+                        href="https://kirala.lenacars.com/"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Kısa Süreli Kiralama
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kiralama/avantajlar"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Kiralamanın Avantajları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kiralama/kurumsal-uyelik"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Kurumsal Üyelik Programı
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kiralama/lenacars-avantajlari"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        LenaCars Avantajları
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/kiralama/tasarruf-hesapla"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Tasarrufunu Hesapla
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="relative group py-4">
+                <Link
+                  href="/ikinci-el"
+                  className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+                >
+                  İkinci El
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Link>
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <ul className="py-2">
+                    <li>
+                      <Link
+                        href="/ikinci-el/satilik-araclar"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Satılık Araçlar
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/ikinci-el/aracimi-sat"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Aracımı Sat
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="relative group py-4">
+                <Link
+                  href="/lenacars-bilgilendiriyor"
+                  className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+                >
+                  LenaCars Bilgilendiriyor
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </Link>
+                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <ul className="py-2">
+                    <li>
+                      <Link
+                        href="/lenacars-bilgilendiriyor/blog"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Blog
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/lenacars-bilgilendiriyor/haberler"
+                        className="block px-4 py-2 text-gray-800 hover:bg-[#6A3C96] hover:text-white"
+                      >
+                        Haberler
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li className="py-4">
+                <Link
+                  href="/elektrikli-araclar"
+                  className="text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
+                >
+                  Elektrikli Araçlar
+                </Link>
+              </li>
+              <li className="py-4">
+                <Link href="/basin-kosesi" className="text-gray-800 hover:text-[#6A3C96] font-medium transition-colors">
+                  Basın Köşesi
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      )}
     </header>
-=======
-import TopBar from "@/components/layout/TopBar"
-import TopBarMobile from "@/components/layout/TopBarMobile"
-import MainHeaderDesktop from "@/components/layout/MainHeaderDesktop"
-import MainHeaderMobile from "@/components/layout/MainHeaderMobile"
-import NavigationMenuDesktop from "@/components/layout/NavigationMenuDesktop"
-import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
-
-export default function MainHeader() {
-  return (
-    <>
-      {/* Masaüstü */}
-      <div className="hidden md:block">
-        <TopBar />
-        <MainHeaderDesktop />
-        <NavigationMenuDesktop />
-      </div>
-
-      {/* Mobil */}
-      <div className="block md:hidden">
-        <TopBarMobile />
-        <MainHeaderMobile />
-        <NavigationMenuMobile />
-      </div>
-    </>
->>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
   )
 }
