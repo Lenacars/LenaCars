@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 "use client"
 
 import Image from "next/image"
 import Link from "next/link"
-import { Linkedin } from "lucide-react"
+import { Linkedin } from 'lucide-react'
 import { useState } from "react"
 
 export default function LiderlikEkibimizPage() {
@@ -243,13 +242,4 @@ export default function LiderlikEkibimizPage() {
       </section>
     </div>
   )
-=======
-export default function LiderlikEkibimiz() {
-  return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold">Liderlik Ekibimiz</h1>
-      <p>LenaCars liderlik ekibi hakkında bilgiler buraya gelecek.</p>
-    </div>
-  );
->>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
 }

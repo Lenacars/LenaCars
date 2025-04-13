@@ -150,6 +150,5 @@ export default function OdullerimizPage() {
     </div>
   )
 }
-=======
 
->>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
+

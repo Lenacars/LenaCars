@@ -325,13 +325,4 @@ export default function HakkimizdaPage() {
       </section>
     </div>
   )
-=======
-export default function Hakkimizda() {
-  return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold">Hakkımızda</h1>
-      <p>LenaCars hakkında içerikler buraya gelecek.</p>
-    </div>
-  );
->>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
 }
