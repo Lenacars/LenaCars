@@ -1,5 +1,6 @@
 "use client"
 
+<<<<<<< HEAD
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -422,5 +423,31 @@ export default function MainHeader() {
         </div>
       </nav>
     </header>
+=======
+import TopBar from "@/components/layout/TopBar"
+import TopBarMobile from "@/components/layout/TopBarMobile"
+import MainHeaderDesktop from "@/components/layout/MainHeaderDesktop"
+import MainHeaderMobile from "@/components/layout/MainHeaderMobile"
+import NavigationMenuDesktop from "@/components/layout/NavigationMenuDesktop"
+import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
+
+export default function MainHeader() {
+  return (
+    <>
+      {/* Masaüstü */}
+      <div className="hidden md:block">
+        <TopBar />
+        <MainHeaderDesktop />
+        <NavigationMenuDesktop />
+      </div>
+
+      {/* Mobil */}
+      <div className="block md:hidden">
+        <TopBarMobile />
+        <MainHeaderMobile />
+        <NavigationMenuMobile />
+      </div>
+    </>
+>>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
   )
 }

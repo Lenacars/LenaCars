@@ -1,5 +1,6 @@
 "use client"
 
+<<<<<<< HEAD
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -94,5 +95,20 @@ export default function SiteHeader() {
         </div>
       </div>
     </div>
+=======
+import TopBar from "@/components/layout/TopBar"
+import MainHeader from "@/components/layout/MainHeader"
+import NavigationMenuDesktop from "@/components/layout/NavigationMenuDesktop"
+import NavigationMenuMobile from "@/components/layout/NavigationMenuMobile"
+
+export default function SiteHeader() {
+  return (
+    <header className="w-full">
+      <TopBar />
+      <MainHeader />
+      <NavigationMenuDesktop />
+      <NavigationMenuMobile />
+    </header>
+>>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
   )
 }

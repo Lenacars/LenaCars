@@ -1,5 +1,6 @@
 "use client"
 
+<<<<<<< HEAD
 import Link from "next/link"
 
 export default function TopBar() {
@@ -127,6 +128,19 @@ export default function TopBar() {
             </svg>
           </Link>
         </div>
+=======
+import TopBarDesktop from "./TopBarDesktop"
+import TopBarMobile from "./TopBarMobile"
+
+export default function TopBar() {
+  return (
+    <div className="w-full">
+      <div className="hidden md:block">
+        <TopBarDesktop />
+      </div>
+      <div className="block md:hidden">
+        <TopBarMobile />
+>>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
       </div>
     </div>
   )
