@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-<<<<<<< HEAD
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
@@ -20,13 +18,11 @@ body {
   }
 }
 
-=======
 >>>>>>> cf3e86d5f4b21ff1e9fdd83fbd12e6f9796de7d3
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-<<<<<<< HEAD
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
@@ -239,7 +235,6 @@ div[style*="position: relative"] > [data-radix-navigation-menu-viewport] {
   transform: none !important;
   top: 100% !important;
   left: 0 !important;
-<<<<<<< HEAD
 }
 =======
 }

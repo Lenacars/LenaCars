@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # LenaCars Kurumsal Web Sitesi
 
 Kurumsal araç kiralama çözümleri sunan LenaCars'ın resmi web sitesi.
