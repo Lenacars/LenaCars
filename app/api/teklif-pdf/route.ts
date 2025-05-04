@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { supabase } from "@/lib/supabase-server"; // SERVER TARAFI
+import { supabase } from "@/lib/supabase-server"; // Dikkat: server versiyon
 import { TeklifPdf } from "@/components/TeklifPdf";
+import React from "react"; // 🔥 Eklenmeli
 
 export async function POST(req: Request) {
   try {
@@ -27,10 +28,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🚀 JSX OLARAK ÇAĞIR!
-    const pdfBuffer = await renderToBuffer(
-      <TeklifPdf vehicles={data} />
-    );
+    // 🔥 JSX KULLANAMAYIZ. Bunun yerine React.createElement kullan:
+    const element = React.createElement(TeklifPdf, { vehicles: data });
+    const pdfBuffer = await renderToBuffer(element);
 
     return new NextResponse(pdfBuffer, {
       status: 200,
