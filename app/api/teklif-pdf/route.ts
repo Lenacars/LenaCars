@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { supabase } from "@/lib/supabase-server"; // Dikkat: server versiyon
+import { supabase } from "@/lib/supabase-server";  // 🔥 server versiyonunu kullan
 import { TeklifPdf } from "@/components/TeklifPdf";
-import React from "react"; // 🔥 Eklenmeli
+import React from "react";
 
 export async function POST(req: Request) {
   try {
@@ -21,14 +21,14 @@ export async function POST(req: Request) {
       .select("id, isim, fiyat")
       .in("id", vehicleIds);
 
-    if (error || !data) {
+    // 🚨 HEM HATA HEM DE BOŞ DATA KONTROLÜ:
+    if (error || !data || data.length === 0) {
       return NextResponse.json(
-        { error: "Araç bilgileri alınamadı." },
+        { error: "Araç bilgileri alınamadı veya eşleşen araç bulunamadı." },
         { status: 500 }
       );
     }
 
-    // 🔥 JSX KULLANAMAYIZ. Bunun yerine React.createElement kullan:
     const element = React.createElement(TeklifPdf, { vehicles: data });
     const pdfBuffer = await renderToBuffer(element);
 
