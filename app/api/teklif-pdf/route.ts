@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { supabase } from "@/lib/supabase-server"; // 🔥 DOĞRU DOSYA
+import { supabase } from "@/lib/supabase-server"; // SERVER TARAFI
 import { TeklifPdf } from "@/components/TeklifPdf";
 
 export async function POST(req: Request) {
@@ -27,8 +27,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🚀 JSX OLARAK ÇAĞIR!
     const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data }) // ✅ Function call doğru
+      <TeklifPdf vehicles={data} />
     );
 
     return new NextResponse(pdfBuffer, {
