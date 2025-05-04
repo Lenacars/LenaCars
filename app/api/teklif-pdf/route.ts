@@ -34,15 +34,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // PDF oluştur
-    const pdfBuffer = await renderToBuffer(<TeklifPdf vehicles={data} />);
+    // PDF oluştur (!!! JSX DEĞİL FONKSİYON OLARAK ÇAĞIR !!!)
+    const pdfBuffer = await renderToBuffer(
+      TeklifPdf({ vehicles: data }) // ✅ JSX değil, function call
+    );
 
     // Dosya adını belirle
     const fileName = `teklifler/teklif-${Date.now()}.pdf`;
 
     // Storage'a yükle (bucket: pdf-teklif)
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("pdf-teklif")  // 🔥 BURASI ÖNEMLİ
+      .from("pdf-teklif")
       .upload(fileName, pdfBuffer, {
         contentType: "application/pdf",
         upsert: true
