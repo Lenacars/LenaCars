@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { supabase } from "../../../lib/supabase"; // ✅ alias değil relative
-import { TeklifPdf } from "../../../components/TeklifPdf"; // ✅ alias değil relative
+import { supabase } from "@/lib/supabase-server"; // 🔥 DOĞRU DOSYA
+import { TeklifPdf } from "@/components/TeklifPdf";
 
 export async function POST(req: Request) {
   try {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     }
 
     const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data })
+      TeklifPdf({ vehicles: data }) // ✅ Function call doğru
     );
 
     return new NextResponse(pdfBuffer, {
