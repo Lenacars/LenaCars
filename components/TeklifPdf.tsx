@@ -10,10 +10,10 @@ export function TeklifPdf({ vehicles }: { vehicles: any[] }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>Teklif Detayı</Text>
+        <Text style={styles.title}>Teklif Detayları</Text>
         {vehicles.map((v, index) => (
           <Text style={styles.item} key={index}>
-            {v.name} - {v.price.toLocaleString()} ₺
+            {v.isim} - {v.fiyat ? v.fiyat.toLocaleString() : "Fiyat Yok"} ₺
           </Text>
         ))}
       </Page>
