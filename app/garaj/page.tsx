@@ -46,9 +46,7 @@ export default function GaragePage() {
 
     let combinedVehicles: GarageVehicle[] = [];
 
-    // 1. Kullanıcı oturumu kontrol
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
     if (sessionError) {
       console.error("❌ Session alma hatası:", sessionError);
     }
@@ -56,9 +54,7 @@ export default function GaragePage() {
     const userId = sessionData.session?.user?.id;
     console.log("🟢 Kullanıcı ID:", userId || "Misafir");
 
-    // 2. Supabase garaj verilerini çek
     if (userId) {
-      // Kullanıcı giriş yaptıysa localStorage'daki eski guest garajı temizle
       localStorage.removeItem("guest_garaj");
 
       const { data, error } = await supabase
@@ -78,8 +74,6 @@ export default function GaragePage() {
       if (error) {
         console.error("🔴 Supabase garaj verileri alınamadı:", error);
       } else {
-        console.log("🟢 Supabase'den gelen araç sayısı:", data.length);
-
         const supabaseVehicles = data
           .filter((item: any) => item.Araclar)
           .map((item: any) => ({
@@ -96,14 +90,9 @@ export default function GaragePage() {
         combinedVehicles = [...combinedVehicles, ...supabaseVehicles];
       }
     } else {
-      // Kullanıcı giriş yapmamışsa localStorage kontrol ediliyor
-      console.log("👤 Kullanıcı GİRİŞ YAPMAMIŞ, localStorage kontrol ediliyor...");
-
       const guestGarageIds = JSON.parse(
         localStorage.getItem("guest_garaj") || "[]"
       ) as string[];
-
-      console.log("🔎 LocalStorage'daki araç ID'leri:", guestGarageIds);
 
       if (guestGarageIds.length > 0) {
         const { data, error } = await supabase
@@ -112,10 +101,8 @@ export default function GaragePage() {
           .in("id", guestGarageIds);
 
         if (error) {
-          console.error("🔴 LocalStorage araçları Supabase'den çekilemedi:", error);
+          console.error("🔴 LocalStorage araçları alınamadı:", error);
         } else {
-          console.log("🟢 LocalStorage'dan eşleşen araç sayısı:", data.length);
-
           const guestVehicles = data.map((item: any) => ({
             id: item.id,
             name: item.isim,
@@ -132,7 +119,6 @@ export default function GaragePage() {
       }
     }
 
-    console.log("🟢 Toplam araç sayısı:", combinedVehicles.length);
     setVehicles(combinedVehicles);
   };
 
@@ -188,7 +174,6 @@ export default function GaragePage() {
     setIsGeneratingPdf(true);
 
     try {
-      // 🚨🚨 HATA BURADAYDI. DÜZELTTİM:
       const response = await fetch("/api/teklif-pdf", {
         method: "POST",
         headers: {
@@ -207,14 +192,14 @@ export default function GaragePage() {
         return;
       }
 
-      const { url } = await response.json();
-
-      // PDF dosyasını yeni sekmede aç
-      window.open(url, "_blank");
+      // 🔥 Artık JSON değil direkt PDF blob geliyor
+      const blob = await response.blob();
+      const pdfUrl = URL.createObjectURL(blob);
+      window.open(pdfUrl, "_blank");
 
       toast({
         title: "Başarılı",
-        description: "PDF oluşturuldu ve indirilmeye hazır.",
+        description: "PDF oluşturuldu ve yeni sekmede açıldı.",
       });
     } catch (error) {
       console.error("🔴 PDF oluşturma hatası:", error);
