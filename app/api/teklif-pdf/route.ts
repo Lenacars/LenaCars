@@ -8,6 +8,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// ✅ TEST amaçlı GET endpoint (tarayıcıdan çalıştırmak için)
+export async function GET() {
+  return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
+}
+
 export async function POST(req: Request) {
   try {
     const { vehicleIds, userId } = await req.json();
