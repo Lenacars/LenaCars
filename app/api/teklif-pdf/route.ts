@@ -1,3 +1,6 @@
+// ✅ Vercel'de route'un server function olduğunu belirt (POST methodu yoksa çalışmaz)
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
 import { createClient } from "@supabase/supabase-js";
@@ -8,7 +11,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// ✅ TEST amaçlı GET endpoint (tarayıcıdan çalıştırmak için)
+// ✅ TEST amaçlı GET endpoint (tarayıcıdan çalışıyor mu kontrol için)
 export async function GET() {
   return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
 }
