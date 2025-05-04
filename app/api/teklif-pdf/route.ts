@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { TeklifPdf } from "@/components/TeklifPdf";
 import { supabase } from "@/lib/supabase";
+import { TeklifPdf } from "@/components/TeklifPdf";
 
 export async function POST(req: Request) {
   try {
@@ -29,7 +29,9 @@ export async function POST(req: Request) {
     }
 
     // PDF'i buffer olarak oluştur
-    const pdfBuffer = await renderToBuffer(<TeklifPdf vehicles={data} />);
+    const pdfBuffer = await renderToBuffer(
+      TeklifPdf({ vehicles: data }) // ✅ JSX DEĞİL, FUNCTION CALL
+    );
 
     return new NextResponse(pdfBuffer, {
       status: 200,
@@ -38,7 +40,6 @@ export async function POST(req: Request) {
         "Content-Disposition": "inline; filename=teklif.pdf",
       },
     });
-
   } catch (err) {
     console.error("PDF oluşturma hatası:", err);
     return NextResponse.json(
