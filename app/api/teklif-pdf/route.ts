@@ -1,5 +1,5 @@
-// ✅ Vercel'de route'un server function olduğunu belirt (POST methodu yoksa çalışmaz)
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
@@ -11,7 +11,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// ✅ TEST amaçlı GET endpoint (tarayıcıdan çalışıyor mu kontrol için)
 export async function GET() {
   return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
 }
@@ -29,7 +28,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Kullanıcı ID bulunamadı." }, { status: 400 });
     }
 
-    // Garajdan araçları çek
     const { data, error } = await supabase
       .from("garaj")
       .select(`
@@ -47,7 +45,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Garaj verisi bulunamadı." }, { status: 404 });
     }
 
-    // PDF oluştur
     const doc = new PDFDocument({ margin: 50 });
     const buffers: Uint8Array[] = [];
 
@@ -71,7 +68,6 @@ export async function POST(req: Request) {
     doc.end();
     const pdfBuffer = await pdfPromise;
 
-    // PDF'i Supabase Storage'a yükle
     const fileName = `teklif_${userId}_${Date.now()}.pdf`;
 
     const { data: uploadData, error: uploadError } = await supabase
@@ -87,7 +83,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
     }
 
-    // Public URL oluştur
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
     console.log("✅ PDF başarıyla yüklendi:", publicUrl);
