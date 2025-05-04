@@ -192,15 +192,22 @@ export default function GaragePage() {
         return;
       }
 
-      // 🔥 Artık JSON değil direkt PDF blob geliyor
-      const blob = await response.blob();
-      const pdfUrl = URL.createObjectURL(blob);
-      window.open(pdfUrl, "_blank");
+      // ✅ Artık JSON olarak URL dönüyor
+      const result = await response.json();
+      if (result.url) {
+        window.open(result.url, "_blank"); // Yeni sekmede aç
+        toast({
+          title: "Başarılı",
+          description: "PDF başarıyla oluşturuldu ve açıldı.",
+        });
+      } else {
+        toast({
+          title: "PDF Hatası",
+          description: "URL alınamadı.",
+          variant: "destructive",
+        });
+      }
 
-      toast({
-        title: "Başarılı",
-        description: "PDF oluşturuldu ve yeni sekmede açıldı.",
-      });
     } catch (error) {
       console.error("🔴 PDF oluşturma hatası:", error);
       toast({
