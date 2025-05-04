@@ -1,96 +1,80 @@
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
-import { createClient } from "@supabase/supabase-js";
+import { PDFDownloadLink, Page, Text, Document, StyleSheet } from '@react-pdf/renderer';
+import { supabase } from "@/lib/supabase";
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 
-// Supabase bağlantısı
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const styles = StyleSheet.create({
+  page: {
+    padding: 30
+  },
+  title: {
+    fontSize: 18,
+    marginBottom: 10
+  },
+  item: {
+    fontSize: 14,
+    marginBottom: 5
+  }
+});
 
-export async function GET() {
-  return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
+function TeklifPdf({ vehicles }: { vehicles: any[] }) {
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.title}>Teklif Detayı</Text>
+        {vehicles.map((v, index) => (
+          <Text style={styles.item} key={index}>
+            {v.isim} - {v.fiyat.toLocaleString()} ₺
+          </Text>
+        ))}
+      </Page>
+    </Document>
+  );
 }
 
 export async function POST(req: Request) {
   try {
-    const { vehicleIds, userId } = await req.json();
-    console.log("📥 Gelen vehicleIds:", vehicleIds);
-    console.log("📥 Gelen userId:", userId);
+    const body = await req.json();
+    const { vehicleIds, userId } = body;
 
     if (!vehicleIds || vehicleIds.length === 0) {
-      return NextResponse.json({ error: "Araç seçilmedi." }, { status: 400 });
-    }
-    if (!userId) {
-      return NextResponse.json({ error: "Kullanıcı ID bulunamadı." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Araç ID'leri belirtilmedi." },
+        { status: 400 }
+      );
     }
 
+    // Supabase'den araç bilgilerini al
     const { data, error } = await supabase
-      .from("garaj")
-      .select(`
-        arac_id,
-        Araclar:arac_id (
-          isim,
-          fiyat,
-          category
-        )
-      `)
-      .eq("user_id", userId)
-      .in("arac_id", vehicleIds);
+      .from("Araclar")
+      .select("id, isim, fiyat")
+      .in("id", vehicleIds);
 
-    if (error || !data || data.length === 0) {
-      return NextResponse.json({ error: "Garaj verisi bulunamadı." }, { status: 404 });
+    if (error || !data) {
+      return NextResponse.json(
+        { error: "Araç bilgileri alınamadı." },
+        { status: 500 }
+      );
     }
 
-    const doc = new PDFDocument({ margin: 50 });
-    const buffers: Uint8Array[] = [];
+    // PDF dosyasını oluştur
+    const pdfPath = join(process.cwd(), 'public', `teklif-${Date.now()}.pdf`);
+    const ReactPDF = require('@react-pdf/renderer');
+    await ReactPDF.renderToFile(<TeklifPdf vehicles={data} />, pdfPath);
 
-    doc.font("Times-Roman");
-    doc.on("data", buffers.push.bind(buffers));
+    const url = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://lena-cars.vercel.app'}/${pdfPath.split('public/')[1]}`;
 
-    const pdfPromise = new Promise<Buffer>((resolve, reject) => {
-      doc.on("end", () => resolve(Buffer.concat(buffers)));
-      doc.on("error", reject);
-    });
-
-    doc.fontSize(20).text("Araç Teklif Listesi", { align: "center" }).moveDown();
-
-    data.forEach((item, index) => {
-      const isim = item.Araclar?.isim || "İsimsiz";
-      const fiyat = item.Araclar?.fiyat ? item.Araclar.fiyat.toLocaleString("tr-TR") : "0";
-      const kategori = item.Araclar?.category || "-";
-      doc.fontSize(14).text(`${index + 1}. Araç: ${isim} | Kategori: ${kategori} | Fiyat: ${fiyat} ₺`).moveDown(0.5);
-    });
-
-    doc.end();
-    const pdfBuffer = await pdfPromise;
-
-    const fileName = `teklif_${userId}_${Date.now()}.pdf`;
-
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from("pdf-teklif")
-      .upload(fileName, pdfBuffer, {
-        contentType: "application/pdf",
-        upsert: true
-      });
-
-    if (uploadError) {
-      console.error("❌ PDF yükleme hatası:", uploadError);
-      return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
-    }
-
-    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
-
-    console.log("✅ PDF başarıyla yüklendi:", publicUrl);
-
-    return NextResponse.json({ url: publicUrl });
-
+    return NextResponse.json({ url });
   } catch (err) {
-    console.error("❌ API genel hata:", err);
-    return NextResponse.json({ error: "Sunucu hatası." }, { status: 500 });
+    console.error("PDF oluşturma hatası:", err);
+    return NextResponse.json(
+      { error: "PDF oluşturulamadı." },
+      { status: 500 }
+    );
   }
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
 }
