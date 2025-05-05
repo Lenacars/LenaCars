@@ -34,10 +34,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Kullanıcı bilgilerini çek (ad + soyad)
+    // Kullanıcı bilgilerini çek (ad + soyad + firma)
     const { data: userProfile, error: userError } = await supabase
       .from("kullanicilar")
-      .select("ad, soyad")
+      .select("ad, soyad, firma")
       .eq("id", userId)
       .single();
 
@@ -84,18 +84,21 @@ export async function POST(req: Request) {
     // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ pdfteklifler tablosuna kayıt ekle
+    // ✅ teklif_dosyalar tablosuna kayıt ekle (yeni tablo)
     const { error: insertError } = await supabase
-      .from("pdfteklifler")
+      .from("teklif_dosyalar")
       .insert({
         user_id: userId,
-        pdf_url: publicUrl
+        pdf_url: publicUrl,
+        ad: userProfile.ad || null,
+        soyad: userProfile.soyad || null,
+        firma: userProfile.firma || null
       });
 
     if (insertError) {
-      console.error("pdfteklifler tablosuna ekleme hatası:", insertError);
+      console.error("teklif_dosyalar tablosuna ekleme hatası:", insertError);
       return NextResponse.json(
-        { error: "pdfteklifler tablosuna kayıt eklenemedi." },
+        { error: "teklif_dosyalar tablosuna kayıt eklenemedi." },
         { status: 500 }
       );
     }
