@@ -61,6 +61,25 @@ export async function POST(req: Request) {
     // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
+    // ✅ TEKLİFLER TABLOSUNA KAYIT EKLE
+    const { error: insertError } = await supabase
+      .from("teklifler")
+      .insert([
+        {
+          user_id: userId,
+          url: publicUrl
+        }
+      ]);
+
+    if (insertError) {
+      console.error("Teklifler tablosuna ekleme hatası:", insertError);
+      // Not: PDF yüklendi ama kayıt eklenmedi hatasını döndür
+      return NextResponse.json(
+        { error: "PDF yüklendi ama teklifler tablosuna kayıt eklenemedi." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ url: publicUrl });
 
   } catch (err) {
