@@ -52,11 +52,11 @@ export default function ProfilePage() {
       .eq("user_id", userId);
     setFavorites(favs || []);
 
-    // 🔥 Burada tabloyu değiştirdim sadece!
     const { data: pdfs } = await supabase
       .from("pdfteklifler")
       .select("*")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
     setOffers(pdfs || []);
 
     const { data: evraks } = await supabase
@@ -220,21 +220,27 @@ export default function ProfilePage() {
               {offers.length === 0 ? (
                 <p>Henüz PDF teklifiniz bulunmuyor.</p>
               ) : (
-                <ul className="space-y-2">
-                  {offers.map((offer) => (
-                    <li key={offer.id} className="flex items-center justify-between border-b py-2">
-                      <span>{offer.title || "Teklif Dosyası"}</span>
-                      <a
-                        href={offer.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center text-sm text-[#6A3C96] hover:underline"
-                      >
-                        <Download className="w-4 h-4 mr-1" /> İndir
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {offers.map((offer) => {
+                    const fileName = offer.pdf_url.split("/").pop();
+                    const createdAt = new Date(offer.created_at).toLocaleDateString("tr-TR");
+
+                    return (
+                      <div key={offer.id} className="border rounded p-4 shadow-sm flex flex-col justify-between h-full">
+                        <div className="mb-2 font-medium text-[#6A3C96] break-words">{fileName}</div>
+                        <div className="text-sm text-gray-500 mb-2">Oluşturma: {createdAt}</div>
+                        <a
+                          href={offer.pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-sm text-[#6A3C96] font-semibold hover:underline"
+                        >
+                          <Download className="w-4 h-4 mr-1" /> İndir
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </CardContent>
           </Card>
