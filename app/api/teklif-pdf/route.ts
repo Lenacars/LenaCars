@@ -84,11 +84,11 @@ export async function POST(req: Request) {
     // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ teklif_dosyalar tablosuna kayıt ekle (yeni tablo)
+    // ✅ teklif_dosyalar tablosuna kayıt ekle
     const { error: insertError } = await supabase
       .from("teklif_dosyalar")
       .insert({
-        user_id: userId,
+        kullanici_id: userId,
         pdf_url: publicUrl,
         ad: userProfile.ad || null,
         soyad: userProfile.soyad || null,
