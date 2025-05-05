@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // Supabase'den araç bilgilerini çek
     const { data, error } = await supabase
       .from("Araclar")
-      .select("id, isim, fiyat, vites, yakit_turu, km")
+      .select("id, isim, fiyat")
       .in("id", vehicleIds);
 
     if (error || !data || data.length === 0) {
@@ -36,10 +36,10 @@ export async function POST(req: Request) {
 
     // PDF oluştur
     const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data }) // JSX değil fonksiyon olarak
+      TeklifPdf({ vehicles: data }) // JSX değil, function call
     );
 
-    // Dosya adını belirle
+    // Dosya adını belirle (tırnak hatası düzeltildi!)
     const fileName = `teklifler/teklif-${Date.now()}.pdf`;
 
     // Storage'a yükle (bucket: pdf-teklif)
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error("pdfteklifler tablosuna ekleme hatası:", insertError);
       return NextResponse.json(
-        { error: "Teklifler tablosuna kayıt eklenemedi." },
+        { error: "pdfteklifler tablosuna kayıt eklenemedi." },
         { status: 500 }
       );
     }
