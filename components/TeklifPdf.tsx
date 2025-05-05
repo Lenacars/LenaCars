@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
   logo: {
-    width: 100,  // Büyütüldü
+    width: 100,
     height: "auto",
     marginBottom: 10,
     position: "absolute",
@@ -66,12 +66,12 @@ const styles = StyleSheet.create({
 interface Vehicle {
   id: string;
   isim: string;
-  fiyat: number;
+  fiyat: number | null;    // null gelebilir!
   kategori?: string;
   vites?: string;
   yakit_turu?: string;
   yil?: string;
-  km?: string;
+  km?: number | null;      // null gelebilir!
 }
 
 export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
@@ -82,6 +82,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
       <Page size="A4" style={styles.page}>
         {/* Logo */}
         <Image src={logoUrl} style={styles.logo} />
+
         {/* Teklif Tarihi */}
         <Text style={styles.header}>Teklif Tarihi: {today}</Text>
 
@@ -100,9 +101,11 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
             <Text style={styles.cell}>{v.vites || "-"}</Text>
             <Text style={styles.cell}>{v.yakit_turu || "-"}</Text>
-            <Text style={styles.cell}>{v.km || "-"}</Text>
             <Text style={styles.cell}>
-              {v.fiyat ? v.fiyat.toLocaleString("tr-TR") + " ₺" : "Fiyat Yok"}
+              {typeof v.km === "number" ? v.km.toLocaleString("tr-TR") + " km" : "-"}
+            </Text>
+            <Text style={styles.cell}>
+              {typeof v.fiyat === "number" ? v.fiyat.toLocaleString("tr-TR") + " ₺" : "Fiyat Yok"}
             </Text>
           </View>
         ))}
