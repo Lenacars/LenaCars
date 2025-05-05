@@ -52,8 +52,9 @@ export default function ProfilePage() {
       .eq("user_id", userId);
     setFavorites(favs || []);
 
+    // 🔥 Burada tabloyu değiştirdim sadece!
     const { data: pdfs } = await supabase
-      .from("teklifler")
+      .from("pdfteklifler")
       .select("*")
       .eq("user_id", userId);
     setOffers(pdfs || []);
