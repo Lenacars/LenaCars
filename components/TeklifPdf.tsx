@@ -1,33 +1,34 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// LOGO ve ALT BİLGİ görsellerinin URL'leri:
+// Logo ve alt bilgi görselleri
 const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
 const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
 
-// Stil tanımları:
+// PDF stilleri
 const styles = StyleSheet.create({
   page: {
     position: "relative",
-    paddingTop: 60,
-    paddingBottom: 120,
-    paddingHorizontal: 40,
+    paddingTop: 40,
+    paddingLeft: 40,
+    paddingRight: 40,
+    paddingBottom: 100, // Alt bilgi için boşluk bırakıldı
     fontSize: 10,
     fontFamily: "Helvetica",
   },
   logo: {
+    width: 100,  // Büyütüldü
+    height: "auto",
+    marginBottom: 10,
     position: "absolute",
     top: 20,
-    left: 40,
-    width: 120,
-    height: 40,
-    objectFit: "contain",
+    left: 20,
   },
   header: {
     position: "absolute",
     top: 30,
     right: 40,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "bold",
   },
   tableHeader: {
@@ -36,8 +37,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#000",
     fontWeight: "bold",
-    marginTop: 40,
-    paddingVertical: 6,
+    marginTop: 120,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   tableRow: {
     flexDirection: "row",
@@ -54,7 +56,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     width: "100%",
-    height: 80,
+  },
+  footerImage: {
+    width: "100%",
+    height: "auto",
   },
 });
 
@@ -75,14 +80,12 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-
-        {/* LOGO */}
+        {/* Logo */}
         <Image src={logoUrl} style={styles.logo} />
-
-        {/* Tarih */}
+        {/* Teklif Tarihi */}
         <Text style={styles.header}>Teklif Tarihi: {today}</Text>
 
-        {/* Tablo Başlığı */}
+        {/* Tablo Başlıkları */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Vites</Text>
@@ -91,7 +94,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           <Text style={styles.cell}>Fiyat</Text>
         </View>
 
-        {/* Tablo Satırları */}
+        {/* Araç Satırları */}
         {vehicles.map((v) => (
           <View style={styles.tableRow} key={v.id}>
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
@@ -104,9 +107,10 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           </View>
         ))}
 
-        {/* ALT BİLGİ (footer) */}
-        <Image src={footerUrl} style={styles.footer} />
-
+        {/* Alt Bilgi Görseli */}
+        <View style={styles.footer}>
+          <Image src={footerUrl} style={styles.footerImage} />
+        </View>
       </Page>
     </Document>
   );
