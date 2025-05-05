@@ -34,9 +34,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // PDF oluştur (!!! JSX DEĞİL FONKSİYON OLARAK ÇAĞIR !!!)
+    // PDF oluştur
     const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data }) // ✅ JSX değil, function call
+      TeklifPdf({ vehicles: data }) // JSX değil fonksiyon olarak
     );
 
     // Dosya adını belirle
@@ -61,16 +61,16 @@ export async function POST(req: Request) {
     // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ TEKLİFLER tablosuna kaydet
+    // ✅ pdfteklifler tablosuna kayıt ekle
     const { error: insertError } = await supabase
-      .from("teklifler")
+      .from("pdfteklifler")
       .insert({
         user_id: userId,
-        pdf_url: publicUrl  // 🔥 Doğru kolon adı
+        pdf_url: publicUrl
       });
 
     if (insertError) {
-      console.error("Teklifler tablosuna ekleme hatası:", insertError);
+      console.error("pdfteklifler tablosuna ekleme hatası:", insertError);
       return NextResponse.json(
         { error: "Teklifler tablosuna kayıt eklenemedi." },
         { status: 500 }
