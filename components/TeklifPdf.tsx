@@ -1,39 +1,34 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// Üst ve alt görseller
-const logoURL = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
-const footerURL = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
+// LOGO ve ALT BİLGİ görsellerinin URL'leri:
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
 
-// PDF stilleri
+// Stil tanımları:
 const styles = StyleSheet.create({
   page: {
     position: "relative",
     paddingTop: 60,
-    paddingBottom: 80,
+    paddingBottom: 120,
     paddingHorizontal: 40,
     fontSize: 10,
     fontFamily: "Helvetica",
   },
   logo: {
-    width: 200,
-    height: "auto",
-    marginBottom: 20,
-    alignSelf: "center",
-  },
-  footer: {
     position: "absolute",
-    bottom: 20,
+    top: 20,
     left: 40,
-    right: 40,
-    width: "100%",
-    height: "auto",
+    width: 120,
+    height: 40,
+    objectFit: "contain",
   },
   header: {
-    marginBottom: 20,
-    fontSize: 12,
+    position: "absolute",
+    top: 30,
+    right: 40,
+    fontSize: 10,
     fontWeight: "bold",
-    textAlign: "right",
   },
   tableHeader: {
     flexDirection: "row",
@@ -41,8 +36,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#000",
     fontWeight: "bold",
-    marginTop: 10,
-    paddingVertical: 4,
+    marginTop: 40,
+    paddingVertical: 6,
   },
   tableRow: {
     flexDirection: "row",
@@ -53,6 +48,13 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     paddingRight: 4,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    width: "100%",
+    height: 80,
   },
 });
 
@@ -74,13 +76,13 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
     <Document>
       <Page size="A4" style={styles.page}>
 
-        {/* Logo */}
-        <Image src={logoURL} style={styles.logo} />
+        {/* LOGO */}
+        <Image src={logoUrl} style={styles.logo} />
 
-        {/* Teklif Tarihi */}
+        {/* Tarih */}
         <Text style={styles.header}>Teklif Tarihi: {today}</Text>
 
-        {/* Tablo Başlıkları */}
+        {/* Tablo Başlığı */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Vites</Text>
@@ -102,8 +104,8 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           </View>
         ))}
 
-        {/* Footer görsel */}
-        <Image src={footerURL} style={styles.footer} />
+        {/* ALT BİLGİ (footer) */}
+        <Image src={footerUrl} style={styles.footer} />
 
       </Page>
     </Document>
