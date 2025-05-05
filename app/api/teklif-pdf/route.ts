@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // Supabase'den araç bilgilerini çek
     const { data, error } = await supabase
       .from("Araclar")
-      .select("id, isim, fiyat")
+      .select("id, isim, fiyat, vites, yakit_turu, km")
       .in("id", vehicleIds);
 
     if (error || !data || data.length === 0) {
@@ -61,21 +61,18 @@ export async function POST(req: Request) {
     // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ TEKLİFLER TABLOSUNA KAYIT EKLE
+    // ✅ TEKLİFLER tablosuna kaydet
     const { error: insertError } = await supabase
       .from("teklifler")
-      .insert([
-        {
-          user_id: userId,
-          url: publicUrl
-        }
-      ]);
+      .insert({
+        user_id: userId,
+        pdf_url: publicUrl  // 🔥 Doğru kolon adı
+      });
 
     if (insertError) {
       console.error("Teklifler tablosuna ekleme hatası:", insertError);
-      // Not: PDF yüklendi ama kayıt eklenmedi hatasını döndür
       return NextResponse.json(
-        { error: "PDF yüklendi ama teklifler tablosuna kayıt eklenemedi." },
+        { error: "Teklifler tablosuna kayıt eklenemedi." },
         { status: 500 }
       );
     }
