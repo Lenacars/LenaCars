@@ -1,28 +1,37 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// Arka plan görseli URL
-const backgroundImage =
-  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746373140622-teklif.png";
+// Üst ve alt görseller
+const logoURL = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
+const footerURL = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
 
 // PDF stilleri
 const styles = StyleSheet.create({
   page: {
     position: "relative",
-    padding: 40,
+    paddingTop: 60,
+    paddingBottom: 80,
+    paddingHorizontal: 40,
     fontSize: 10,
     fontFamily: "Helvetica",
   },
-  background: {
+  logo: {
+    width: 200,
+    height: "auto",
+    marginBottom: 20,
+    alignSelf: "center",
+  },
+  footer: {
     position: "absolute",
+    bottom: 20,
+    left: 40,
+    right: 40,
     width: "100%",
-    height: "100%",
-    left: 0,
-    top: 0,
+    height: "auto",
   },
   header: {
     marginBottom: 20,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
     textAlign: "right",
   },
@@ -32,7 +41,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#000",
     fontWeight: "bold",
-    marginTop: 20,
+    marginTop: 10,
+    paddingVertical: 4,
   },
   tableRow: {
     flexDirection: "row",
@@ -63,13 +73,14 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Arka Plan */}
-        <Image src={backgroundImage} style={styles.background} />
+
+        {/* Logo */}
+        <Image src={logoURL} style={styles.logo} />
 
         {/* Teklif Tarihi */}
         <Text style={styles.header}>Teklif Tarihi: {today}</Text>
 
-        {/* Araçlar Tablosu Başlık */}
+        {/* Tablo Başlıkları */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Vites</Text>
@@ -78,7 +89,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           <Text style={styles.cell}>Fiyat</Text>
         </View>
 
-        {/* Araçlar Tablosu */}
+        {/* Tablo Satırları */}
         {vehicles.map((v) => (
           <View style={styles.tableRow} key={v.id}>
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
@@ -90,6 +101,10 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
             </Text>
           </View>
         ))}
+
+        {/* Footer görsel */}
+        <Image src={footerURL} style={styles.footer} />
+
       </Page>
     </Document>
   );
