@@ -34,13 +34,36 @@ export async function POST(req: Request) {
       );
     }
 
+    // Kullanıcı bilgilerini çek (ad + soyad)
+    const { data: userProfile, error: userError } = await supabase
+      .from("kullanicilar")
+      .select("ad, soyad")
+      .eq("id", userId)
+      .single();
+
+    if (userError || !userProfile) {
+      return NextResponse.json(
+        { error: "Kullanıcı bilgileri alınamadı." },
+        { status: 500 }
+      );
+    }
+
     // PDF oluştur
     const pdfBuffer = await renderToBuffer(
       TeklifPdf({ vehicles: data }) // JSX değil, function call
     );
 
-    // Dosya adını belirle (tırnak hatası düzeltildi!)
-    const fileName = `teklifler/teklif-${Date.now()}.pdf`;
+    // Tarih ve teklif no hazırla
+    const teklifTarihi = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const teklifNo = Math.floor(1000 + Math.random() * 9000); // 4 haneli random no
+
+    // Kullanıcı ad soyadı dosya ismine uygun formatta
+    const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9\-]/g, ""); // Güvenli karakterler
+
+    // Dosya adını belirle (kişisel isim + tarih + teklif no)
+    const fileName = `teklifler/${musteriIsmi}-${teklifTarihi}-Teklif-${teklifNo}.pdf`;
 
     // Storage'a yükle (bucket: pdf-teklif)
     const { data: uploadData, error: uploadError } = await supabase.storage
