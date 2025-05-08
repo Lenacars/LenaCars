@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,6 +13,10 @@ interface Props {
 export default function Page({ params }: Props) {
   const [vehicle, setVehicle] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const [selectedKm, setSelectedKm] = useState("");
+  const [selectedSure, setSelectedSure] = useState("");
+  const [matchedPrice, setMatchedPrice] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,13 +38,20 @@ export default function Page({ params }: Props) {
     fetchData();
   }, [params.id]);
 
+  useEffect(() => {
+    if (!vehicle) return;
+    const match = vehicle?.variations?.find(
+      (v: any) => v.kilometre === selectedKm && v.sure === selectedSure
+    );
+    setMatchedPrice(match?.fiyat || null);
+  }, [selectedKm, selectedSure, vehicle]);
+
   if (!vehicle) {
     return <div className="p-10 text-center">Yükleniyor...</div>;
   }
 
   const gallery: string[] = vehicle.gallery_images || [];
 
-  // 🔥 GARAJ EKLEME FONKSİYONU
   const handleAddToGarage = async () => {
     console.log("🟢 Garaja ekle tıklandı:", vehicle.id);
 
@@ -49,20 +61,13 @@ export default function Page({ params }: Props) {
     }
 
     const userId = sessionData.session?.user?.id;
-    console.log("🟢 Kullanıcı ID:", userId || "Misafir");
-
     if (userId) {
-      // Supabase'de var mı kontrol et
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing } = await supabase
         .from("garaj")
         .select("id")
         .eq("user_id", userId)
         .eq("arac_id", vehicle.id)
         .maybeSingle();
-
-      if (checkError) {
-        console.error("❌ Kontrol hatası:", checkError);
-      }
 
       if (existing) {
         toast({
@@ -77,12 +82,7 @@ export default function Page({ params }: Props) {
         .insert([{ user_id: userId, arac_id: vehicle.id }]);
 
       if (insertError) {
-        console.error("❌ Supabase ekleme hatası:", insertError);
-        toast({
-          title: "Hata",
-          description: "Araç garaja eklenemedi.",
-          variant: "destructive",
-        });
+        toast({ title: "Hata", description: "Araç garaja eklenemedi.", variant: "destructive" });
       } else {
         toast({
           title: "Garaja Eklendi",
@@ -90,36 +90,26 @@ export default function Page({ params }: Props) {
         });
       }
     } else {
-      // Misafir kullanıcı → localStorage
       let stored: string[] = [];
       try {
         stored = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
       } catch {
         stored = [];
       }
-
-      if (stored.includes(vehicle.id)) {
+      if (!stored.includes(vehicle.id)) {
+        stored.push(vehicle.id);
+        localStorage.setItem("guest_garaj", JSON.stringify(stored));
         toast({
-          title: "Zaten eklenmiş",
-          description: "Bu araç zaten garajınızda.",
+          title: "Garaja Eklendi",
+          description: `${vehicle.isim} başarıyla garajınıza eklendi.`,
         });
-        return;
       }
-
-      stored.push(vehicle.id);
-      localStorage.setItem("guest_garaj", JSON.stringify(stored));
-
-      toast({
-        title: "Garaja Eklendi",
-        description: `${vehicle.isim} başarıyla garajınıza eklendi.`,
-      });
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Sol: Görsel Galerisi */}
         <div>
           <div className="relative w-full h-[400px] rounded overflow-hidden border bg-white">
             <Image
@@ -152,7 +142,6 @@ export default function Page({ params }: Props) {
           </div>
         </div>
 
-        {/* Sağ: Bilgi Alanı */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{vehicle.isim}</h1>
 
@@ -170,21 +159,37 @@ export default function Page({ params }: Props) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Kilometre Limiti</label>
-            <select className="w-full border rounded px-3 py-2">
-              {vehicle.variations?.map((v: any, i: number) => (
-                <option key={i}>{v.kilometre}</option>
+            <select
+              className="w-full border rounded px-3 py-2"
+              value={selectedKm}
+              onChange={(e) => setSelectedKm(e.target.value)}
+            >
+              <option value="">Seçiniz</option>
+              {[...new Set(vehicle.variations?.map((v: any) => v.kilometre))].map((km, i) => (
+                <option key={i} value={km}>{km}</option>
               ))}
             </select>
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Süre</label>
-            <select className="w-full border rounded px-3 py-2">
-              {vehicle.variations?.map((v: any, i: number) => (
-                <option key={i}>{v.sure}</option>
+            <select
+              className="w-full border rounded px-3 py-2"
+              value={selectedSure}
+              onChange={(e) => setSelectedSure(e.target.value)}
+            >
+              <option value="">Seçiniz</option>
+              {[...new Set(vehicle.variations?.map((v: any) => v.sure))].map((sure, i) => (
+                <option key={i} value={sure}>{sure}</option>
               ))}
             </select>
           </div>
+
+          {selectedKm && selectedSure && matchedPrice !== null && (
+            <div className="text-[#5d3b8b] text-xl font-medium mb-4">
+              Seçilen Paket: <strong>{matchedPrice.toLocaleString()} ₺</strong>
+            </div>
+          )}
 
           <button
             onClick={handleAddToGarage}
@@ -204,7 +209,6 @@ export default function Page({ params }: Props) {
         </div>
       </div>
 
-      {/* Açıklama Alanı */}
       {vehicle.aciklama && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-4 border-b pb-2">Araç Açıklaması</h2>
