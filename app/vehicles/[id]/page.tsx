@@ -72,8 +72,8 @@ export default function Page({ params }: Props) {
       .eq("arac_id", params.id)
       .order("created_at", { ascending: false });
 
-    const sessionRes = await supabase.auth.getSession();
-    setSession(sessionRes.data.session);
+    const { data: sessionData } = await supabase.auth.getSession();
+    setSession(sessionData.session);
 
     if (arac) {
       setVehicle(arac);
@@ -89,7 +89,7 @@ export default function Page({ params }: Props) {
       }
 
       const image = arac.cover_image
-        ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image}`
+        ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image.replace(/^\/+/, "")}`
         : "/placeholder.svg";
       setSelectedImage(image);
     }
@@ -100,15 +100,12 @@ export default function Page({ params }: Props) {
   }, [params.id]);
 
   const handleAddComment = async () => {
-    const { data } = await supabase.auth.getSession();
-    const userId = data.session?.user?.id;
-
+    const session = await supabase.auth.getSession();
+    const userId = session.data.session?.user?.id;
     if (!userId) {
-      toast({ title: "Giriş Gerekli", description: "Yorum yapabilmek için giriş yapmalısınız." });
+      toast({ title: "Giriş Yapmalısınız", description: "Yorum yapabilmek için giriş yapınız." });
       return;
     }
-
-    if (!newComment.trim()) return;
 
     const { error } = await supabase.from("yorumlar").insert([
       {
@@ -148,9 +145,9 @@ export default function Page({ params }: Props) {
           <div className="grid grid-cols-4 gap-2 mt-4">
             {[vehicle.cover_image, ...vehicle.gallery_images].map((img, i) => (
               <button key={i} onClick={() =>
-                setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img}`)
+                setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img.replace(/^\/+/, "")}`)
               }>
-                <Image src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img}`} alt={`Görsel ${i}`} width={80} height={80} className="object-cover border rounded" />
+                <Image src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img.replace(/^\/+/, "")}`} alt={`Görsel ${i}`} width={80} height={80} className="object-cover border rounded" />
               </button>
             ))}
           </div>
@@ -172,6 +169,8 @@ export default function Page({ params }: Props) {
             {availableSures.map((sure, i) => <option key={i}>{sure}</option>)}
           </select>
 
+          <button className="w-full bg-[#5d3b8b] hover:bg-[#432b6e] text-white py-3 rounded">Garaja Ekle</button>
+
           <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-600">
             <div><strong>Marka:</strong> {vehicle.brand}</div>
             <div><strong>Segment:</strong> {vehicle.segment}</div>
@@ -183,14 +182,6 @@ export default function Page({ params }: Props) {
         </div>
       </div>
 
-      {/* Açıklama */}
-      {vehicle.aciklama && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-4 border-b pb-2">Araç Açıklaması</h2>
-          <div className="text-gray-800 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: vehicle.aciklama }} />
-        </div>
-      )}
-
       {/* Yorumlar */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-4">Yorumlar</h2>
@@ -198,7 +189,7 @@ export default function Page({ params }: Props) {
         {comments.map((c) => (
           <div key={c.id} className="border rounded p-4 mb-4 bg-white">
             <div className="flex justify-between items-center mb-2 text-sm text-gray-700">
-              <span><strong>{c.kullanici?.ad} {c.kullanici?.soyad}</strong></span>
+              <span>{c.kullanici?.ad} {c.kullanici?.soyad}</span>
               <span>{c.puan} ⭐</span>
             </div>
             <p className="text-gray-800">{c.yorum}</p>
@@ -219,6 +210,14 @@ export default function Page({ params }: Props) {
           </div>
         )}
       </div>
+
+      {/* Açıklama */}
+      {vehicle.aciklama && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-4 border-b pb-2">Araç Açıklaması</h2>
+          <div className="text-gray-800 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: vehicle.aciklama }} />
+        </div>
+      )}
     </div>
   );
 }
