@@ -40,33 +40,24 @@ export default function VehicleListPage() {
           return;
         }
 
-        const transformed = await Promise.all(
-          json.data.map(async (item: RawVehicle): Promise<TransformedVehicle> => {
-            let lowestPrice = item.fiyat ?? 0;
+        const transformed = json.data.map((item: any): TransformedVehicle => {
+          let lowestPrice = item.fiyat ?? 0;
 
-            try {
-              const variationRes = await fetch(`https://adminpanel-green-two.vercel.app/api/variations?arac_id=${item.id}`);
-              const variationJson = await variationRes.json();
+          const aktifler = item.variations?.filter((v: any) => v.status === "Aktif") || [];
 
-              const aktifler = variationJson.data?.filter((v: any) => v.status === "Aktif") || [];
+          if (aktifler.length > 0) {
+            lowestPrice = Math.min(...aktifler.map((v: any) => v.fiyat));
+          }
 
-              if (aktifler.length > 0) {
-                lowestPrice = Math.min(...aktifler.map((v: any) => v.fiyat));
-              }
-            } catch (err) {
-              console.error("🔴 Varyasyon verisi alınamadı:", err);
-            }
-
-            return {
-              id: item.id,
-              name: item.isim || "Araç İsmi Yok",
-              image: `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${item.cover_image}`,
-              price: lowestPrice,
-              rating: 4.5,
-              features: [],
-            };
-          })
-        );
+          return {
+            id: item.id,
+            name: item.isim || "Araç İsmi Yok",
+            image: `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${item.cover_image?.replace(/^\/+/, "")}`,
+            price: lowestPrice,
+            rating: 4.5,
+            features: [],
+          };
+        });
 
         setVehicles(transformed);
       } catch (err) {
