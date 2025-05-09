@@ -27,7 +27,7 @@ export default async function Home() {
       price: enDusukFiyat,
       rating: 4.5,
       features: [],
-      variations: aktifVaryasyonlar,
+      variations: aktifVaryasyonlar, // 👈 Bu satır eksikse fiyat hesaplanmaz!
     };
   });
 
@@ -39,7 +39,7 @@ export default async function Home() {
         <Card className="mb-12">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Filtre alanları buraya eklenebilir */}
+              {/* Filtre alanları buraya */}
             </div>
             <div className="mt-4 flex justify-center">
               <Button className="bg-[#e67e22] hover:bg-[#d35400]">Filtrele</Button>
