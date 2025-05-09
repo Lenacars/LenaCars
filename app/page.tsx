@@ -4,17 +4,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import VehicleCard from "@/components/vehicle-card";
 import HowItWorks from "@/components/how-it-works";
 import HeroSlider from "@/components/hero-slider";
-import { getAllVehicles } from "@/lib/api";
 
 export default async function Home() {
-  const rawVehicles = await getAllVehicles();
+  const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  const rawVehicles = json.data || [];
 
   const vehicles = rawVehicles.map((vehicle: any) => {
     const aktifVaryasyonlar = vehicle.variations?.filter((v: any) => v.status === "Aktif") || [];
 
-    const enDusukFiyat = aktifVaryasyonlar.length > 0
-      ? Math.min(...aktifVaryasyonlar.map((v: any) => v.fiyat))
-      : vehicle.fiyat ?? 0;
+    const enDusukFiyat =
+      aktifVaryasyonlar.length > 0
+        ? Math.min(...aktifVaryasyonlar.map((v: any) => v.fiyat))
+        : vehicle.fiyat ?? 0;
 
     return {
       id: vehicle.id,
@@ -27,7 +32,7 @@ export default async function Home() {
       price: enDusukFiyat,
       rating: 4.5,
       features: [],
-      variations: aktifVaryasyonlar, // 👈 Bu satır eksikse fiyat hesaplanmaz!
+      variations: aktifVaryasyonlar,
     };
   });
 
@@ -39,7 +44,7 @@ export default async function Home() {
         <Card className="mb-12">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Filtre alanları buraya */}
+              {/* Filtre alanları buraya eklenebilir */}
             </div>
             <div className="mt-4 flex justify-center">
               <Button className="bg-[#e67e22] hover:bg-[#d35400]">Filtrele</Button>
