@@ -17,11 +17,8 @@ interface VehicleCardProps {
     id: string;
     name: string;
     image?: string;
-    slug?: string;
-    category?: string;
     rating?: number;
     features?: string[];
-    price?: number;
     variations?: Variation[];
   };
 }
@@ -33,20 +30,16 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     id,
     name,
     image,
-    category,
     rating = 4.5,
     features = [],
-    price = 0,
     variations = [],
   } = vehicle;
 
-  const aktifVaryasyonlar = Array.isArray(variations)
-    ? variations.filter((v) => v.status === "Aktif")
-    : [];
-
-  const enDusukFiyat = aktifVaryasyonlar.length > 0
-    ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
-    : price ?? 0;
+  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
+  const enDusukFiyat =
+    aktifVaryasyonlar.length > 0
+      ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
+      : 0;
 
   const imageUrl = image || "/placeholder.svg";
 
@@ -63,19 +56,12 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         .maybeSingle();
 
       if (existing) {
-        toast({
-          title: "Zaten eklenmiş",
-          description: "Bu araç zaten garajınızda.",
-        });
+        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
         return;
       }
 
       await supabase.from("garaj").insert([{ user_id: userId, arac_id: id }]);
-
-      toast({
-        title: "Garaja Eklendi",
-        description: `${name} başarıyla garajınıza eklendi.`,
-      });
+      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
     } else {
       let stored: string[] = [];
       try {
@@ -84,21 +70,11 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         stored = [];
       }
 
-      if (stored.includes(id)) {
-        toast({
-          title: "Zaten eklenmiş",
-          description: "Bu araç zaten garajınızda.",
-        });
-        return;
+      if (!stored.includes(id)) {
+        stored.push(id);
+        localStorage.setItem("guest_garaj", JSON.stringify(stored));
+        toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
       }
-
-      stored.push(id);
-      localStorage.setItem("guest_garaj", JSON.stringify(stored));
-
-      toast({
-        title: "Garaja Eklendi",
-        description: `${name} başarıyla garajınıza eklendi.`,
-      });
     }
   };
 
@@ -130,9 +106,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
 
         <div className="flex flex-wrap gap-2 mb-4 text-xs text-muted-foreground">
           {features.map((feature, i) => (
-            <span key={i} className="px-2 py-1 bg-gray-100 rounded">
-              {feature}
-            </span>
+            <span key={i} className="px-2 py-1 bg-gray-100 rounded">{feature}</span>
           ))}
         </div>
 
