@@ -77,7 +77,7 @@ export default function MainHeader() {
         .single();
 
       if (data && !error) {
-        setUserName(${data.ad} ${data.soyad});
+        setUserName(`${data.ad} ${data.soyad}`);
       }
     };
 
@@ -248,9 +248,9 @@ export default function MainHeader() {
 
             <Link
               href={userName ? "/profil" : "/giris"}
-              className={${
+              className={`${
                 userName ? "bg-green-100 text-green-700" : "bg-[#6A3C96] text-white hover:bg-[#5a3080]"
-              } px-4 py-2 rounded-md transition-colors}
+              } px-4 py-2 rounded-md transition-colors`}
             >
               {userName || "Giriş Yap / Üye Ol"}
             </Link>
