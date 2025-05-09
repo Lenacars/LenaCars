@@ -64,6 +64,16 @@ export default function Page({ params }: Props) {
         ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image}`
         : "/placeholder.svg";
       setSelectedImage(image);
+
+      // ✅ En ucuz varyasyonu bulup onu seç
+      const aktifVaryasyonlar = (varData || []).filter(v => v.status === "Aktif");
+      const enUcuz = aktifVaryasyonlar.reduce((prev, curr) =>
+        curr.fiyat < prev.fiyat ? curr : prev, aktifVaryasyonlar[0]);
+
+      if (enUcuz) {
+        setSelectedKm(enUcuz.kilometre);
+        setSelectedSure(enUcuz.sure);
+      }
     };
 
     fetchData();
