@@ -17,12 +17,10 @@ interface VehicleCardProps {
     id: string;
     name: string;
     image?: string;
-    slug?: string;
-    category?: string;
     rating?: number;
     features?: string[];
     price?: number;
-    variations?: Variation[];
+    variations?: Variation[]; // 🔑 Varyasyonlar buradan alınacak
   };
 }
 
@@ -39,10 +37,9 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     variations = [],
   } = vehicle;
 
-  // ✅ En düşük aktif varyasyon fiyatını bul
-  const aktifVaryasyonlar = variations?.filter(v => v.status === "Aktif") || [];
-  const enDusukFiyat = aktifVaryasyonlar.length > 0
-    ? Math.min(...aktifVaryasyonlar.map(v => v.fiyat))
+  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
+  const enDusukFiyat = aktifVaryasyonlar.length
+    ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
     : price;
 
   const imageUrl = image || "/placeholder.svg";
