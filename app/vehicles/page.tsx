@@ -34,23 +34,39 @@ export default function VehicleListPage() {
           },
         });
 
-        console.log("📦 İstek atıldı. Status:", res.status);
         const json = await res.json();
-        console.log("📊 API'den dönen veri:", json);
-
         if (!res.ok) {
           console.error("❌ API hatası:", json.error);
           return;
         }
 
-        const transformed = json.data.map((item: RawVehicle): TransformedVehicle => ({
-          id: item.id,
-          name: item.isim || "Araç İsmi Yok",
-          image: `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${item.cover_image}`,
-          price: item.fiyat ?? 0,
-          rating: 4.5,
-          features: [],
-        }));
+        const transformed = await Promise.all(
+          json.data.map(async (item: RawVehicle): Promise<TransformedVehicle> => {
+            let lowestPrice = item.fiyat ?? 0;
+
+            try {
+              const variationRes = await fetch(`https://adminpanel-green-two.vercel.app/api/variations?arac_id=${item.id}`);
+              const variationJson = await variationRes.json();
+
+              const aktifler = variationJson.data?.filter((v: any) => v.status === "Aktif") || [];
+
+              if (aktifler.length > 0) {
+                lowestPrice = Math.min(...aktifler.map((v: any) => v.fiyat));
+              }
+            } catch (err) {
+              console.error("🔴 Varyasyon verisi alınamadı:", err);
+            }
+
+            return {
+              id: item.id,
+              name: item.isim || "Araç İsmi Yok",
+              image: `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${item.cover_image}`,
+              price: lowestPrice,
+              rating: 4.5,
+              features: [],
+            };
+          })
+        );
 
         setVehicles(transformed);
       } catch (err) {
