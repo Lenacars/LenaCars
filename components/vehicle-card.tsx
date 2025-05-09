@@ -7,6 +7,11 @@ import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase-browser";
 
+interface Variation {
+  fiyat: number;
+  status: string;
+}
+
 interface VehicleCardProps {
   vehicle: {
     id: string;
@@ -17,6 +22,7 @@ interface VehicleCardProps {
     rating?: number;
     features?: string[];
     price?: number;
+    variations?: Variation[];
   };
 }
 
@@ -31,66 +37,36 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     rating = 4.5,
     features = [],
     price = 0,
+    variations = [],
   } = vehicle;
+
+  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
+  const enDusukFiyat = aktifVaryasyonlar.length
+    ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
+    : price;
 
   const imageUrl = image || "/placeholder.svg";
 
   const handleAddToGarage = async () => {
-    console.log("🟢 Garaja ekle tıklandı:", id);
-
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError) {
-      console.error("🔴 Session alma hatası:", sessionError);
-    }
-
+    const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id;
 
-    console.log("🟢 Kullanıcı ID:", userId || "Misafir");
-
     if (userId) {
-      console.log("🟢 Giriş yapmış kullanıcı:", userId);
-
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing } = await supabase
         .from("garaj")
         .select("id")
         .eq("user_id", userId)
         .eq("arac_id", id)
         .maybeSingle();
 
-      if (checkError) {
-        console.error("❌ Kontrol hatası:", checkError);
-      }
-
       if (existing) {
-        toast({
-          title: "Zaten eklenmiş",
-          description: "Bu araç zaten garajınızda.",
-        });
+        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
         return;
       }
 
-      const { error: insertError } = await supabase
-        .from("garaj")
-        .insert([{ user_id: userId, arac_id: id }]);
-
-      if (insertError) {
-        console.error("❌ Ekleme hatası:", insertError);
-        toast({
-          title: "Hata",
-          description: "Araç garaja eklenemedi.",
-          variant: "destructive",
-        });
-      } else {
-        console.log("✅ Supabase'e eklendi:", id);
-        toast({
-          title: "Garaja Eklendi",
-          description: `${name} başarıyla garajınıza eklendi.`,
-        });
-      }
+      await supabase.from("garaj").insert([{ user_id: userId, arac_id: id }]);
+      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
     } else {
-      console.log("👤 Misafir kullanıcı - localStorage kullanılacak.");
-
       let stored: string[] = [];
       try {
         stored = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
@@ -99,22 +75,13 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       }
 
       if (stored.includes(id)) {
-        toast({
-          title: "Zaten eklenmiş",
-          description: "Bu araç zaten garajınızda.",
-        });
+        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
         return;
       }
 
       stored.push(id);
       localStorage.setItem("guest_garaj", JSON.stringify(stored));
-
-      console.log("✅ LocalStorage'a eklendi:", id);
-
-      toast({
-        title: "Garaja Eklendi",
-        description: `${name} başarıyla garajınıza eklendi.`,
-      });
+      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
     }
   };
 
@@ -153,7 +120,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         </div>
 
         <div className="text-xl font-bold text-[#5d3b8b] mb-4">
-          {price.toLocaleString()} ₺{" "}
+          {enDusukFiyat.toLocaleString()} ₺{" "}
           <span className="text-sm font-normal text-gray-500">/ aylık</span>
         </div>
 
