@@ -33,11 +33,11 @@ interface Vehicle {
   fiyat: number;
   cover_image: string;
   gallery_images: string[];
+  variations: Variation[];
 }
 
 export default function Page({ params }: Props) {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [variations, setVariations] = useState<Variation[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedKm, setSelectedKm] = useState("");
   const [selectedSure, setSelectedSure] = useState("");
@@ -45,30 +45,29 @@ export default function Page({ params }: Props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: arac, error } = await supabase
+      const { data, error } = await supabase
         .from("Araclar")
-        .select("*")
+        .select("*, variations:variations(arac_id, kilometre, sure, fiyat, status)")
         .eq("id", params.id)
         .maybeSingle();
 
-      const { data: varData } = await supabase
-        .from("variations")
-        .select("*")
-        .eq("arac_id", params.id);
+      if (error || !data) {
+        console.error("❌ Araç verisi çekme hatası:", error);
+        setVehicle(null);
+        return;
+      }
 
-      if (error || !arac) return;
+      setVehicle(data);
 
-      setVehicle(arac);
-      setVariations(varData || []);
-
-      const image = arac.cover_image
-        ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image}`
+      const initialImage = data.cover_image
+        ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${data.cover_image}`
         : "/placeholder.svg";
-      setSelectedImage(image);
+      setSelectedImage(initialImage);
 
-      if (varData && varData.length > 0) {
-        setSelectedKm(varData[0].kilometre);
-        setSelectedSure(varData[0].sure);
+      const aktifler = data.variations?.filter((v) => v.status === "Aktif") || [];
+      if (aktifler.length > 0) {
+        setSelectedKm(aktifler[0].kilometre);
+        setSelectedSure(aktifler[0].sure);
       }
     };
 
@@ -76,21 +75,41 @@ export default function Page({ params }: Props) {
   }, [params.id]);
 
   useEffect(() => {
-    const match = variations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
-    setMatchedPrice(match?.fiyat || null);
-  }, [selectedKm, selectedSure, variations]);
+    if (!vehicle || !selectedKm || !selectedSure) {
+      setMatchedPrice(null);
+      return;
+    }
 
-  if (!vehicle) return <div className="p-10 text-center">Yükleniyor...</div>;
+    const match = vehicle.variations?.find(
+      (v) => v.kilometre === selectedKm && v.sure === selectedSure && v.status === "Aktif"
+    );
+
+    setMatchedPrice(match?.fiyat ?? null);
+  }, [selectedKm, selectedSure, vehicle]);
+
+  if (!vehicle) {
+    return <div className="p-10 text-center text-gray-600">Araç bilgileri yükleniyor veya bulunamadı...</div>;
+  }
 
   const gallery: string[] = vehicle.gallery_images || [];
-  const activeVariations = variations.filter(v => v.status === "Aktif");
-  const availableKms = [...new Set(activeVariations.map(v => v.kilometre))];
-  const availableSures = [...new Set(activeVariations.map(v => v.sure))];
+  const aktifVaryasyonlar = vehicle.variations?.filter((v) => v.status === "Aktif") || [];
+
+  const availableKms = [...new Set(aktifVaryasyonlar.map((v) => v.kilometre))];
+  const availableSures = [...new Set(aktifVaryasyonlar.map((v) => v.sure))];
+
+  const displayPrice = matchedPrice !== null
+    ? matchedPrice
+    : aktifVaryasyonlar.length > 0
+    ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
+    : null;
 
   const handleAddToGarage = async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData.session?.user?.id;
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      console.error("❌ Session alma hatası:", sessionError);
+    }
 
+    const userId = sessionData.session?.user?.id;
     if (userId) {
       const { data: existing } = await supabase
         .from("garaj")
@@ -104,8 +123,15 @@ export default function Page({ params }: Props) {
         return;
       }
 
-      await supabase.from("garaj").insert([{ user_id: userId, arac_id: vehicle.id }]);
-      toast({ title: "Garaja Eklendi", description: `${vehicle.isim} başarıyla garajınıza eklendi.` });
+      const { error: insertError } = await supabase
+        .from("garaj")
+        .insert([{ user_id: userId, arac_id: vehicle.id }]);
+
+      if (insertError) {
+        toast({ title: "Hata", description: "Araç garaja eklenemedi.", variant: "destructive" });
+      } else {
+        toast({ title: "Garaja Eklendi", description: `${vehicle.isim} başarıyla garajınıza eklendi.` });
+      }
     } else {
       let stored: string[] = [];
       try {
@@ -113,10 +139,13 @@ export default function Page({ params }: Props) {
       } catch {
         stored = [];
       }
+
       if (!stored.includes(vehicle.id)) {
         stored.push(vehicle.id);
         localStorage.setItem("guest_garaj", JSON.stringify(stored));
         toast({ title: "Garaja Eklendi", description: `${vehicle.isim} başarıyla garajınıza eklendi.` });
+      } else {
+        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
       }
     }
   };
@@ -139,9 +168,7 @@ export default function Page({ params }: Props) {
               <button
                 key={idx}
                 onClick={() =>
-                  setSelectedImage(
-                    `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img}`
-                  )
+                  setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${img}`)
                 }
                 className="relative w-full aspect-square rounded overflow-hidden border hover:ring-2 ring-[#5d3b8b]"
               >
@@ -160,12 +187,12 @@ export default function Page({ params }: Props) {
           <h1 className="text-3xl font-bold mb-2">{vehicle.isim}</h1>
 
           <div className="text-[#5d3b8b] text-2xl font-semibold mb-2">
-            {selectedKm && selectedSure && matchedPrice !== null
-              ? `${matchedPrice.toLocaleString()} ₺ / Aylık`
-              : vehicle.fiyat
-              ? `${vehicle.fiyat.toLocaleString()} ₺ / Aylık (Başlangıç)`
-              : "Fiyat bilgisi yok"}
+            {displayPrice ? `${displayPrice.toLocaleString()} ₺ / Aylık` : "Fiyat bilgisi yok"}
           </div>
+
+          {vehicle.kisa_aciklama && (
+            <div className="text-sm text-gray-700 mb-4">{vehicle.kisa_aciklama}</div>
+          )}
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Kilometre Limiti</label>
@@ -195,20 +222,20 @@ export default function Page({ params }: Props) {
             </select>
           </div>
 
-          {selectedKm && selectedSure && matchedPrice !== null && (
-            <div className="text-[#5d3b8b] text-xl font-medium mb-4">
-              Seçilen Paket: <strong>{matchedPrice.toLocaleString()} ₺</strong>
-            </div>
-          )}
-
           <button
             onClick={handleAddToGarage}
-            className="w-full bg-[#5d3b8b] hover:bg-[#432b6e] text-white font-semibold py-3 rounded transition"
+            disabled={matchedPrice === null}
+            className={`w-full font-semibold py-3 rounded transition ${
+              matchedPrice === null
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-[#5d3b8b] hover:bg-[#432b6e] text-white"
+            }`}
           >
-            Garaja Ekle
+            {matchedPrice === null ? "Seçilen varyasyon stokta yok" : "Garaja Ekle"}
           </button>
 
           <div className="mt-6 grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <div><strong>Stok Kodu:</strong> {vehicle.stok_kodu}</div>
             <div><strong>Marka:</strong> {vehicle.brand}</div>
             <div><strong>Segment:</strong> {vehicle.segment}</div>
             <div><strong>Yakıt Türü:</strong> {vehicle.yakit_turu}</div>
