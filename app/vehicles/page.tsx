@@ -14,7 +14,6 @@ interface RawVehicle {
   aciklama?: string;
   cover_image?: string;
   fiyat?: number;
-  variations?: Variation[];
 }
 
 interface TransformedVehicle {
@@ -24,7 +23,7 @@ interface TransformedVehicle {
   price: number;
   rating: number;
   features: string[];
-  variations: Variation[]; // 💡 Kartta gösterim için gerekiyor
+  variations: Variation[]; // 🔑 Bunu ekledik
 }
 
 export default function VehicleListPage() {
@@ -35,10 +34,7 @@ export default function VehicleListPage() {
     const fetchVehicles = async () => {
       try {
         const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
 
         const json = await res.json();
@@ -48,10 +44,11 @@ export default function VehicleListPage() {
           return;
         }
 
-        const transformed = json.data.map((item: RawVehicle): TransformedVehicle => {
-          const aktifler = item.variations?.filter(v => v.status === "Aktif") || [];
+        const transformed: TransformedVehicle[] = json.data.map((item: any) => {
+          const aktifler = item.variations?.filter((v: any) => v.status === "Aktif") || [];
+
           const lowestPrice = aktifler.length > 0
-            ? Math.min(...aktifler.map(v => v.fiyat))
+            ? Math.min(...aktifler.map((v: any) => v.fiyat))
             : item.fiyat ?? 0;
 
           return {
@@ -61,14 +58,13 @@ export default function VehicleListPage() {
             price: lowestPrice,
             rating: 4.5,
             features: [],
-            variations: item.variations || [], // 🔑 Burada mutlaka gönderilmeli
+            variations: aktifler, // 🔥 Kartlara göndermek için aktif varyasyonları ekliyoruz
           };
         });
 
         setVehicles(transformed);
       } catch (err) {
         console.error("❌ Fetch hatası:", err);
-        setLoading(false);
       } finally {
         setLoading(false);
       }
