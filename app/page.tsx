@@ -44,7 +44,7 @@ export default function Home() {
           image: vehicle.cover_image?.startsWith("http")
             ? vehicle.cover_image
             : vehicle.cover_image
-              ? https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}
+              ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`
               : "/placeholder.svg",
           price: enDusukFiyat,
           rating: vehicle.rating || 4.5,
