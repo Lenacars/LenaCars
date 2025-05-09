@@ -19,6 +19,7 @@ export default function Home() {
     vites: "",
     durum: "",
   });
+  const [sortType, setSortType] = useState("price-asc");
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -46,7 +47,7 @@ export default function Home() {
               ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`
               : "/placeholder.svg",
           price: enDusukFiyat,
-          rating: 4.5,
+          rating: vehicle.rating || 4.5,
           features: [],
           variations: aktifVaryasyonlar,
         };
@@ -60,7 +61,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const results = vehicles.filter((v) =>
+    let results = vehicles.filter((v) =>
       (!filters.brand || v.brand === filters.brand) &&
       (!filters.segment || v.segment === filters.segment) &&
       (!filters.bodyType || v.bodyType === filters.bodyType) &&
@@ -68,8 +69,17 @@ export default function Home() {
       (!filters.vites || v.vites === filters.vites) &&
       (!filters.durum || v.durum === filters.durum)
     );
+
+    if (sortType === "price-asc") {
+      results.sort((a, b) => a.price - b.price);
+    } else if (sortType === "price-desc") {
+      results.sort((a, b) => b.price - a.price);
+    } else if (sortType === "rating") {
+      results.sort((a, b) => b.rating - a.rating);
+    }
+
     setFiltered(results);
-  }, [filters, vehicles]);
+  }, [filters, sortType, vehicles]);
 
   return (
     <>
@@ -79,82 +89,43 @@ export default function Home() {
         <Card className="mb-12">
           <CardContent className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              <select
-                className="border p-2 rounded"
-                value={filters.brand}
-                onChange={(e) => setFilters({ ...filters, brand: e.target.value })}
-              >
-                <option value="">Marka</option>
-                {Array.from(new Set(vehicles.map((v) => v.brand).filter(Boolean))).map((brand) => (
-                  <option key={brand}>{brand}</option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded"
-                value={filters.segment}
-                onChange={(e) => setFilters({ ...filters, segment: e.target.value })}
-              >
-                <option value="">Segment</option>
-                {Array.from(new Set(vehicles.map((v) => v.segment).filter(Boolean))).map((segment) => (
-                  <option key={segment}>{segment}</option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded"
-                value={filters.bodyType}
-                onChange={(e) => setFilters({ ...filters, bodyType: e.target.value })}
-              >
-                <option value="">Kasa Tipi</option>
-                {Array.from(new Set(vehicles.map((v) => v.bodyType).filter(Boolean))).map((body) => (
-                  <option key={body}>{body}</option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded"
-                value={filters.yakit_turu}
-                onChange={(e) => setFilters({ ...filters, yakit_turu: e.target.value })}
-              >
-                <option value="">Yakıt Türü</option>
-                {Array.from(new Set(vehicles.map((v) => v.yakit_turu).filter(Boolean))).map((fuel) => (
-                  <option key={fuel}>{fuel}</option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded"
-                value={filters.vites}
-                onChange={(e) => setFilters({ ...filters, vites: e.target.value })}
-              >
-                <option value="">Vites</option>
-                {Array.from(new Set(vehicles.map((v) => v.vites).filter(Boolean))).map((gear) => (
-                  <option key={gear}>{gear}</option>
-                ))}
-              </select>
-
-              <select
-                className="border p-2 rounded"
-                value={filters.durum}
-                onChange={(e) => setFilters({ ...filters, durum: e.target.value })}
-              >
-                <option value="">Durum</option>
-                {Array.from(new Set(vehicles.map((v) => v.durum).filter(Boolean))).map((status) => (
-                  <option key={status}>{status}</option>
-                ))}
-              </select>
+              {[
+                { key: "brand", label: "Marka" },
+                { key: "segment", label: "Segment" },
+                { key: "bodyType", label: "Kasa Tipi" },
+                { key: "yakit_turu", label: "Yakıt Türü" },
+                { key: "vites", label: "Vites" },
+                { key: "durum", label: "Durum" },
+              ].map(({ key, label }) => (
+                <select
+                  key={key}
+                  className="border p-2 rounded"
+                  value={filters[key as keyof typeof filters]}
+                  onChange={(e) => setFilters({ ...filters, [key]: e.target.value })}
+                >
+                  <option value="">{label}</option>
+                  {Array.from(new Set(vehicles.map((v) => v[key as keyof typeof filters]).filter(Boolean))).map((value) => (
+                    <option key={value}>{value}</option>
+                  ))}
+                </select>
+              ))}
             </div>
           </CardContent>
         </Card>
 
         <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
             <h2 className="text-2xl font-bold">Araç Filomuz</h2>
-            <div className="flex items-center">
-              <span className="mr-2 text-sm">{filtered.length} sonuç bulundu</span>
-              <select className="p-2 border rounded-md text-sm">
-                <option>Fiyata göre sırala: Düşükten yükseğe</option>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">{filtered.length} sonuç bulundu</span>
+              <select
+                value={sortType}
+                onChange={(e) => setSortType(e.target.value)}
+                className="p-2 border rounded-md text-sm"
+              >
+                <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
+                <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
+                <option value="rating">Puan: En Yüksek</option>
               </select>
             </div>
           </div>
