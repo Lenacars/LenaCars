@@ -40,10 +40,13 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     variations = [],
   } = vehicle;
 
-  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
-  const enDusukFiyat = aktifVaryasyonlar.length
+  const aktifVaryasyonlar = Array.isArray(variations)
+    ? variations.filter((v) => v.status === "Aktif")
+    : [];
+
+  const enDusukFiyat = aktifVaryasyonlar.length > 0
     ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
-    : price;
+    : price ?? 0;
 
   const imageUrl = image || "/placeholder.svg";
 
@@ -60,12 +63,19 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         .maybeSingle();
 
       if (existing) {
-        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
+        toast({
+          title: "Zaten eklenmiş",
+          description: "Bu araç zaten garajınızda.",
+        });
         return;
       }
 
       await supabase.from("garaj").insert([{ user_id: userId, arac_id: id }]);
-      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
+
+      toast({
+        title: "Garaja Eklendi",
+        description: `${name} başarıyla garajınıza eklendi.`,
+      });
     } else {
       let stored: string[] = [];
       try {
@@ -75,13 +85,20 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       }
 
       if (stored.includes(id)) {
-        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
+        toast({
+          title: "Zaten eklenmiş",
+          description: "Bu araç zaten garajınızda.",
+        });
         return;
       }
 
       stored.push(id);
       localStorage.setItem("guest_garaj", JSON.stringify(stored));
-      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
+
+      toast({
+        title: "Garaja Eklendi",
+        description: `${name} başarıyla garajınıza eklendi.`,
+      });
     }
   };
 
