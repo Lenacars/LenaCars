@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,7 +21,7 @@ export default function Page({ params }: Props) {
     const fetchData = async () => {
       const { data, error } = await supabase
         .from("Araclar")
-        .select("*, variations:variations!product_id(*)")
+        .select("*, variations:variations(*)")
         .eq("id", params.id)
         .maybeSingle();
 
@@ -53,12 +52,8 @@ export default function Page({ params }: Props) {
   const gallery: string[] = vehicle.gallery_images || [];
 
   const handleAddToGarage = async () => {
-    console.log("🟢 Garaja ekle tıklandı:", vehicle.id);
-
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) {
-      console.error("❌ Session alma hatası:", sessionError);
-    }
+    if (sessionError) console.error("❌ Session alma hatası:", sessionError);
 
     const userId = sessionData.session?.user?.id;
     if (userId) {
@@ -152,9 +147,7 @@ export default function Page({ params }: Props) {
           </div>
 
           {vehicle.kisa_aciklama && (
-            <div className="text-sm text-gray-700 mb-4">
-              {vehicle.kisa_aciklama}
-            </div>
+            <div className="text-sm text-gray-700 mb-4">{vehicle.kisa_aciklama}</div>
           )}
 
           <div className="mb-4">
