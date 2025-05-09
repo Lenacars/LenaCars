@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import VehicleCard from "@/components/vehicle-card";
@@ -20,6 +21,9 @@ export default function Home() {
     durum: "",
   });
   const [sortType, setSortType] = useState("price-asc");
+
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("arama")?.toLowerCase().trim() || "";
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -70,6 +74,13 @@ export default function Home() {
       (!filters.durum || v.durum === filters.durum)
     );
 
+    if (searchQuery) {
+      results = results.filter((v) =>
+        v.isim?.toLowerCase().includes(searchQuery) ||
+        v.stok_kodu?.toLowerCase().includes(searchQuery)
+      );
+    }
+
     if (sortType === "price-asc") {
       results.sort((a, b) => a.price - b.price);
     } else if (sortType === "price-desc") {
@@ -79,7 +90,7 @@ export default function Home() {
     }
 
     setFiltered(results);
-  }, [filters, sortType, vehicles]);
+  }, [filters, sortType, vehicles, searchQuery]);
 
   return (
     <>
