@@ -24,7 +24,7 @@ interface TransformedVehicle {
   price: number;
   rating: number;
   features: string[];
-  variations: Variation[]; // 🔧 Gerekli alan
+  variations: Variation[]; // 💡 Kartta gösterim için gerekiyor
 }
 
 export default function VehicleListPage() {
@@ -49,9 +49,9 @@ export default function VehicleListPage() {
         }
 
         const transformed = json.data.map((item: RawVehicle): TransformedVehicle => {
-          const aktifler = item.variations?.filter((v) => v.status === "Aktif") || [];
+          const aktifler = item.variations?.filter(v => v.status === "Aktif") || [];
           const lowestPrice = aktifler.length > 0
-            ? Math.min(...aktifler.map((v) => v.fiyat))
+            ? Math.min(...aktifler.map(v => v.fiyat))
             : item.fiyat ?? 0;
 
           return {
@@ -61,7 +61,7 @@ export default function VehicleListPage() {
             price: lowestPrice,
             rating: 4.5,
             features: [],
-            variations: item.variations || [],
+            variations: item.variations || [], // 🔑 Burada mutlaka gönderilmeli
           };
         });
 
