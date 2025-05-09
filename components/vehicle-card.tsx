@@ -17,8 +17,11 @@ interface VehicleCardProps {
     id: string;
     name: string;
     image?: string;
+    slug?: string;
+    category?: string;
     rating?: number;
     features?: string[];
+    price?: number;
     variations?: Variation[];
   };
 }
@@ -32,14 +35,15 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     image,
     rating = 4.5,
     features = [],
+    price = 0,
     variations = [],
   } = vehicle;
 
-  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
-  const enDusukFiyat =
-    aktifVaryasyonlar.length > 0
-      ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
-      : 0;
+  // ✅ En düşük aktif varyasyon fiyatını bul
+  const aktifVaryasyonlar = variations?.filter(v => v.status === "Aktif") || [];
+  const enDusukFiyat = aktifVaryasyonlar.length > 0
+    ? Math.min(...aktifVaryasyonlar.map(v => v.fiyat))
+    : price;
 
   const imageUrl = image || "/placeholder.svg";
 
@@ -70,11 +74,14 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         stored = [];
       }
 
-      if (!stored.includes(id)) {
-        stored.push(id);
-        localStorage.setItem("guest_garaj", JSON.stringify(stored));
-        toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
+      if (stored.includes(id)) {
+        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
+        return;
       }
+
+      stored.push(id);
+      localStorage.setItem("guest_garaj", JSON.stringify(stored));
+      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
     }
   };
 
@@ -106,7 +113,9 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
 
         <div className="flex flex-wrap gap-2 mb-4 text-xs text-muted-foreground">
           {features.map((feature, i) => (
-            <span key={i} className="px-2 py-1 bg-gray-100 rounded">{feature}</span>
+            <span key={i} className="px-2 py-1 bg-gray-100 rounded">
+              {feature}
+            </span>
           ))}
         </div>
 
