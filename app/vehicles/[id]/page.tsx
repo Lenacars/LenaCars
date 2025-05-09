@@ -75,7 +75,6 @@ export default function Page({ params }: Props) {
         .order("created_at", { ascending: false });
 
       const sessionRes = await supabase.auth.getSession();
-
       setSession(sessionRes.data.session);
       setVehicle(arac);
       setVariations(varData || []);
@@ -110,10 +109,14 @@ export default function Page({ params }: Props) {
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
-    const { data, error } = await supabase.from("yorumlar").insert({
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    const { error } = await supabase.from("yorumlar").insert({
       arac_id: vehicle?.id,
       yorum: newComment,
       puan: newRating,
+      user_id: userId, // 🔐 RLS için şart
     });
 
     if (error) {
@@ -137,6 +140,7 @@ export default function Page({ params }: Props) {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      {/* ÜST KISIM */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
           <div className="relative w-full h-[400px] rounded overflow-hidden border bg-white">
@@ -170,18 +174,13 @@ export default function Page({ params }: Props) {
 
         <div>
           <h1 className="text-3xl font-bold mb-2">{vehicle.isim}</h1>
-
           <div className="text-[#5d3b8b] text-2xl font-semibold mb-4">
             {displayPrice ? `${displayPrice.toLocaleString()} ₺ / Aylık` : "Fiyat bilgisi yok"}
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Kilometre Limiti</label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={selectedKm}
-              onChange={(e) => setSelectedKm(e.target.value)}
-            >
+            <select className="w-full border rounded px-3 py-2" value={selectedKm} onChange={(e) => setSelectedKm(e.target.value)}>
               {availableKms.map((km, i) => (
                 <option key={i} value={km}>{km}</option>
               ))}
@@ -190,11 +189,7 @@ export default function Page({ params }: Props) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Süre</label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={selectedSure}
-              onChange={(e) => setSelectedSure(e.target.value)}
-            >
+            <select className="w-full border rounded px-3 py-2" value={selectedSure} onChange={(e) => setSelectedSure(e.target.value)}>
               {availableSures.map((sure, i) => (
                 <option key={i} value={sure}>{sure}</option>
               ))}
@@ -203,15 +198,18 @@ export default function Page({ params }: Props) {
         </div>
       </div>
 
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4 border-b pb-2">Araç Açıklaması</h2>
-        <div
-          className="text-gray-800 prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{ __html: vehicle.aciklama }}
-        />
-      </div>
+      {/* AÇIKLAMA */}
+      {vehicle.aciklama && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-4 border-b pb-2">Araç Açıklaması</h2>
+          <div
+            className="text-gray-800 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: vehicle.aciklama }}
+          />
+        </div>
+      )}
 
-      {/* Yorum Formu – sadece oturum varsa */}
+      {/* YORUM FORMU */}
       {session && (
         <div className="mt-12">
           <h3 className="text-xl font-bold mb-2">Yorum Yap</h3>
@@ -240,7 +238,7 @@ export default function Page({ params }: Props) {
         </div>
       )}
 
-      {/* Yorumlar */}
+      {/* YORUMLAR */}
       {comments.length > 0 && (
         <div className="mt-12">
           <h3 className="text-xl font-bold mb-4">Yorumlar</h3>
