@@ -43,7 +43,7 @@ export default function BlogPage() {
             <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer">
               {blog.thumbnail_image && (
                 <img
-                  src={blog.thumbnail_image.replace(/^\/+/, "")}
+                src={blog.thumbnail_image.replace(/^\/+/, "")}
                   alt={blog.title}
                   className="w-full h-48 object-cover rounded mb-3"
                 />
