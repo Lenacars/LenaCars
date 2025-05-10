@@ -128,30 +128,28 @@ export default function MainHeader() {
             <h2 className="text-lg font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
           </div>
 
-          <div className="hidden md:flex items-center space-x-3">
-            <Link href="https://facebook.com" target="_blank" className="hover:text-gray-200" aria-label="Facebook">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
-              </svg>
-            </Link>
-            <Link href="https://instagram.com" target="_blank" className="hover:text-gray-200" aria-label="Instagram">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07..." />
-              </svg>
-            </Link>
-            <Link href="https://linkedin.com" target="_blank" className="hover:text-gray-200" aria-label="LinkedIn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M4.98 3.5c0 1.381-1.11 2.5..." />
-              </svg>
-            </Link>
-            <Link href="https://youtube.com" target="_blank" className="hover:text-gray-200" aria-label="YouTube">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M19.615 3.184c-3.604-.246..." />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </div>
+         div className="hidden md:flex items-center space-x-3">
+  <Link href="https://facebook.com" target="_blank" className="hover:text-gray-200" aria-label="Facebook">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-5 w-5 text-white" viewBox="0 0 24 24">
+      <path d="M9 8H6v4h3v12h5V12h4l1-4h-5V6c0-.828.172-1 1-1h4V0h-5c-4 0-5 2-5 5v3z" />
+    </svg>
+  </Link>
+  <Link href="https://instagram.com" target="_blank" className="hover:text-gray-200" aria-label="Instagram">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-5 w-5 text-white" viewBox="0 0 24 24">
+      <path d="M12 2.2c3.2 0 3.6.012 4.85.07 3.252.148 4.77 1.69 4.92 4.92.057 1.264.07 1.645.07 4.85s-.012 3.586-.07 4.85c-.15 3.225-1.67 4.77-4.92 4.92-1.265.057-1.645.07-4.85.07s-3.586-.013-4.85-.07c-3.225-.15-4.77-1.67-4.92-4.92C2.213 15.586 2.2 15.205 2.2 12s.013-3.586.07-4.85c.15-3.225 1.67-4.77 4.92-4.92C8.414 2.213 8.795 2.2 12 2.2zm0 1.8C8.72 4 8.34 4.012 7.08 4.07c-2.707.123-3.632 1.04-3.755 3.755C3.26 8.34 3.25 8.72 3.25 12s.01 3.66.07 4.92c.123 2.717 1.048 3.632 3.755 3.755C8.34 20 8.72 20.01 12 20.01s3.66-.01 4.92-.07c2.717-.123 3.632-1.048 3.755-3.755.058-1.26.07-1.64.07-4.92s-.012-3.66-.07-4.92c-.123-2.717-1.048-3.632-3.755-3.755C15.66 4.012 15.28 4 12 4zm0 2.8a5.2 5.2 0 110 10.4 5.2 5.2 0 010-10.4zm0 1.8a3.4 3.4 0 100 6.8 3.4 3.4 0 000-6.8zm5.2-.9a1.2 1.2 0 11-2.4 0 1.2 1.2 0 012.4 0z" />
+    </svg>
+  </Link>
+  <Link href="https://linkedin.com" target="_blank" className="hover:text-gray-200" aria-label="LinkedIn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-5 w-5 text-white" viewBox="0 0 24 24">
+      <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.11 1 2.5 1s2.48 1.12 2.48 2.5zM.08 8h4.83V24H.08V8zM7.98 8h4.63v2.2c.6-1.1 2.3-2.2 4.37-2.2 4.68 0 5.54 3.1 5.54 7.1V24h-4.8v-6.9c0-1.6 0-3.7-2.26-3.7s-2.6 1.74-2.6 3.6V24H7.98V8z" />
+    </svg>
+  </Link>
+  <Link href="https://youtube.com" target="_blank" className="hover:text-gray-200" aria-label="YouTube">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="h-5 w-5 text-white" viewBox="0 0 24 24">
+      <path d="M21.8 8.001c-.2-1.5-.8-2.6-2.3-2.8C17.2 5 12 5 12 5s-5.2 0-7.5.2c-1.5.2-2.1 1.3-2.3 2.8-.2 1.8-.2 5.5 0 7.2.2 1.5.8 2.6 2.3 2.8C6.8 20 12 20 12 20s5.2 0 7.5-.2c1.5-.2 2.1-1.3 2.3-2.8.2-1.8.2-5.5 0-7.2zM9.75 15.02V8.98l6 3.02-6 3.02z" />
+    </svg>
+  </Link>
+</div>
 
       {/* LOGO + ARAMA KUTUSU BURASI */}
       <div className="bg-white py-4 px-4 shadow-sm">
