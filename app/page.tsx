@@ -1,17 +1,17 @@
 "use client";
 
-import Image from "next/image"; // Kullanılmıyorsa kaldırılabilir veya VehicleCard içinde kullanılıyordur.
+import Image from "next/image"; // VehicleCard içinde kullanılıyor olabilir
 import { useEffect, useState } from "react";
-// import { Button } from "@/components/ui/button"; // Kullanılmıyorsa kaldırılabilir.
+// import { Button } from "@/components/ui/button"; // Kullanılmıyorsa kaldırılabilir
 import { Card, CardContent } from "@/components/ui/card";
 import VehicleCard from "@/components/vehicle-card";
 import HowItWorks from "@/components/how-it-works";
 import HeroSlider from "@/components/hero-slider";
-import { useSearch } from "@/context/SearchContext"; // <--- 1. ADIM: SearchContext import edildi
+import { useSearch } from "@/context/SearchContext";
 
 export default function Home() {
-  const [vehicles, setVehicles] = useState<any[]>([]); // API'den gelen orijinal araç listesi
-  const [filtered, setFiltered] = useState<any[]>([]);  // Filtrelenmiş ve sıralanmış, gösterilecek araç listesi
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
   const [filters, setFilters] = useState({
     brand: "",
     segment: "",
@@ -22,17 +22,17 @@ export default function Home() {
   });
   const [sortType, setSortType] = useState("price-asc");
 
-  const { searchTerm } = useSearch(); // <--- 2. ADIM: SearchContext'ten searchTerm alındı
+  const { searchTerm } = useSearch();
 
   useEffect(() => {
     const fetchVehicles = async () => {
       const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
-        cache: "no-store", // SSR veya sık güncellenen içerik için
+        cache: "no-store",
       });
 
       if (!res.ok) {
         console.error("API'den araç verisi çekilemedi. Status:", res.status);
-        setVehicles([]); // Hata durumunda boş liste ata
+        setVehicles([]);
         setFiltered([]);
         return;
       }
@@ -45,42 +45,40 @@ export default function Home() {
         const enDusukFiyat =
           aktifVaryasyonlar.length > 0
             ? Math.min(...aktifVaryasyonlar.map((v: any) => v.fiyat))
-            : vehicle.fiyat ?? 0; // vehicle.fiyat fallback'i de olabilir
+            : vehicle.fiyat ?? 0;
 
         return {
-          ...vehicle, // Diğer tüm vehicle özelliklerini koru (brand, segment vb. için önemli)
+          ...vehicle,
           id: vehicle.id,
-          name: vehicle.isim || "Araç İsmi Yok", // Filtrelemede kullanılacak 'name' alanı
+          name: vehicle.isim || "Araç İsmi Yok",
           image: vehicle.cover_image?.startsWith("http")
             ? vehicle.cover_image
             : vehicle.cover_image
               ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`
-              : "/placeholder.svg", // Varsayılan bir placeholder resmi
+              : "/placeholder.svg",
           price: enDusukFiyat,
-          rating: vehicle.rating || 4.5, // Varsayılan rating
-          features: vehicle.features || [], // features alanı yoksa boş dizi ata
+          rating: vehicle.rating || 4.5,
+          features: vehicle.features || [],
           variations: aktifVaryasyonlar,
         };
       });
 
       setVehicles(transformed);
-      // setFiltered(transformed); // İlk yüklemede filtreleme useEffect'i zaten çalışacak
+      // setFiltered(transformed); // Filtreleme useEffect'i bunu zaten yapacak
     };
 
     fetchVehicles();
-  }, []); // Sadece component mount olduğunda çalışır
+  }, []);
 
   useEffect(() => {
-    let results = [...vehicles]; // Her zaman orijinal 'vehicles' listesinden başla
+    let results = [...vehicles];
 
-    // 3. ADIM: SearchTerm (isimle arama) filtresi
-    if (searchTerm && searchTerm.trim()) { // searchTerm boş değilse
+    if (searchTerm && searchTerm.trim()) {
       results = results.filter((vehicle) =>
         vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Mevcut diğer filtrelere göre filtreleme
     results = results.filter((v) =>
       (!filters.brand || v.brand === filters.brand) &&
       (!filters.segment || v.segment === filters.segment) &&
@@ -90,7 +88,6 @@ export default function Home() {
       (!filters.durum || v.durum === filters.durum)
     );
 
-    // Sıralama
     if (sortType === "price-asc") {
       results.sort((a, b) => a.price - b.price);
     } else if (sortType === "price-desc") {
@@ -100,7 +97,7 @@ export default function Home() {
     }
 
     setFiltered(results);
-  }, [filters, sortType, vehicles, searchTerm]); // <--- searchTerm'ü bağımlılıklara ekle
+  }, [filters, sortType, vehicles, searchTerm]);
 
   return (
     <>
@@ -125,7 +122,6 @@ export default function Home() {
                   onChange={(e) => setFilters({ ...filters, [key]: e.target.value })}
                 >
                   <option value="">{label}</option>
-                  {/* Dinamik olarak seçenekleri vehicles listesinden al */}
                   {Array.from(new Set(vehicles.map((v) => v[key as keyof typeof v]).filter(Boolean))).map((value: any) => (
                     <option key={value} value={value}>{value}</option>
                   ))}
@@ -135,7 +131,10 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <div className="mb-12">
+        {/* Araç Filomuz bölümünün ana kapsayıcısına id="vehicle-list-section" (veya görseldeki gibi "vehicle-list") ekleniyor */}
+        {/* Görseldeki ID "vehicle-list" olduğu için onu kullanıyorum. */}
+        {/* Eğer MainHeader'da "vehicle-list-section" kullandıysanız, burayı da onunla eşleştirin. */}
+        <div id="vehicle-list" className="mb-12"> {/* <--- ID BURAYA EKLENDİ */}
           <div className="flex justify-between items-center mb-6 flex-wrap gap-y-4">
             <h2 className="text-3xl font-extrabold text-gray-800">Araç Filomuz</h2>
             <div className="flex items-center gap-x-3">
@@ -153,6 +152,13 @@ export default function Home() {
           </div>
 
           {filtered.length > 0 ? (
+            // Araç kartlarının render edildiği grid'e ID vermek yerine,
+            // bu grid'i de içeren bir üst kapsayıcıya ID vermek daha genel bir çözüm olabilir.
+            // Görseldeki örnek direkt grid'e ID veriyor, ona uyuyorum.
+            // Ancak, "Araç Filomuz" başlığını ve sıralama seçeneklerini de içeren
+            // genel bir "Araç Listesi Bölümü"ne ID vermek daha mantıklı olabilir.
+            // Bu yüzden yukarıdaki ana div'e id="vehicle-list" ekledim.
+            // Eğer direkt grid'e eklenecekse: <div id="vehicle-list" className="grid...">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
@@ -161,7 +167,6 @@ export default function Home() {
           ) : (
             <div className="text-center py-10">
               <p className="text-xl text-gray-500">Aradığınız kriterlere uygun araç bulunamadı.</p>
-              {/* İsteğe bağlı olarak filtreleri temizle butonu eklenebilir */}
             </div>
           )}
         </div>
