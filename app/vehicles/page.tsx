@@ -52,7 +52,10 @@ function VehicleListContent() {
             aciklama,
             cover_image,
             fiyat,
-            variations ( fiyat, status )
+            variations:fk_arac_id (
+              fiyat,
+              status
+            )
           `);
 
         if (searchQuery) {
@@ -63,7 +66,7 @@ function VehicleListContent() {
 
         const { data, error } = await query;
 
-        console.log("🟢 Supabase'den gelen araç verisi:", data); // 🔍 Gelen veriyi göster
+        console.log("🟢 Supabase'den gelen araç verisi:", data);
 
         if (error) {
           console.error("❌ Supabase sorgu hatası:", error);
