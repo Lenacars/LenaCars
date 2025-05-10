@@ -4,17 +4,15 @@ export const dynamic = "force-dynamic";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react"; // <--- useRef eklendi
-// import { useRouter } from "next/navigation"; // Yönlendirme context üzerinden olduğu için gerek yoktu
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase-browser";
 import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
 
-// Öneri için araç tipi (VehicleSuggestion)
 interface VehicleSuggestion {
   id: string;
   name: string;
-  slug?: string; // Araç detay sayfasına yönlendirme için
+  slug?: string;
   cover_image?: string;
   price?: number;
 }
@@ -27,11 +25,9 @@ export default function MainHeader() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
-  // --- ARAMA ÖNERİLERİ İÇİN EKLENEN STATE'LER VE REF ---
   const [suggestions, setSuggestions] = useState<VehicleSuggestion[]>([]);
   const [allVehiclesForSuggestions, setAllVehiclesForSuggestions] = useState<VehicleSuggestion[]>([]);
-  const searchContainerRef = useRef<HTMLDivElement>(null); // Öneri kutusunun dışına tıklamayı algılamak için
-  // --- END: ARAMA ÖNERİLERİ İÇİN EKLENEN STATE'LER VE REF ---
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -106,12 +102,9 @@ export default function MainHeader() {
     fetchUser();
   }, []);
 
-  // --- ARAMA ÖNERİLERİ İÇİN EKLENEN useEffect'ler ---
-  // 1. Araçları öneriler için bir kez çek ve state'e ata
   useEffect(() => {
     const fetchAllVehiclesForSuggestions = async () => {
       try {
-        // Bu API endpoint'i, Home.tsx'te kullandığınızla aynı olmalı
         const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
           cache: "no-store",
         });
@@ -122,7 +115,6 @@ export default function MainHeader() {
         }
         const json = await res.json();
         const rawVehicles = json.data || [];
-
         const transformedForSuggestions: VehicleSuggestion[] = rawVehicles.map((vehicle: any) => {
           const aktifVaryasyonlar = vehicle.variations?.filter((v: any) => v.status === "Aktif") || [];
           const enDusukFiyat =
@@ -132,7 +124,7 @@ export default function MainHeader() {
           return {
             id: vehicle.id,
             name: vehicle.isim || "Araç İsmi Yok",
-            slug: vehicle.slug || vehicle.id, // Detay sayfası için slug veya id
+            slug: vehicle.slug || vehicle.id,
             cover_image: vehicle.cover_image?.startsWith("http")
               ? vehicle.cover_image
               : vehicle.cover_image
@@ -150,19 +142,17 @@ export default function MainHeader() {
     fetchAllVehiclesForSuggestions();
   }, []);
 
-  // 2. Arama terimi değiştikçe önerileri filtrele
   useEffect(() => {
-    if (searchTerm.trim().length > 1) { // En az 2 karakter girilince öneri göster
+    if (searchTerm.trim().length > 1) {
       const filtered = allVehiclesForSuggestions.filter(vehicle =>
         vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())
-      ).slice(0, 5); // İlk 5 öneriyi al
+      ).slice(0, 5);
       setSuggestions(filtered);
     } else {
-      setSuggestions([]); // Arama terimi yeterince uzun değilse önerileri gizle
+      setSuggestions([]);
     }
   }, [searchTerm, allVehiclesForSuggestions]);
 
-  // 3. Dışarıya tıklandığında öneri kutusunu kapat
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -174,25 +164,28 @@ export default function MainHeader() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [searchContainerRef]);
-  // --- END: ARAMA ÖNERİLERİ İÇİN EKLENEN useEffect'ler ---
 
-
-  // Bu fonksiyon form submit edildiğinde çalışır (Enter veya Ara butonu)
   const handleSearchFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSearchTerm(searchTerm.trim()); // Context'teki searchTerm'ü son haliyle (trim edilmiş) güncelle
-    setSuggestions([]); // Öneri kutusunu kapat
-    // Ana sayfa (Home.tsx) bu searchTerm değişikliğini dinleyip filtrelemeyi yapacak.
+    const trimmedSearchTerm = searchTerm.trim();
+    setSearchTerm(trimmedSearchTerm);
+    setSuggestions([]);
+    if (trimmedSearchTerm) { // Sadece arama terimi varsa kaydır
+        const vehicleListElement = document.getElementById('vehicle-list-section');
+        if (vehicleListElement) {
+            vehicleListElement.scrollIntoView({ behavior: "smooth" });
+        }
+    }
   };
 
-  // Öneri listesinden bir araca tıklandığında çalışır
   const handleSuggestionClick = (suggestion: VehicleSuggestion) => {
-    setSearchTerm(suggestion.name); // Arama kutusunu öneriyle doldur
-    setSuggestions([]); // Öneri kutusunu kapat
-    // İsteğe bağlı: Tıklandığında doğrudan arama yapılmasını sağlayabilir veya
-    // ana sayfanın searchTerm değişikliğini yakalamasını bekleyebilirsiniz.
-    // Eğer tıklama sonrası hemen "tüm sonuçları gör" gibi bir aksiyon isteniyorsa,
-    // burada handleSearchFormSubmit() çağrılabilir veya benzer bir mantık işletilebilir.
+    setSearchTerm(suggestion.name);
+    setSuggestions([]);
+    // Öneriye tıklanınca da ana sayfadaki araç listesine kaydır
+    const vehicleListElement = document.getElementById('vehicle-list-section');
+    if (vehicleListElement) {
+      vehicleListElement.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const toggleDropdown = (menuGroup: string) => {
@@ -271,7 +264,6 @@ export default function MainHeader() {
             />
           </Link>
 
-          {/* --- MASAÜSTÜ ARAMA KUTUSU VE ÖNERİLERİ --- */}
           <div ref={searchContainerRef} className="hidden md:block flex-grow mx-4 max-w-md relative">
             <form onSubmit={handleSearchFormSubmit} className="relative">
               <input
@@ -280,7 +272,7 @@ export default function MainHeader() {
                 className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => { // Input'a focus olunca, eğer searchTerm varsa önerileri tekrar göster
+                onFocus={() => {
                   if (searchTerm.trim().length > 1 && allVehiclesForSuggestions.length > 0) {
                     const filtered = allVehiclesForSuggestions.filter(vehicle =>
                       vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -299,23 +291,22 @@ export default function MainHeader() {
                 </svg>
               </button>
             </form>
-            {/* Öneri Listesi */}
             {suggestions.length > 0 && (
               <ul className="absolute top-full left-0 right-0 z-20 w-full bg-white border border-gray-300 border-t-0 rounded-b-md shadow-lg max-h-80 overflow-y-auto">
                 {suggestions.map((vehicle) => (
                   <li key={vehicle.id}>
                     <button
-                      type="button" // Form içinde olduğu için type="button" önemli
+                      type="button"
                       onClick={() => handleSuggestionClick(vehicle)}
                       className="w-full text-left px-3 py-2.5 hover:bg-gray-100 flex items-center gap-3 transition-colors duration-150"
                     >
                       <Image
                         src={vehicle.cover_image || "/placeholder.svg"}
                         alt={vehicle.name}
-                        width={50} // Öneri listesi için daha küçük resim
+                        width={50}
                         height={32}
                         className="object-cover rounded flex-shrink-0"
-                        unoptimized={vehicle.cover_image?.startsWith("http")} // Harici URL'ler için
+                        unoptimized={vehicle.cover_image?.startsWith("http")}
                       />
                       <div className="flex-grow overflow-hidden">
                         <p className="font-medium text-sm text-gray-700 truncate">{vehicle.name}</p>
@@ -328,29 +319,27 @@ export default function MainHeader() {
                     </button>
                   </li>
                 ))}
-                <li className="px-3 py-2 border-t text-center sticky bottom-0 bg-gray-50">
-                  <button
-                    type="button" // Form içinde olduğu için type="button" önemli
+                {/* "Tüm sonuçları gör" linki/butonu güncellendi */}
+                <li className="border-t">
+                  <a
+                    href="#vehicle-list-section" // Hedef elementin ID'si
                     onClick={(e) => {
-                      e.preventDefault(); // Sayfa yenilenmesini engelle
-                      const form = searchContainerRef.current?.querySelector('form');
-                      if (form) {
-                        // Form submit'ini manuel tetikle (handleSearchFormSubmit çalışacak)
-                        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-                        form.dispatchEvent(submitEvent);
+                      e.preventDefault();
+                      const el = document.getElementById('vehicle-list-section'); // Home.tsx'teki ID ile eşleşmeli
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth" });
                       }
+                      setSearchTerm(searchTerm.trim()); // Arama terimini context'e yolla (Home.tsx filtrelesin)
                       setSuggestions([]); // Önerileri kapat
                     }}
-                    className="text-sm text-[#6A3C96] hover:text-[#502b74] font-semibold"
+                    className="block text-center py-3 text-sm font-medium text-[#6A3C96] hover:underline hover:bg-gray-50 transition-colors duration-150"
                   >
                     Tüm sonuçları gör "{searchTerm}"
-                  </button>
+                  </a>
                 </li>
               </ul>
             )}
           </div>
-          {/* --- END: MASAÜSTÜ ARAMA KUTUSU VE ÖNERİLERİ --- */}
-
 
           <div className="md:hidden">
             <button
@@ -396,17 +385,15 @@ export default function MainHeader() {
         toggleDropdown={toggleDropdown}
       />
 
-      {/* Mobil arama kutusu (Öneri özelliği buraya da eklenebilir, ancak UX farklı olabilir) */}
       {isMobile && (
         <form onSubmit={handleSearchFormSubmit} className="bg-white py-2 px-4 border-t border-gray-200">
-          <div className="relative"> {/* Mobil için de öneri kutusu eklenirse burası da relative olmalı */}
+          <div className="relative">
             <input
               type="text"
               placeholder="Araç Ara"
               className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              // Mobil için onFocus ve öneri listesi benzer şekilde eklenebilir
             />
             <button
               type="submit"
