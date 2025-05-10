@@ -1,23 +1,22 @@
 // app/layout.tsx
 
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-import { ThemeProvider } from "@/components/theme-provider"
-import MainHeader from "@/components/layout/MainHeader"
-import Footer from "@/components/footer"
+import { ThemeProvider } from "@/components/theme-provider";
+import MainHeader from "@/components/layout/MainHeader";
+import Footer from "@/components/footer";
+import { SearchProvider } from "@/context/SearchContext"; // ✅ SearchProvider eklendi
 
-import { Suspense, useEffect, useState } from "react"
-
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LenaCars - Kurumsal Araç Kiralama Çözümleri",
   description:
     "Kurumsal araç kiralama adımlarını LenaCars uzmanlığı ile tek bir ekranda çözebileceğiniz, yüzlerce araç seçeneğine ve en uygun fiyatlara hızlıca ulaşabileceğiniz online tabanlı araç kiralama platformu.",
   generator: "v0.dev",
-}
+};
 
 interface PageData {
   id: string;
@@ -28,7 +27,7 @@ interface PageData {
 async function getPages(): Promise<PageData[]> {
   try {
     const res = await fetch("https://adminpanel-green-two.vercel.app/api/pages", {
-      cache: "no-store", // Her istek taze veri çeksin
+      cache: "no-store",
     });
     if (!res.ok) {
       throw new Error("Sayfa verisi alınamadı");
@@ -44,7 +43,7 @@ async function getPages(): Promise<PageData[]> {
 export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   const pages = await getPages();
 
@@ -57,11 +56,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <MainHeader pages={pages} /> {/* <-- Burada sayfaları gönderiyoruz */}
-          <main className="min-h-screen">{children}</main>
-          <Footer />
+          <SearchProvider> {/* ✅ Context tüm siteyi sarar */}
+            <MainHeader pages={pages} />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+          </SearchProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
