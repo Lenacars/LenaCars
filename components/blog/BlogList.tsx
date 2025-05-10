@@ -34,17 +34,19 @@ export default function BlogList() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
       {blogs.map((blog) => (
         <Link key={blog.id} href={`/${blog.slug}`}>
-          <div className="border rounded-lg p-4 hover:shadow-md transition">
+          <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer">
             {blog.thumbnail_image && (
               <img
-                src={blog.thumbnail_image}
+                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}${blog.thumbnail_image.replace(/^\/+/, "")}`}
                 alt={blog.title}
                 className="w-full h-48 object-cover rounded mb-3"
               />
             )}
             <h2 className="text-xl font-semibold">{blog.title}</h2>
             <p className="text-sm text-muted-foreground">{blog.seo_description}</p>
-            <p className="text-xs text-gray-500 mt-1">{new Date(blog.created_at!).toLocaleDateString()}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {new Date(blog.created_at!).toLocaleDateString()}
+            </p>
           </div>
         </Link>
       ))}
