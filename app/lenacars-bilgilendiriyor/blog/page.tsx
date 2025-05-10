@@ -30,6 +30,8 @@ export default function BlogPage() {
     fetchBlogs();
   }, []);
 
+  const supabaseBaseURL = "https://uxnpmedeikzvnevpceiw.supabase.co/storage/v1/object/public/images/";
+
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-4">Blog</h1>
@@ -38,24 +40,30 @@ export default function BlogPage() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {blogs.map((blog) => (
-          <Link key={blog.id} href={`/lenacars-bilgilendiriyor/blog/${blog.slug}`}>
-            <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer">
-              {blog.thumbnail_image && (
-                <img
-                src={blog.thumbnail_image.replace(/^\/+/, "")}
-                  alt={blog.title}
-                  className="w-full h-48 object-cover rounded mb-3"
-                />
-              )}
-              <h2 className="text-xl font-semibold">{blog.title}</h2>
-              <p className="text-sm text-muted-foreground">{blog.seo_description}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {new Date(blog.created_at!).toLocaleDateString("tr-TR")}
-              </p>
-            </div>
-          </Link>
-        ))}
+        {blogs.map((blog) => {
+          const imageUrl = blog.thumbnail_image
+            ? `${supabaseBaseURL}${blog.thumbnail_image.replace(/^\/+/, "")}`
+            : "";
+
+          return (
+            <Link key={blog.id} href={`/lenacars-bilgilendiriyor/blog/${blog.slug}`}>
+              <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer">
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt={blog.title}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                )}
+                <h2 className="text-xl font-semibold">{blog.title}</h2>
+                <p className="text-sm text-muted-foreground">{blog.seo_description}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(blog.created_at!).toLocaleDateString("tr-TR")}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
