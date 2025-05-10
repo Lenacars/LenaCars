@@ -10,7 +10,7 @@ interface Variation {
   status: string;
 }
 
-interface RawVehicleFromSupabase {
+interface RawVehicle {
   id: string;
   isim: string;
   stok_kodu?: string;
@@ -18,7 +18,7 @@ interface RawVehicleFromSupabase {
   aciklama?: string;
   cover_image?: string;
   fiyat?: number;
-  variations?: any[];
+  variations?: Variation[];
 }
 
 interface TransformedVehicle {
@@ -40,27 +40,30 @@ function VehicleListContent() {
   useEffect(() => {
     const fetchVehicles = async () => {
       setLoading(true);
+
       try {
-        let query = supabase.from("Araclar").select(`
-          id,
-          isim,
-          stok_kodu,
-          brand,
-          aciklama,
-          cover_image,
-          fiyat,
-          variations ( fiyat, status )
-        `);
+        let query = supabase
+          .from("Araclar")
+          .select(`
+            id,
+            isim,
+            stok_kodu,
+            brand,
+            aciklama,
+            cover_image,
+            fiyat,
+            variations ( fiyat, status )
+          `);
 
         if (searchQuery) {
-          query = query.or(`
-            isim.ilike.%${searchQuery}%,
-            stok_kodu.ilike.%${searchQuery}%,
-            brand.ilike.%${searchQuery}%
-          `);
+          query = query.or(
+            `isim.ilike.%${searchQuery}%,stok_kodu.ilike.%${searchQuery}%,brand.ilike.%${searchQuery}%`
+          );
         }
 
         const { data, error } = await query;
+
+        console.log("🟢 Supabase'den gelen araç verisi:", data); // 🔍 Gelen veriyi göster
 
         if (error) {
           console.error("❌ Supabase sorgu hatası:", error);
@@ -73,13 +76,13 @@ function VehicleListContent() {
           return;
         }
 
-        const transformed: TransformedVehicle[] = data.map((item: RawVehicleFromSupabase) => {
-          const variationsData = Array.isArray(item.variations) ? item.variations : [];
-          const aktifler: Variation[] = variationsData.filter((v: any) => v.status === "Aktif") || [];
+        const transformed: TransformedVehicle[] = data.map((item: RawVehicle) => {
+          const aktifler = item.variations?.filter((v) => v.status === "Aktif") || [];
 
-          const lowestPrice = aktifler.length > 0
-            ? Math.min(...aktifler.map((v: any) => v.fiyat))
-            : item.fiyat ?? 0;
+          const lowestPrice =
+            aktifler.length > 0
+              ? Math.min(...aktifler.map((v) => v.fiyat))
+              : item.fiyat ?? 0;
 
           return {
             id: item.id,
@@ -105,7 +108,7 @@ function VehicleListContent() {
   }, [searchQuery]);
 
   if (loading) {
-    return <div className="text-center py-8">Araçlar Yükleniyor...</div>;
+    return <div className="text-center py-8">Araçlar yükleniyor...</div>;
   }
 
   if (vehicles.length === 0) {
