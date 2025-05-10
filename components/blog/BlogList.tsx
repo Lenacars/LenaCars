@@ -40,8 +40,7 @@ export default function BlogList() {
         // Eğer thumbnail_image zaten "images/dosya.webp" gibi tam yolu içeriyorsa,
         // o zaman .replace(/^\/+/, "") mantığı daha uygun olabilir.
         // Şimdilik görseldeki en son önerilen yapıyı (images/ klasörünün manuel eklenmesi) varsayıyorum.
-        const imageUrl = blog.thumbnail_image
-          ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${blog.thumbnail_image}`
+     const supabaseBaseURL = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/";
           : "/placeholder.svg"; // Varsayılan bir placeholder resmi
 
         return (
