@@ -5,17 +5,19 @@ export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-browser";
 import NavigationMenu from "@/components/layout/NavigationMenu";
-import { useSearch } from "@/context/SearchContext"; // ✅ context eklendi
+import { useSearch } from "@/context/SearchContext";
 
 export default function MainHeader() {
+  const router = useRouter();
+  const { searchTerm, setSearchTerm } = useSearch();
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const { searchTerm, setSearchTerm } = useSearch(); // ✅ context kullanımı
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -85,6 +87,13 @@ export default function MainHeader() {
     fetchUser();
   }, []);
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (window.location.pathname !== "/") {
+      router.push(`/?search=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   const toggleDropdown = (menuGroup: string) => {
     setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
   };
@@ -96,21 +105,20 @@ export default function MainHeader() {
       {/* Üst Bilgi Çubuğu */}
       <div className="bg-[#6A3C96] text-white py-3 px-4">
         <div className="container mx-auto flex justify-between items-center">
+          {/* İletişim ikonları */}
           <div className="flex items-center space-x-4">
-            <Link href="/iletisim" aria-label="Adres">
-              📍
-            </Link>
-            <Link href="/iletisim" aria-label="E-posta">
-              ✉️
-            </Link>
-            <Link href="/iletisim" aria-label="Telefon">
-              📞
-            </Link>
+            <Link href="/iletisim" aria-label="Adres">📍</Link>
+            <Link href="/iletisim" aria-label="E-Posta">📧</Link>
+            <Link href="/iletisim" aria-label="Telefon">📞</Link>
           </div>
+
           <div className="text-center hidden md:block">
-            <h2 className="text-lg font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
+            <h2 className="text-lg font-medium">
+              Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala
+            </h2>
           </div>
-          <div className="hidden md:flex items-center space-x-3">
+
+          <div className="hidden md:flex items-center space-x-4">
             <Link href="https://facebook.com" target="_blank" aria-label="Facebook">📘</Link>
             <Link href="https://instagram.com" target="_blank" aria-label="Instagram">📸</Link>
             <Link href="https://linkedin.com" target="_blank" aria-label="LinkedIn">💼</Link>
@@ -119,10 +127,9 @@ export default function MainHeader() {
         </div>
       </div>
 
-      {/* Logo + Arama + Giriş Butonları */}
+      {/* Logo + Arama + Giriş */}
       <div className="bg-white py-4 px-4 shadow-sm">
         <div className="container mx-auto flex justify-between items-center">
-          {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
               src="/LENACARS.svg"
@@ -141,44 +148,44 @@ export default function MainHeader() {
           </Link>
 
           {/* Arama Kutusu */}
-          <div className="hidden md:block flex-grow mx-4 max-w-md">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Araç Ara"
-                className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <div className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md flex items-center">
-                🔍
-              </div>
-            </div>
-          </div>
+          <form onSubmit={handleSearch} className="hidden md:block flex-grow mx-4 max-w-md relative">
+            <input
+              type="text"
+              placeholder="Araç Ara"
+              className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md hover:bg-[#D35400]"
+              aria-label="Ara"
+            >
+              🔍
+            </button>
+          </form>
 
-          {/* Garaj + Giriş */}
+          {/* Giriş */}
           <div className="hidden md:flex items-center space-x-3">
-            <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md">Garaj</Link>
+            <Link
+              href="/garaj"
+              className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md hover:bg-gray-50"
+            >
+              Garaj
+            </Link>
             <Link
               href={userName ? "/profil" : "/giris"}
               className={`${
-                userName ? "bg-green-100 text-green-700" : "bg-[#6A3C96] text-white"
-              } px-4 py-2 rounded-md transition-colors`}
+                userName ? "bg-green-100 text-green-700" : "bg-[#6A3C96] text-white hover:bg-[#5a3080]"
+              } px-4 py-2 rounded-md`}
             >
               {userName || "Giriş Yap / Üye Ol"}
             </Link>
           </div>
-
-          {/* Mobil Menü */}
-          <div className="md:hidden">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2">
-              {isMobileMenuOpen ? "✖️" : "☰"}
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation Menü */}
       <NavigationMenu
         menuItems={mainMenuItems}
         isMobile={isMobile}
@@ -188,22 +195,26 @@ export default function MainHeader() {
         toggleDropdown={toggleDropdown}
       />
 
-      {/* Mobil Arama */}
+      {/* Mobil Arama Kutusu */}
       {isMobile && (
-        <div className="bg-white py-2 px-4 border-t border-gray-200">
+        <form onSubmit={handleSearch} className="bg-white py-2 px-4 border-t border-gray-200">
           <div className="relative">
             <input
               type="text"
               placeholder="Araç Ara"
-              className="w-full py-2 px-4 border border-gray-300 rounded-l-md"
+              className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md flex items-center">
+            <button
+              type="submit"
+              className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md hover:bg-[#D35400]"
+              aria-label="Ara"
+            >
               🔍
-            </div>
+            </button>
           </div>
-        </div>
+        </form>
       )}
     </header>
   );
