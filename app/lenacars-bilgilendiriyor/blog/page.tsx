@@ -31,7 +31,7 @@ export default function BlogPage() {
   }, []);
 
   const supabaseBaseURL =
-    "https://uxnpmedeikzvnevpcei.supabase.co/storage/v1/object/public/images/";
+    "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/";
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
