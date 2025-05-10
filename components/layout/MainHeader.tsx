@@ -5,14 +5,14 @@ export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase-browser"; // Supabase client'ınızın doğru yolu olduğundan emin olun
-import NavigationMenu from "@/components/layout/NavigationMenu"; // NavigationMenu component'inizin doğru yolu
-import { useSearch } from "@/context/SearchContext"; // SearchContext'inizin doğru yolu
+// import { useRouter } from "next/navigation"; // Yönlendirme kaldırıldığı için artık router'a gerek yok
+import { supabase } from "@/lib/supabase-browser";
+import NavigationMenu from "@/components/layout/NavigationMenu";
+import { useSearch } from "@/context/SearchContext";
 
 export default function MainHeader() {
-  const router = useRouter();
-  const { searchTerm, setSearchTerm } = useSearch(); // useSearch hook'undan searchTerm ve setSearchTerm alınıyor
+  // const router = useRouter(); // Yönlendirme kaldırıldığı için bu satıra gerek kalmadı
+  const { searchTerm, setSearchTerm } = useSearch();
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -22,7 +22,7 @@ export default function MainHeader() {
   useEffect(() => {
     const fetchMenuItems = async () => {
       const { data, error } = await supabase
-        .from("Pages") // "Pages" tablo adınızın doğru olduğundan emin olun
+        .from("Pages")
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: true });
@@ -51,7 +51,6 @@ export default function MainHeader() {
         console.error("Error fetching menu items:", error.message);
       }
     };
-
     fetchMenuItems();
   }, []);
 
@@ -63,7 +62,6 @@ export default function MainHeader() {
         setActiveDropdown(null);
       }
     };
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -80,36 +78,30 @@ export default function MainHeader() {
       if (!userId) return;
 
       const { data, error } = await supabase
-        .from("kullanicilar") // "kullanicilar" tablo adınızın doğru olduğundan emin olun
+        .from("kullanicilar")
         .select("ad, soyad")
         .eq("id", userId)
         .single();
 
       if (!error && data) {
         setUserName(`${data.ad} ${data.soyad}`);
-      } else if (error) {
+      } else if (error && error.code !== 'PGRST116') { // PGRST116: "single row not found" hatasını görmezden gel
         console.error("Error fetching user name:", error.message);
       }
     };
-
     fetchUser();
   }, []);
 
+  // Görseldeki "Bonus" talimatına göre güncellenmiş handleSearch fonksiyonu:
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const trimmedSearchTerm = searchTerm.trim();
-    if (trimmedSearchTerm) {
-      // Arama sayfasının yolu '/vehicles' veya '/araclar' gibi projenize uygun bir yol olmalı.
-      // Eğer ana sayfada arama sonuçlarını gösteriyorsanız ve SearchContext bunu yönetiyorsa,
-      // router.push yapmadan sadece context'i güncellemek yeterli olabilir.
-      // Mevcut kodunuz ana sayfaya yönlendiriyor gibi: `/?search=...`
-      // Bu, ana sayfanızın URL'deki search parametresini işlemesine bağlıdır.
-      if (window.location.pathname === "/vehicles" || window.location.pathname === "/araclar" ) { // Örnek arama sayfası yolu
-         router.push(`${window.location.pathname}?search=${encodeURIComponent(trimmedSearchTerm)}`);
-      } else {
-         router.push(`/vehicles?search=${encodeURIComponent(trimmedSearchTerm)}`); // Varsayılan arama sayfasına yönlendir
-      }
-    }
+    e.preventDefault(); // Formun varsayılan submit davranışını engelle (sayfa yenilenmesini)
+    // Input'un onChange'i zaten setSearchTerm'ü anlık güncellediği için,
+    // burada tekrar setSearchTerm(searchTerm.trim()) yapmak,
+    // anlık güncellenen searchTerm'ün son halini (trim edilmiş) context'e tekrar set eder.
+    // Bu, kullanıcının hızlıca yazıp Enter'a basması durumunda faydalı olabilir
+    // veya sadece context'teki değerin her zaman trim edilmiş olmasını garantiler.
+    setSearchTerm(searchTerm.trim());
+    // Yönlendirme (router.push) kodları buradan kaldırıldı.
   };
 
   const toggleDropdown = (menuGroup: string) => {
@@ -123,7 +115,6 @@ export default function MainHeader() {
       {/* Üst Bilgi Çubuğu */}
       <div className="bg-[#6A3C96] text-white py-3 px-4">
         <div className="container mx-auto flex justify-between items-center">
-          {/* İletişim ikonları (SVG olarak güncellendi) */}
           <div className="flex items-center space-x-4">
             <Link href="/iletisim" className="flex items-center hover:text-gray-200" aria-label="Adres">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -142,13 +133,9 @@ export default function MainHeader() {
               </svg>
             </Link>
           </div>
-
-          {/* Orta Metin */}
           <div className="text-center hidden md:block">
             <h2 className="text-lg font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
           </div>
-
-          {/* Sosyal medya ikonları (SVG olarak güncellendi) */}
           <div className="hidden md:flex items-center space-x-3">
             <Link href="https://facebook.com" target="_blank" className="hover:text-gray-200" aria-label="Facebook">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
@@ -165,7 +152,7 @@ export default function MainHeader() {
                 <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
               </svg>
             </Link>
-            <Link href="https://youtube.com" target="_blank" className="hover:text-gray-200" aria-label="YouTube"> {/* Daha standart bir YouTube linki */}
+            <Link href="https://youtube.com" target="_blank" className="hover:text-gray-200" aria-label="YouTube">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
               </svg>
@@ -174,21 +161,18 @@ export default function MainHeader() {
         </div>
       </div>
 
-      {/* Logo + Arama + Giriş Butonları */}
       <div className="bg-white py-4 px-4 shadow-sm">
         <div className="container mx-auto flex justify-between items-center">
-          {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/LENACARS.svg" // Logo SVG yolu
+              src="/LENACARS.svg"
               alt="LenaCars Logo"
               width={200}
               height={60}
-              className="w-auto h-auto max-h-16" // Boyutlandırma için stil
+              className="w-auto h-auto max-h-16"
               priority
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                // .svg yüklenemezse .png dene
                 if (target.src.endsWith(".svg")) {
                   target.src = "/LENACARS.png";
                 }
@@ -196,7 +180,6 @@ export default function MainHeader() {
             />
           </Link>
 
-          {/* Arama kutusu (Masaüstü) */}
           <form onSubmit={handleSearch} className="hidden md:block flex-grow mx-4 max-w-md relative">
             <input
               type="text"
@@ -216,7 +199,6 @@ export default function MainHeader() {
             </button>
           </form>
 
-          {/* Mobil Menü Butonu (SVG ile) */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -236,14 +218,8 @@ export default function MainHeader() {
             </button>
           </div>
 
-          {/* Garaj / Giriş */}
           <div className="hidden md:flex items-center space-x-3">
             <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md flex items-center hover:bg-gray-50 transition-colors">
-              {/* Garaj ikonu da eklenebilir:
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              */}
               Garaj
             </Link>
             <Link
@@ -252,30 +228,21 @@ export default function MainHeader() {
                 userName ? "bg-green-100 text-green-700" : "bg-[#6A3C96] text-white hover:bg-[#5a3080]"
               } px-4 py-2 rounded-md transition-colors flex items-center`}
             >
-              {/* Kullanıcı ikonu da eklenebilir:
-              {userName && (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              )}
-              */}
               {userName || "Giriş Yap / Üye Ol"}
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Navigation Menu */}
       <NavigationMenu
         menuItems={mainMenuItems}
         isMobile={isMobile}
         isMobileMenuOpen={isMobileMenuOpen}
-        setIsMobileMenuOpen={setIsMobileMenuOpen} // Bu prop'u NavigationMenu bileşeninizin aldığından emin olun
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
         activeDropdown={activeDropdown}
-        toggleDropdown={toggleDropdown} // Bu prop'u NavigationMenu bileşeninizin aldığından emin olun
+        toggleDropdown={toggleDropdown}
       />
 
-      {/* Mobil arama kutusu */}
       {isMobile && (
         <form onSubmit={handleSearch} className="bg-white py-2 px-4 border-t border-gray-200">
           <div className="relative">
