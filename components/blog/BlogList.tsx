@@ -38,7 +38,7 @@ export default function BlogList() {
           <div className="border rounded-lg p-4 hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full flex flex-col">
             {blog.thumbnail_image && (
               <img
-                src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${blog.thumbnail_image}`}
+                const imageUrl = `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${blog.thumbnail_image?.replace(/^\/+/, "")}`;
                 alt={blog.title}
                 className="w-full h-48 object-cover rounded mb-4"
               />
