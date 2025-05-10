@@ -1,7 +1,6 @@
-// app/[...slug]/page.tsx
-
 import { supabase } from "@/lib/supabase-browser";
 import { notFound } from "next/navigation";
+import Link from "next/link"; // 🔥 Link eklendi
 
 interface PageProps {
   params: { slug: string[] };
@@ -20,12 +19,11 @@ export default async function DynamicPage({ params }: PageProps) {
 
   if (!page || pageError) return notFound();
 
-  // Eğer bu bir blog listeleme sayfasıysa bloglar çekilsin
   let blogList = [];
   if (slug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs, error: blogError } = await supabase
       .from("bloglar")
-      .select("id, title, thumbnail_image, seo_description, published")
+      .select("id, title, slug, thumbnail_image, seo_description, published")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
@@ -44,17 +42,19 @@ export default async function DynamicPage({ params }: PageProps) {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {blogList.map((blog: any) => (
-              <div key={blog.id} className="border p-4 rounded shadow-sm">
-                {blog.thumbnail_image && (
-                  <img
-                    src={blog.thumbnail_image}
-                    alt={blog.title}
-                    className="mb-4 w-full h-48 object-cover rounded"
-                  />
-                )}
-                <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
-                <p className="text-sm text-gray-600">{blog.seo_description}</p>
-              </div>
+              <Link key={blog.id} href={`/${blog.slug}`}>
+                <div className="border p-4 rounded shadow-sm hover:shadow-lg transition cursor-pointer">
+                  {blog.thumbnail_image && (
+                    <img
+                      src={blog.thumbnail_image}
+                      alt={blog.title}
+                      className="mb-4 w-full h-48 object-cover rounded"
+                    />
+                  )}
+                  <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
+                  <p className="text-sm text-gray-600">{blog.seo_description}</p>
+                </div>
+              </Link>
             ))}
           </div>
         )
