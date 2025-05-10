@@ -30,7 +30,8 @@ export default function BlogPage() {
     fetchBlogs();
   }, []);
 
-  const supabaseBaseURL = "https://uxnpmedeikzvnevpceiw.supabase.co/storage/v1/object/public/images/";
+  const supabaseBaseURL =
+    "https://uxnpmedeikzvnevpceiw.supabase.co/storage/v1/object/public/images/";
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
@@ -58,7 +59,9 @@ export default function BlogPage() {
                 <h2 className="text-xl font-semibold">{blog.title}</h2>
                 <p className="text-sm text-muted-foreground">{blog.seo_description}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {new Date(blog.created_at!).toLocaleDateString("tr-TR")}
+                  {blog.created_at
+                    ? new Date(blog.created_at).toLocaleDateString("tr-TR")
+                    : ""}
                 </p>
               </div>
             </Link>
