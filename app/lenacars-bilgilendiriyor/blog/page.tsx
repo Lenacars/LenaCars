@@ -37,7 +37,6 @@ export default function BlogPage() {
     <div className="max-w-5xl mx-auto py-10 px-4">
       <h1 className="text-3xl font-bold mb-4">Blog</h1>
       <p className="mb-8 text-muted-foreground">
-        Güncel içerikler, kullanıcı tavsiyeleri ve sektörel analizler blog sayfamızda yayınlanmaktadır.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
