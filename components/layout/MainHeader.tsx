@@ -170,8 +170,8 @@ export default function MainHeader() {
     const trimmedSearchTerm = searchTerm.trim();
     setSearchTerm(trimmedSearchTerm);
     setSuggestions([]);
-    if (trimmedSearchTerm) { // Sadece arama terimi varsa kaydır
-        const vehicleListElement = document.getElementById('vehicle-list-section');
+    if (trimmedSearchTerm) {
+        const vehicleListElement = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
         if (vehicleListElement) {
             vehicleListElement.scrollIntoView({ behavior: "smooth" });
         }
@@ -181,8 +181,7 @@ export default function MainHeader() {
   const handleSuggestionClick = (suggestion: VehicleSuggestion) => {
     setSearchTerm(suggestion.name);
     setSuggestions([]);
-    // Öneriye tıklanınca da ana sayfadaki araç listesine kaydır
-    const vehicleListElement = document.getElementById('vehicle-list-section');
+    const vehicleListElement = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
     if (vehicleListElement) {
       vehicleListElement.scrollIntoView({ behavior: "smooth" });
     }
@@ -319,18 +318,17 @@ export default function MainHeader() {
                     </button>
                   </li>
                 ))}
-                {/* "Tüm sonuçları gör" linki/butonu güncellendi */}
                 <li className="border-t">
                   <a
-                    href="#vehicle-list-section" // Hedef elementin ID'si
+                    href="#vehicle-list" // <--- ID GÜNCELLENDİ
                     onClick={(e) => {
                       e.preventDefault();
-                      const el = document.getElementById('vehicle-list-section'); // Home.tsx'teki ID ile eşleşmeli
+                      const el = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
                       if (el) {
                         el.scrollIntoView({ behavior: "smooth" });
                       }
-                      setSearchTerm(searchTerm.trim()); // Arama terimini context'e yolla (Home.tsx filtrelesin)
-                      setSuggestions([]); // Önerileri kapat
+                      setSearchTerm(searchTerm.trim());
+                      setSuggestions([]);
                     }}
                     className="block text-center py-3 text-sm font-medium text-[#6A3C96] hover:underline hover:bg-gray-50 transition-colors duration-150"
                   >
