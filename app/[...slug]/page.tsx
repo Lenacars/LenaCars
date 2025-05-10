@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase-browser";
 import { notFound } from "next/navigation";
-import Link from "next/link"; // 🔥 Link eklendi
+import Link from "next/link";
 
 interface PageProps {
   params: { slug: string[] };
@@ -26,6 +26,8 @@ export default async function DynamicPage({ params }: PageProps) {
       .select("id, title, slug, thumbnail_image, seo_description, published")
       .eq("published", true)
       .order("created_at", { ascending: false });
+
+    console.log("🟢 Blog verileri:", blogs); // 🔥 LOG EKLENDİ
 
     if (!blogError && blogs) {
       blogList = blogs;
