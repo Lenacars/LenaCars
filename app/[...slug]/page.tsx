@@ -11,21 +11,21 @@ export default async function DynamicPage({ params }: PageProps) {
   const slugArray = params.slug;
   const slug = Array.isArray(slugArray) ? slugArray.join("/") : slugArray;
 
-  const { data: page, error } = await supabase
+  const { data: page, error: pageError } = await supabase
     .from("Pages")
     .select("*")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
 
-  if (!page || error) return notFound();
+  if (!page || pageError) return notFound();
 
-  // Eğer bu blog sayfasıysa, blog içeriklerini de çek
-  let blogList: any[] = [];
+  // Eğer bu bir blog listeleme sayfasıysa bloglar çekilsin
+  let blogList = [];
   if (slug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs, error: blogError } = await supabase
       .from("bloglar")
-      .select("*")
+      .select("id, title, thumbnail_image, seo_description, published")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
@@ -39,29 +39,24 @@ export default async function DynamicPage({ params }: PageProps) {
       <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
 
       {slug === "lenacars-bilgilendiriyor/blog" ? (
-        blogList.length > 0 ? (
+        blogList.length === 0 ? (
+          <p>Henüz eklenmiş bir blog bulunmamaktadır.</p>
+        ) : (
           <div className="grid md:grid-cols-2 gap-6">
-            {blogList.map((blog) => (
-              <div
-                key={blog.id}
-                className="border rounded-md shadow-sm p-4 hover:shadow-lg transition-all duration-200"
-              >
+            {blogList.map((blog: any) => (
+              <div key={blog.id} className="border p-4 rounded shadow-sm">
                 {blog.thumbnail_image && (
                   <img
                     src={blog.thumbnail_image}
                     alt={blog.title}
-                    className="w-full h-48 object-cover mb-4 rounded"
+                    className="mb-4 w-full h-48 object-cover rounded"
                   />
                 )}
                 <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {blog.seo_description}
-                </p>
+                <p className="text-sm text-gray-600">{blog.seo_description}</p>
               </div>
             ))}
           </div>
-        ) : (
-          <p>Henüz blog içeriği eklenmemiş.</p>
         )
       ) : (
         <div
