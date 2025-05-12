@@ -8,29 +8,22 @@ import {
   Document,
   StyleSheet,
   Image,
-  Font,
 } from "@react-pdf/renderer";
 
-// 1. Roboto fontu register
-Font.register({
-  family: "Roboto",
-  src: "/fonts/Roboto-Regular.ttf", // public klasörüne koymalısın
-});
-
-// 2. Logo
+// Tek logo
 const logoUrl =
   "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
-// 3. Styles
+// PDF stilleri (Helvetica varsayılan kullanılıyor)
 const styles = StyleSheet.create({
   page: {
     position: "relative",
     paddingTop: 40,
     paddingLeft: 40,
     paddingRight: 40,
-    paddingBottom: 80,
+    paddingBottom: 100,
     fontSize: 10,
-    fontFamily: "Roboto",
+    fontFamily: "Helvetica",
   },
   logo: {
     width: 120,
@@ -106,9 +99,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
         <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
 
         {/* Açıklama */}
-        <Text style={styles.paragraph}>
-          Değerli Müşteri Adayımız,
-        </Text>
+        <Text style={styles.paragraph}>Değerli Müşteri Adayımız,</Text>
         <Text style={styles.paragraph}>
           "Birlikte kazanırsak, gerçekten kazanırız" anlayışıyla hareket eden LenaCars olarak, araç kiralama teklifimizi
           paylaşıyoruz. Başarılı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız.
@@ -119,7 +110,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
         <Text style={styles.paragraph}>Saygılarımızla,</Text>
         <Text style={styles.paragraph}>LenaCars</Text>
 
-        {/* Tablo Başlığı */}
+        {/* Tablo Başlıkları */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Vites</Text>
