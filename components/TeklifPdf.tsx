@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
     paddingLeft: 40,
     paddingRight: 40,
     paddingBottom: 80,
-    fontFamily: "OpenSans",
+    fontFamily: "OpenSans", // ✔️ artık düzgün
   },
   logo: {
     width: 120,
