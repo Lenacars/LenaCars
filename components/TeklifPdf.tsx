@@ -96,10 +96,8 @@ interface Vehicle {
   model_yili?: string;
 }
 
-export const TeklifPdf = ({
-  vehicles,
-  customerName,
-}: {
+export default function TeklifPdf({ vehicles, customerName }: { vehicles: Vehicle[]; customerName: string }) {
+
   vehicles: Vehicle[];
   customerName: string;
 }) => {
