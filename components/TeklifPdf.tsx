@@ -1,10 +1,11 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// 🔁 Güncel Logo ve Footer URL'leri
+// Logo ve footer URL'leri (Güncellenmiş)
 const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
 const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
+// PDF stilleri
 const styles = StyleSheet.create({
   page: {
     position: "relative",
@@ -105,11 +106,18 @@ export const TeklifPdf: React.FC<TeklifPdfProps> = ({ vehicles }) => {
   return (
     <Document author="LenaCars" title={`Araç Kiralama Teklifi - ${today}`}>
       <Page size="A4" style={styles.page}>
-        <Image src={logoUrl} style={styles.logo} />
+        {/* Logo */}
+        {logoUrl && typeof logoUrl === "string" && (
+          <Image src={logoUrl} style={styles.logo} />
+        )}
 
+        {/* Teklif Tarihi */}
         <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
+
+        {/* Başlık */}
         <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
 
+        {/* Tablo */}
         <View style={styles.tableContainer}>
           <View style={styles.tableHeaderView}>
             <Text style={[styles.tableHeaderText, { flex: 2.5 }]}>Araç Marka - Model</Text>
@@ -134,9 +142,12 @@ export const TeklifPdf: React.FC<TeklifPdfProps> = ({ vehicles }) => {
           ))}
         </View>
 
-        <View style={styles.footerView} fixed>
-          <Image src={footerUrl} style={styles.footerImage} />
-        </View>
+        {/* Footer */}
+        {footerUrl && typeof footerUrl === "string" && (
+          <View style={styles.footerView} fixed>
+            <Image src={footerUrl} style={styles.footerImage} />
+          </View>
+        )}
       </Page>
     </Document>
   );
