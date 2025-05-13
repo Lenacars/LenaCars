@@ -1,20 +1,24 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
+// ✅ OpenSans fontunu kullanacağımız için fontFamily artık bu
 const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
 const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
 
 const styles = StyleSheet.create({
   page: {
-    fontSize: 10,
+    position: "relative",
     paddingTop: 40,
     paddingLeft: 40,
     paddingRight: 40,
     paddingBottom: 100,
-    fontFamily: "OpenSans", // Türkçe karakter için artık bu
+    fontSize: 10,
+    fontFamily: "OpenSans", // ✔️ OpenSans Türkçe karakter desteği sağlar
   },
   logo: {
     width: 100,
+    height: "auto",
+    marginBottom: 10,
     position: "absolute",
     top: 20,
     left: 20,
@@ -51,10 +55,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     width: "100%",
-    alignItems: "center",
   },
   footerImage: {
-    width: "60%",
+    width: "100%",
     height: "auto",
   },
 });
@@ -63,8 +66,11 @@ interface Vehicle {
   id: string;
   isim: string;
   fiyat: number | null;
+  kategori?: string;
   vites?: string;
   yakit_turu?: string;
+  yil?: string;
+  km?: number | null;
 }
 
 export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
@@ -89,7 +95,9 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
             <Text style={styles.cell}>{v.vites || "-"}</Text>
             <Text style={styles.cell}>{v.yakit_turu || "-"}</Text>
-            <Text style={styles.cell}>-</Text> {/* km alanı kaldırıldı */}
+            <Text style={styles.cell}>
+              {typeof v.km === "number" ? v.km.toLocaleString("tr-TR") + " km" : "-"}
+            </Text>
             <Text style={styles.cell}>
               {typeof v.fiyat === "number" ? v.fiyat.toLocaleString("tr-TR") + " ₺" : "Fiyat Yok"}
             </Text>
