@@ -1,9 +1,9 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// ✅ OpenSans fontunu kullanacağımız için fontFamily artık bu
-const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
-const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
+// ✅ Yeni logo ve footer URL'leri
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
 const styles = StyleSheet.create({
   page: {
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
     paddingBottom: 100,
     fontSize: 10,
-    fontFamily: "OpenSans", // ✔️ OpenSans Türkçe karakter desteği sağlar
+    fontFamily: "OpenSans", // OpenSans desteği aktif
   },
   logo: {
     width: 100,
