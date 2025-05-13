@@ -8,16 +8,15 @@ import {
   Image,
   Font,
 } from "@react-pdf/renderer";
-import DejaVuSans from "@/public/fonts/DejaVuSans.ttf"; // ✅ import et
 
-// ✅ FONT REGISTER
+// Fontu register et (Vercel uyumlu olması için uzaktan dosya kullanılıyor)
 Font.register({
   family: "DejaVu",
-  src: DejaVuSans,
+  src: "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/fonts/DejaVuSans.ttf",
 });
 
 // Görsel URL’leri
-const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/c905a554-0f1f-4362-a0d0-c1509deb5d40.webp";
 const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
 // Stiller
@@ -31,10 +30,10 @@ const styles = StyleSheet.create({
     fontFamily: "DejaVu",
   },
   logo: {
-    width: 120,
+    width: 100,
     position: "absolute",
     top: 20,
-    left: 30,
+    left: 40,
   },
   headerText: {
     position: "absolute",
@@ -74,10 +73,9 @@ const styles = StyleSheet.create({
     paddingRight: 4,
   },
   footerImage: {
-    width: "40%",
+    width: "100%",
     position: "absolute",
-    bottom: 20,
-    left: "30%",
+    bottom: 40,
   },
   bold: {
     fontWeight: "bold",
@@ -119,16 +117,17 @@ export const TeklifPdf = ({
       <Page size="A4" style={styles.page}>
         <Image src={logoUrl} style={styles.logo} />
         <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
+
         <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
 
-        <Text style={styles.paragraph}>Değerli Müşteri Adayımız {customerName},</Text>
         <Text style={styles.paragraph}>
-          “Birlikte kazanırsak, gerçekten kazanırız” anlayışıyla hareket eden LenaCars olarak,
-          araç kiralama teklifimizi paylaşıyoruz.
+          Değerli Müşteri Adayımız {customerName},
         </Text>
         <Text style={styles.paragraph}>
-          Başarı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız.
-          Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
+          “Birlikte kazanırsak, gerçekten kazanırız” anlayışıyla hareket eden LenaCars olarak, araç kiralama teklifimizi paylaşıyoruz.
+        </Text>
+        <Text style={styles.paragraph}>
+          Başarı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız. Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
         </Text>
 
         <View style={styles.tableHeader}>
@@ -145,10 +144,14 @@ export const TeklifPdf = ({
             <Text style={styles.cell}>{v.model_yili || "-"}</Text>
             <Text style={styles.cell}>{v.sure || "-"}</Text>
             <Text style={styles.cell}>
-              {typeof v.km === "number" ? `${v.km.toLocaleString("tr-TR")} km` : "-"}
+              {typeof v.km === "number"
+                ? `${v.km.toLocaleString("tr-TR")} km`
+                : "-"}
             </Text>
             <Text style={styles.cell}>
-              {typeof v.fiyat === "number" ? `${v.fiyat.toLocaleString("tr-TR")} ₺` : "Fiyat Yok"}
+              {typeof v.fiyat === "number"
+                ? `${v.fiyat.toLocaleString("tr-TR")} ₺`
+                : "Fiyat Yok"}
             </Text>
           </View>
         ))}
@@ -164,21 +167,18 @@ export const TeklifPdf = ({
           <Text style={styles.bold}>Genel Kiralama Koşulları:</Text>
           <Text>- Teklifimiz 15 gün geçerlidir.</Text>
           <Text>
-            - Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet
-            Sigortası, Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm
-            vergiler dahildir.
+            - Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet Sigortası,
+            Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm vergiler dahildir.
           </Text>
           <Text>
-            - Belirtilen km aşım durumunda her km için 8,50 TL ile 10,50 TL + KDV arası ücret alınır.
+            - Belirtilen km aşıım durumunda her km için 8,50 TL ile 10,50 TL + KDV arası ücret alınır.
           </Text>
           <Text>
-            - Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi
-            olduğu km esas alınacaktır.
+            - Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi olduğu km esas alınacaktır.
           </Text>
           <Text>- Araçlarımız kira süresi boyunca sabit fiyat garantilidir.</Text>
           <Text>
-            - Araç opsiyonlama işlemi yapılabilmesi adına gerekli evraklarınızla sipariş
-            oluşturulmalıdır.
+            - Araç opsiyonlama işlemi yapılabilmesi adına gerekli evraklarınızla sipariş oluşturulmalıdır.
           </Text>
         </View>
 
