@@ -6,28 +6,11 @@ import {
   Document,
   StyleSheet,
   Image,
-  Font,
 } from "@react-pdf/renderer";
 
-// ✅ FONT REGISTER — server tarafında route.ts'te register ediliyor (readFileSync ile)
-Font.register({
-  family: "DejaVu",
-  fonts: [
-    {
-      src: "/fonts/DejaVuSans.ttf", // Local kullanım (PDF buffer'dan)
-      fontStyle: "normal",
-      fontWeight: "normal",
-    },
-  ],
-});
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
-// Görsel URL’leri
-const logoUrl =
-  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
-const footerUrl =
-  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
-
-// PDF stilleri
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
@@ -35,7 +18,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
     paddingBottom: 100,
     fontSize: 10,
-    fontFamily: "DejaVu", // 👈 Türkçe karakter desteği olan font
+    fontFamily: "DejaVu"
   },
   logo: {
     width: 120,
@@ -127,21 +110,10 @@ export const TeklifPdf = ({
         <Page size="A4" style={styles.page}>
           <Image src={logoUrl} style={styles.logo} />
           <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
-
           <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
-
-          <Text style={styles.paragraph}>
-            Değerli Müşteri Adayımız {customerName},
-          </Text>
-          <Text style={styles.paragraph}>
-            “Birlikte kazanırsak, gerçekten kazanırız” anlayışıyla hareket eden LenaCars olarak,
-            araç kiralama teklifimizi paylaşıyoruz.
-          </Text>
-          <Text style={styles.paragraph}>
-            Başarı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız.
-            Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
-          </Text>
-
+          <Text style={styles.paragraph}>Değerli Müşteri Adayımız {customerName},</Text>
+          <Text style={styles.paragraph}>“Birlikte kazanırsak, gerçekten kazanırız” anlayışıyla hareket eden LenaCars olarak, araç kiralama teklifimizi paylaşıyoruz.</Text>
+          <Text style={styles.paragraph}>Başarı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız. Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.</Text>
           <View style={styles.tableHeader}>
             <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
             <Text style={styles.cell}>Model Yılı</Text>
@@ -149,57 +121,34 @@ export const TeklifPdf = ({
             <Text style={styles.cell}>Km Limiti</Text>
             <Text style={styles.cell}>Fiyat</Text>
           </View>
-
           {vehicles.map((v) => (
             <View style={styles.tableRow} key={v.id}>
               <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
               <Text style={styles.cell}>{v.model_yili || "-"}</Text>
               <Text style={styles.cell}>{v.sure || "-"}</Text>
-              <Text style={styles.cell}>
-                {typeof v.km === "number" ? `${v.km.toLocaleString("tr-TR")} km` : "-"}
-              </Text>
-              <Text style={styles.cell}>
-                {typeof v.fiyat === "number"
-                  ? `${v.fiyat.toLocaleString("tr-TR")} ₺`
-                  : "Fiyat Yok"}
-              </Text>
+              <Text style={styles.cell}>{typeof v.km === "number" ? `${v.km.toLocaleString("tr-TR")} km` : "-"}</Text>
+              <Text style={styles.cell}>{typeof v.fiyat === "number" ? `${v.fiyat.toLocaleString("tr-TR")} ₺` : "Fiyat Yok"}</Text>
             </View>
           ))}
-
           <Text style={{ textAlign: "right", marginTop: 10, fontWeight: "bold" }}>
             Ara Toplam: {total.toLocaleString("tr-TR")} ₺
           </Text>
           <Text style={{ textAlign: "right", fontWeight: "bold" }}>
             Toplam: {total.toLocaleString("tr-TR")} ₺
           </Text>
-
           <View style={styles.conditions}>
             <Text style={styles.bold}>Genel Kiralama Koşulları:</Text>
             <Text>- Teklifimiz 15 gün geçerlidir.</Text>
-            <Text>
-              - Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet
-              Sigortası, Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm
-              vergiler dahildir.
-            </Text>
-            <Text>
-              - Belirtilen km aşım durumunda her km için 8,50 TL ile 10,50 TL + KDV arası ücret alınır.
-            </Text>
-            <Text>
-              - Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi
-              olduğu km esas alınacaktır.
-            </Text>
+            <Text>- Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet Sigortası, Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm vergiler dahildir.</Text>
+            <Text>- Belirtilen km aşım durumunda her km için 8,50 TL ile 10,50 TL + KDV arası ücret alınır.</Text>
+            <Text>- Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi olduğu km esas alınacaktır.</Text>
             <Text>- Araçlarımız kira süresi boyunca sabit fiyat garantilidir.</Text>
-            <Text>
-              - Araç opsiyonlama işlemi yapılabilmesi adına gerekli evraklarınızla sipariş
-              oluşturulmalıdır.
-            </Text>
+            <Text>- Araç opsiyonlama işlemi yapılabilmesi adına gerekli evraklarınızla sipariş oluşturulmalıdır.</Text>
           </View>
-
           <View style={styles.signature}>
             <Text>Saygılarımızla,</Text>
             <Text>LenaCars</Text>
           </View>
-
           <Image src={footerUrl} style={styles.footerImage} />
         </Page>
       </Document>
