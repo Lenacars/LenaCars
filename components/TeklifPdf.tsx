@@ -6,7 +6,20 @@ import {
   Document,
   StyleSheet,
   Image,
+  Font,
 } from "@react-pdf/renderer";
+
+// ✅ FONT REGISTER — server tarafında route.ts'te register ediliyor (readFileSync ile)
+Font.register({
+  family: "DejaVu",
+  fonts: [
+    {
+      src: "/fonts/DejaVuSans.ttf", // Local kullanım (PDF buffer'dan)
+      fontStyle: "normal",
+      fontWeight: "normal",
+    },
+  ],
+});
 
 // Görsel URL’leri
 const logoUrl =
@@ -22,7 +35,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
     paddingBottom: 100,
     fontSize: 10,
-    fontFamily: "Helvetica", // Helvetica (gömülü font)
+    fontFamily: "DejaVu", // 👈 Türkçe karakter desteği olan font
   },
   logo: {
     width: 120,
@@ -129,7 +142,6 @@ export const TeklifPdf = ({
             Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
           </Text>
 
-          {/* Tablo */}
           <View style={styles.tableHeader}>
             <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
             <Text style={styles.cell}>Model Yılı</Text>
@@ -161,7 +173,6 @@ export const TeklifPdf = ({
             Toplam: {total.toLocaleString("tr-TR")} ₺
           </Text>
 
-          {/* Koşullar */}
           <View style={styles.conditions}>
             <Text style={styles.bold}>Genel Kiralama Koşulları:</Text>
             <Text>- Teklifimiz 15 gün geçerlidir.</Text>
@@ -184,19 +195,17 @@ export const TeklifPdf = ({
             </Text>
           </View>
 
-          {/* İmza */}
           <View style={styles.signature}>
             <Text>Saygılarımızla,</Text>
             <Text>LenaCars</Text>
           </View>
 
-          {/* Footer */}
           <Image src={footerUrl} style={styles.footerImage} />
         </Page>
       </Document>
     );
   } catch (err) {
-    console.error("🔴 PDF render hatası:", err); // ← Hata logu
+    console.error("🔴 PDF render hatası:", err);
     throw err;
   }
 };
