@@ -7,17 +7,17 @@ const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/pu
 const styles = StyleSheet.create({
   page: {
     fontSize: 10,
-    paddingTop: 60,
+    paddingTop: 40,
     paddingLeft: 40,
     paddingRight: 40,
-    paddingBottom: 80,
-    fontFamily: "OpenSans", // ✔️ artık düzgün
+    paddingBottom: 100,
+    fontFamily: "OpenSans", // Türkçe karakter için artık bu
   },
   logo: {
-    width: 120,
+    width: 100,
     position: "absolute",
     top: 20,
-    left: 40,
+    left: 20,
   },
   header: {
     position: "absolute",
@@ -31,17 +31,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopWidth: 1,
     borderColor: "#000",
-    backgroundColor: "#f0f0f0",
     fontWeight: "bold",
-    marginTop: 100,
-    paddingTop: 5,
-    paddingBottom: 5,
+    marginTop: 120,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 0.5,
     borderColor: "#ccc",
-    paddingVertical: 5,
+    paddingVertical: 4,
   },
   cell: {
     flex: 1,
@@ -49,9 +48,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 0,
     left: 0,
-    right: 0,
+    width: "100%",
     alignItems: "center",
   },
   footerImage: {
@@ -64,11 +63,8 @@ interface Vehicle {
   id: string;
   isim: string;
   fiyat: number | null;
-  kategori?: string;
   vites?: string;
   yakit_turu?: string;
-  yil?: string;
-  km?: number | null;
 }
 
 export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
@@ -93,9 +89,7 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
             <Text style={styles.cell}>{v.vites || "-"}</Text>
             <Text style={styles.cell}>{v.yakit_turu || "-"}</Text>
-            <Text style={styles.cell}>
-              {typeof v.km === "number" ? v.km.toLocaleString("tr-TR") + " km" : "-"}
-            </Text>
+            <Text style={styles.cell}>-</Text> {/* km alanı kaldırıldı */}
             <Text style={styles.cell}>
               {typeof v.fiyat === "number" ? v.fiyat.toLocaleString("tr-TR") + " ₺" : "Fiyat Yok"}
             </Text>
