@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { renderToBuffer, Font } from "@react-pdf/renderer";
 import { createClient } from "@supabase/supabase-js";
 import { TeklifPdf } from "@/components/TeklifPdf";
+import path from "path";
+import { readFileSync } from "fs";
 
-// Supabase sunucu tarafı bağlantısı
+// ✅ FONT KAYDI (Türkçe karakterler için)
+Font.register({
+  family: "DejaVu",
+  src: readFileSync(
+    path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf")
+  ),
+});
+
+// ✅ Supabase sunucu bağlantısı
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -21,10 +31,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Supabase'den araç bilgilerini çek
     const { data, error } = await supabase
       .from("Araclar")
-      .select("id, isim, fiyat")
+      .select("id, isim, fiyat, model_yili, km, sure")
       .in("id", vehicleIds);
 
     if (error || !data || data.length === 0) {
@@ -34,7 +43,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Kullanıcı bilgilerini çek (ad + soyad + firma)
     const { data: userProfile, error: userError } = await supabase
       .from("kullanicilar")
       .select("ad, soyad, firma")
@@ -48,29 +56,28 @@ export async function POST(req: Request) {
       );
     }
 
-    // PDF oluştur
+    // ✅ PDF Oluştur
     const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data }) // JSX değil, function call
+      TeklifPdf({
+        vehicles: data,
+        customerName: `${userProfile.ad} ${userProfile.soyad}`,
+      })
     );
 
-    // Tarih ve teklif no hazırla
-    const teklifTarihi = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const teklifNo = Math.floor(1000 + Math.random() * 9000); // 4 haneli random no
+    const teklifTarihi = new Date().toISOString().slice(0, 10);
+    const teklifNo = Math.floor(1000 + Math.random() * 9000);
 
-    // Kullanıcı ad soyadı dosya ismine uygun formatta
     const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`
       .replace(/\s+/g, "-")
-      .replace(/[^a-zA-Z0-9\-]/g, ""); // Güvenli karakterler
+      .replace(/[^a-zA-Z0-9\-]/g, "");
 
-    // Dosya adını belirle (kişisel isim + tarih + teklif no)
     const fileName = `teklifler/${musteriIsmi}-${teklifTarihi}-Teklif-${teklifNo}.pdf`;
 
-    // Storage'a yükle (bucket: pdf-teklif)
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
       .upload(fileName, pdfBuffer, {
         contentType: "application/pdf",
-        upsert: true
+        upsert: true,
       });
 
     if (uploadError) {
@@ -81,10 +88,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ teklif_dosyalar tablosuna kayıt ekle
     const { error: insertError } = await supabase
       .from("teklif_dosyalar")
       .insert({
@@ -92,7 +97,7 @@ export async function POST(req: Request) {
         pdf_url: publicUrl,
         ad: userProfile.ad || null,
         soyad: userProfile.soyad || null,
-        firma: userProfile.firma || null
+        firma: userProfile.firma || null,
       });
 
     if (insertError) {
@@ -104,7 +109,6 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ url: publicUrl });
-
   } catch (err) {
     console.error("PDF oluşturma hatası:", err);
     return NextResponse.json(
