@@ -1,28 +1,23 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// Logo ve alt bilgi görselleri
 const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
 const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
 
-// PDF stilleri
 const styles = StyleSheet.create({
   page: {
-    position: "relative",
-    paddingTop: 40,
+    fontSize: 10,
+    paddingTop: 60,
     paddingLeft: 40,
     paddingRight: 40,
-    paddingBottom: 100, // Alt bilgi için boşluk bırakıldı
-    fontSize: 10,
-    fontFamily: "Helvetica",
+    paddingBottom: 80,
+    fontFamily: "OpenSans",
   },
   logo: {
-    width: 100,
-    height: "auto",
-    marginBottom: 10,
+    width: 120,
     position: "absolute",
     top: 20,
-    left: 20,
+    left: 40,
   },
   header: {
     position: "absolute",
@@ -36,16 +31,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopWidth: 1,
     borderColor: "#000",
+    backgroundColor: "#f0f0f0",
     fontWeight: "bold",
-    marginTop: 120,
-    paddingTop: 4,
-    paddingBottom: 4,
+    marginTop: 100,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   tableRow: {
     flexDirection: "row",
     borderBottomWidth: 0.5,
     borderColor: "#ccc",
-    paddingVertical: 4,
+    paddingVertical: 5,
   },
   cell: {
     flex: 1,
@@ -53,12 +49,13 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 0,
+    bottom: 20,
     left: 0,
-    width: "100%",
+    right: 0,
+    alignItems: "center",
   },
   footerImage: {
-    width: "100%",
+    width: "60%",
     height: "auto",
   },
 });
@@ -66,12 +63,12 @@ const styles = StyleSheet.create({
 interface Vehicle {
   id: string;
   isim: string;
-  fiyat: number | null;    // null gelebilir!
+  fiyat: number | null;
   kategori?: string;
   vites?: string;
   yakit_turu?: string;
   yil?: string;
-  km?: number | null;      // null gelebilir!
+  km?: number | null;
 }
 
 export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
@@ -80,13 +77,9 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Logo */}
         <Image src={logoUrl} style={styles.logo} />
-
-        {/* Teklif Tarihi */}
         <Text style={styles.header}>Teklif Tarihi: {today}</Text>
 
-        {/* Tablo Başlıkları */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Vites</Text>
@@ -95,7 +88,6 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           <Text style={styles.cell}>Fiyat</Text>
         </View>
 
-        {/* Araç Satırları */}
         {vehicles.map((v) => (
           <View style={styles.tableRow} key={v.id}>
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
@@ -110,7 +102,6 @@ export const TeklifPdf = ({ vehicles }: { vehicles: Vehicle[] }) => {
           </View>
         ))}
 
-        {/* Alt Bilgi Görseli */}
         <View style={styles.footer}>
           <Image src={footerUrl} style={styles.footerImage} />
         </View>
