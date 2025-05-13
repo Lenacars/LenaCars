@@ -31,13 +31,19 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // pdfkit ve sadece server tarafında çalışacak diğer modülleri client bundle'a dahil etme
+      // ✅ DejaVuSans.ttf gibi font dosyalarını server tarafında buffer olarak kullanmak için:
+      config.module.rules.push({
+        test: /\.ttf$/i,
+        type: 'asset/source',
+      });
+
+      // pdfkit gibi native modüllerin client bundle'a girmesini engelle
       config.externals = config.externals || [];
       config.externals.push('pdfkit');
     }
 
     return config;
-  }
+  },
 };
 
 // Kullanıcı konfigürasyonu ile birleştir
