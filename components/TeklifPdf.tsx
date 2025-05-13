@@ -9,8 +9,10 @@ import {
 } from "@react-pdf/renderer";
 
 // Görsel URL’leri
-const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
-const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
+const logoUrl =
+  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const footerUrl =
+  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
 // Stil tanımları
 const styles = StyleSheet.create({
@@ -20,7 +22,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
     paddingBottom: 100,
     fontSize: 10,
-    fontFamily: "DejaVu", // sadece font adı
+    fontFamily: "Helvetica", // Gömülü font
   },
   logo: {
     width: 120,
@@ -96,11 +98,12 @@ interface Vehicle {
   model_yili?: string;
 }
 
-export default function TeklifPdf({ vehicles, customerName }: { vehicles: Vehicle[]; customerName: string }) {
-
+interface Props {
   vehicles: Vehicle[];
   customerName: string;
-}) => {
+}
+
+export default function TeklifPdf({ vehicles, customerName }: Props) {
   const today = new Date().toLocaleDateString("tr-TR");
   const total = vehicles.reduce((acc, v) => acc + (v.fiyat || 0), 0);
 
@@ -179,4 +182,4 @@ export default function TeklifPdf({ vehicles, customerName }: { vehicles: Vehicl
       </Page>
     </Document>
   );
-};
+}
