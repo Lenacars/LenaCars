@@ -10,7 +10,7 @@ let isFontRegistered = false;
 function registerFontOnce() {
   if (!isFontRegistered) {
     try {
-      const fontPath = join(process.cwd(), "app", "fonts", "OpenSans-Regular.ttf");
+      const fontPath = join(process.cwd(), "lib", "fonts", "OpenSans-Regular.ttf");
       const fontData = readFileSync(fontPath);
       Font.register({ family: "OpenSans", src: fontData });
       console.log("✅ OpenSans fontu başarıyla yüklendi.");
