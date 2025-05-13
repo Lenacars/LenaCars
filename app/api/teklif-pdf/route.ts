@@ -28,13 +28,10 @@ function registerFontsOnce() {
 
       if (!fs.existsSync(fontPath)) {
         console.warn(`⚠️ FONT DOSYASI BULUNAMADI: ${font.name} yolu: ${fontPath}`);
-        // Eğer kalın font bulunamazsa, en azından normal fontla devam etmeye çalışabiliriz.
-        // Ancak bu, kalın metinlerin doğru görünmemesine neden olabilir.
-        // Kritik olan normal fontsa, burada bir hata fırlatılabilir.
         if (font.weight === "normal") {
             throw new Error(`Kritik font dosyası bulunamadı: ${font.name}`);
         }
-        continue; // Bu fontu atla
+        continue; 
       }
 
       const fontData = fs.readFileSync(fontPath);
@@ -43,7 +40,7 @@ function registerFontsOnce() {
         if (font.weight === "normal") {
             throw new Error(`Kritik font dosyası boş: ${font.name}`);
         }
-        continue; // Bu fontu atla
+        continue; 
       }
 
       console.log(`✅ ${font.name} yüklendi, arabellek uzunluğu: ${fontData.length}`);
@@ -65,8 +62,6 @@ function registerFontsOnce() {
 
   } catch (fontError: any) {
     console.error("🔴🔴🔴 KRİTİK FONT KAYIT HATASI:", fontError.message, fontError.stack);
-    // Font kaydı başarısız olursa, PDF oluşturma da büyük olasılıkla başarısız olacaktır.
-    // Bu hatayı yukarıya fırlatarak POST isteğinin hata ile sonuçlanmasını sağlayabiliriz.
     throw fontError;
   }
 }
@@ -78,8 +73,6 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    // Fontları her istek için değil, fonksiyon örneği için bir kez kaydetmeye çalış
-    // Sunucusuz ortamda bu, fonksiyon "cold start" olduğunda çalışır.
     registerFontsOnce();
 
     const body = await req.json();
@@ -89,28 +82,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Araç ID'leri belirtilmedi." }, { status: 400 });
     }
 
-    // Araç verilerini alırken 'km' alanını da seç
+    // Supabase'den araç bilgilerini çek (sadece id, isim, fiyat)
     const { data: vehiclesData, error: vehiclesError } = await supabase
       .from("Araclar")
-      .select("id, isim, fiyat, vites, yakit_turu, km") // ✅ km alanı eklendi
+      .select("id, isim, fiyat") // ✅ İstenen şekilde güncellendi
       .in("id", vehicleIds);
 
-    if (vehiclesError) {
-        console.error("Supabase araçları alırken hata:", vehiclesError);
-        return NextResponse.json({ error: "Araç bilgileri alınamadı (Supabase).", details: vehiclesError.message }, { status: 500 });
-    }
-    if (!vehiclesData || vehiclesData.length === 0) {
-      return NextResponse.json({ error: "Araç bilgileri bulunamadı." }, { status: 404 }); // 404 daha uygun olabilir
+    // Hata kontrolü güncellendi
+    if (vehiclesError || !vehiclesData || vehiclesData.length === 0) {
+        console.error("Supabase araçları alırken hata veya veri yok:", vehiclesError);
+        return NextResponse.json(
+            { error: "Araç bilgileri alınamadı veya bulunamadı.", details: vehiclesError?.message },
+            { status: 500 }
+        );
     }
 
     // TeklifPdf bileşeninin beklediği veri yapısına dönüştür
+    // vites, yakit_turu, km alanları artık Supabase'den gelmiyor.
     const vehicles = vehiclesData.map(v => ({
         id: String(v.id),
         isim: String(v.isim || "N/A"),
         fiyat: typeof v.fiyat === 'number' ? v.fiyat : null,
-        km: typeof v.km === 'number' ? v.km : null, // km değerini işle
-        vites: String(v.vites || "-"),
-        yakit_turu: String(v.yakit_turu || "-"),
+        // Bu alanlar artık çekilmediği için undefined/null olarak ayarlanıyor.
+        // TeklifPdf bileşeni kendi içindeki || "-" gibi yedeklemeleri kullanacaktır.
+        vites: undefined, 
+        yakit_turu: undefined,
+        km: null, 
     }));
 
 
@@ -155,16 +152,13 @@ export async function POST(req: Request) {
       .insert({
         kullanici_id: userId,
         pdf_url: publicUrl,
-        ad: userProfile.ad,
-        soyad: userProfile.soyad,
-        firma: userProfile.firma,
+        ad: userProfile.ad || null, // ✅ || null eklendi
+        soyad: userProfile.soyad || null, // ✅ || null eklendi
+        firma: userProfile.firma || null, // ✅ || null eklendi
       });
 
     if (insertError) {
       console.error("❌ Veritabanına kayıt hatası:", insertError);
-      // PDF yüklendiği için burada 200 dönüp hatayı loglamak daha iyi olabilir,
-      // ya da yüklenen PDF'i silmek gibi bir telafi mekanizması eklenebilir.
-      // Şimdilik hata dönüyoruz.
       return NextResponse.json({ error: "Veritabanı kaydı hatalı.", details: insertError.message }, { status: 500 });
     }
     console.log("PDF bilgileri veritabanına başarıyla kaydedildi.");
@@ -172,7 +166,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: publicUrl });
 
   } catch (err: any) {
-    // Font kayıt hatası da buraya düşebilir
     console.error("❌ Genel PDF API hatası:", err.message, err.stack);
     return NextResponse.json({ error: "PDF oluşturulamadı veya işlenemedi.", details: err.message }, { status: 500 });
   }
@@ -180,7 +173,7 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
-    registerFontsOnce(); // GET isteğiyle de font kaydını test edebilirsiniz (isteğe bağlı)
+    registerFontsOnce(); 
     return NextResponse.json({ message: "Teklif PDF API çalışıyor! Font kaydı denendi." });
   } catch (error: any) {
     return NextResponse.json({ message: "Teklif PDF API çalışıyor ancak font kaydında hata oluştu.", error: error.message }, {status: 500});
