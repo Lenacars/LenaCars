@@ -2,14 +2,16 @@ import { NextResponse } from "next/server";
 import { renderToBuffer, Font } from "@react-pdf/renderer";
 import { createClient } from "@supabase/supabase-js";
 import { TeklifPdf } from "@/components/TeklifPdf";
+import fs from "fs";
+import path from "path";
 
-// ✅ DejaVu fontunu buffer olarak içe aktar (Vercel uyumlu)
-import fontBuffer from "@/../public/fonts/DejaVuSans.ttf?buffer";
+// ✅ Fontu doğrudan buffer ile kaydet
+const fontPath = path.join(process.cwd(), "public", "fonts", "DejaVuSans.ttf");
+const fontData = fs.readFileSync(fontPath);
 
-// ✅ Fontu kaydet
 Font.register({
   family: "DejaVu",
-  src: fontBuffer,
+  src: fontData,
 });
 
 const supabase = createClient(
@@ -22,21 +24,19 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { vehicleIds, userId } = body;
 
-    if (!vehicleIds || vehicleIds.length === 0) {
-      return NextResponse.json({ error: "Araç ID'leri eksik." }, { status: 400 });
+    if (!vehicleIds || !userId) {
+      return NextResponse.json({ error: "Eksik veri gönderildi." }, { status: 400 });
     }
 
-    // 🚗 Araç bilgilerini çek
-    const { data: vehicles, error } = await supabase
+    const { data: vehicles, error: vehicleError } = await supabase
       .from("Araclar")
       .select("id, isim, fiyat, km, sure, model_yili")
       .in("id", vehicleIds);
 
-    if (error || !vehicles) {
-      return NextResponse.json({ error: "Araçlar alınamadı." }, { status: 500 });
+    if (vehicleError || !vehicles) {
+      return NextResponse.json({ error: "Araç bilgileri alınamadı." }, { status: 500 });
     }
 
-    // 👤 Kullanıcı bilgilerini çek
     const { data: userProfile, error: userError } = await supabase
       .from("kullanicilar")
       .select("ad, soyad, firma")
@@ -47,7 +47,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı." }, { status: 500 });
     }
 
-    // 📄 PDF Oluştur (JSX DEĞİL! Fonksiyon çağrısı!)
     const pdfBuffer = await renderToBuffer(
       TeklifPdf({
         vehicles,
@@ -56,12 +55,11 @@ export async function POST(req: Request) {
     );
 
     const tarih = new Date().toISOString().slice(0, 10);
-    const dosyaAdi = `teklifler/${userProfile.ad}-${tarih}-${Math.floor(Math.random() * 10000)}.pdf`;
+    const fileName = `teklifler/${userProfile.ad}-${tarih}-${Math.floor(Math.random() * 9000 + 1000)}.pdf`;
 
-    // 📤 Supabase Storage'a yükle
     const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
-      .upload(dosyaAdi, pdfBuffer, {
+      .upload(fileName, pdfBuffer, {
         contentType: "application/pdf",
         upsert: true,
       });
@@ -70,9 +68,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
     }
 
-    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${dosyaAdi}`;
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // 📥 Veritabanına kayıt
     await supabase.from("teklif_dosyalar").insert({
       kullanici_id: userId,
       pdf_url: publicUrl,
@@ -82,10 +79,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: publicUrl });
-
   } catch (err) {
-    console.error("🔴 Sunucu PDF oluşturma hatası:", err);
-    return NextResponse.json({ error: "Sunucu hatası oluştu." }, { status: 500 });
+    console.error("🔴 PDF oluşturulurken hata:", err);
+    return NextResponse.json({ error: "Sunucu hatası." }, { status: 500 });
   }
 }
 
