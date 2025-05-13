@@ -1,37 +1,35 @@
 import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// Logo ve alt bilgi görselleri
-const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433174940-Untitled%20design%20(8).png";
-const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/1746433163305-1.png";
+// 🔁 Güncel Logo ve Footer URL'leri
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
-// PDF stilleri
 const styles = StyleSheet.create({
   page: {
     position: "relative",
-    paddingTop: 80,      // Logo ve başlık için üst boşluk artırıldı
+    paddingTop: 80,
     paddingLeft: 40,
     paddingRight: 40,
-    paddingBottom: 120,  // Alt bilgi için alt boşluk artırıldı
+    paddingBottom: 120,
     fontSize: 10,
-    fontFamily: "OpenSans", // OpenSans fontu kullanılıyor
+    fontFamily: "OpenSans",
   },
   logo: {
-    width: 120, // Logo genişliği
-    // height: "auto", // @react-pdf/renderer için geçerli değil, genellikle width ayarlanır, height orantılı olur.
+    width: 120,
     position: "absolute",
-    top: 25, // Üstten konum
-    left: 40, // Soldan konum
+    top: 25,
+    left: 40,
   },
-  headerText: { // 'header' yerine daha açıklayıcı bir isim
+  headerText: {
     position: "absolute",
     top: 30,
     right: 40,
     fontSize: 10,
-    fontWeight: "bold", // OpenSans için kalın stil, API'de OpenSans-Bold.ttf kayıtlıysa çalışır
+    fontWeight: "bold",
     fontFamily: "OpenSans",
   },
-  title: { // Belge için bir başlık eklendi
+  title: {
     textAlign: "center",
     fontSize: 16,
     fontWeight: "bold",
@@ -42,7 +40,7 @@ const styles = StyleSheet.create({
   tableContainer: {
     marginTop: 10,
   },
-  tableHeaderView: { // Sadece View için stil, fontWeight Text'e uygulanmalı
+  tableHeaderView: {
     flexDirection: "row",
     borderBottomWidth: 1.5,
     borderTopWidth: 1.5,
@@ -50,10 +48,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     backgroundColor: "#f0f0f0",
   },
-  tableHeaderText: { // Tablo başlık metinleri için stil
+  tableHeaderText: {
     flex: 1,
     paddingRight: 4,
-    fontWeight: "bold", // Kalın stil doğrudan Text'e uygulanır
+    fontWeight: "bold",
     fontFamily: "OpenSans",
     fontSize: 9,
   },
@@ -69,7 +67,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: "OpenSans",
   },
-  footerView: { // Sadece View için stil
+  footerView: {
     position: "absolute",
     bottom: 30,
     left: 40,
@@ -78,8 +76,7 @@ const styles = StyleSheet.create({
   },
   footerImage: {
     width: "80%",
-    // height: "auto", // @react-pdf/renderer için geçerli değil
-    marginLeft: "10%", // Genişlik %100'den azsa resmi ortalar
+    marginLeft: "10%",
   },
 });
 
@@ -100,24 +97,20 @@ interface TeklifPdfProps {
 
 export const TeklifPdf: React.FC<TeklifPdfProps> = ({ vehicles }) => {
   const today = new Date().toLocaleDateString("tr-TR", {
-    year: 'numeric', month: 'long', day: 'numeric'
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
     <Document author="LenaCars" title={`Araç Kiralama Teklifi - ${today}`}>
       <Page size="A4" style={styles.page}>
-        {/* Logo */}
-        <Image src={logoUrl} style={styles.logo} onError={(e) => console.error("Logo Resim Hatası:", e)} />
+        <Image src={logoUrl} style={styles.logo} />
 
-        {/* Teklif Tarihi */}
         <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
-
-        {/* Belge Başlığı */}
         <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
 
-        {/* Tablo */}
         <View style={styles.tableContainer}>
-          {/* Tablo Başlıkları */}
           <View style={styles.tableHeaderView}>
             <Text style={[styles.tableHeaderText, { flex: 2.5 }]}>Araç Marka - Model</Text>
             <Text style={styles.tableHeaderText}>Vites</Text>
@@ -126,7 +119,6 @@ export const TeklifPdf: React.FC<TeklifPdfProps> = ({ vehicles }) => {
             <Text style={styles.tableHeaderText}>Fiyat</Text>
           </View>
 
-          {/* Araç Satırları */}
           {vehicles.map((v) => (
             <View style={styles.tableRow} key={v.id}>
               <Text style={[styles.cell, { flex: 2.5 }]}>{v.isim || "N/A"}</Text>
@@ -142,9 +134,8 @@ export const TeklifPdf: React.FC<TeklifPdfProps> = ({ vehicles }) => {
           ))}
         </View>
 
-        {/* Alt Bilgi Görseli */}
         <View style={styles.footerView} fixed>
-          <Image src={footerUrl} style={styles.footerImage} onError={(e) => console.error("Altbilgi Resim Hatası:", e)} />
+          <Image src={footerUrl} style={styles.footerImage} />
         </View>
       </Page>
     </Document>
