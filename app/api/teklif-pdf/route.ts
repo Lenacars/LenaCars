@@ -3,7 +3,7 @@ import { renderToBuffer, Font } from "@react-pdf/renderer";
 import { createClient } from "@supabase/supabase-js";
 import { TeklifPdf } from "@/components/TeklifPdf";
 
-// ✅ DejaVu fontunu Vercel'de çalışacak şekilde buffer ile import et
+// ✅ DejaVu fontunu buffer olarak içe aktar (Vercel uyumlu)
 import fontBuffer from "@/../public/fonts/DejaVuSans.ttf?buffer";
 
 // ✅ Fontu kaydet
@@ -47,12 +47,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Kullanıcı bulunamadı." }, { status: 500 });
     }
 
-    // 📄 PDF Oluştur (JSX formatında çağır!)
+    // 📄 PDF Oluştur (JSX DEĞİL! Fonksiyon çağrısı!)
     const pdfBuffer = await renderToBuffer(
-      <TeklifPdf
-        vehicles={vehicles}
-        customerName={`${userProfile.ad} ${userProfile.soyad}`}
-      />
+      TeklifPdf({
+        vehicles,
+        customerName: `${userProfile.ad} ${userProfile.soyad}`,
+      })
     );
 
     const tarih = new Date().toISOString().slice(0, 10);
