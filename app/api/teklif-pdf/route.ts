@@ -2,13 +2,17 @@ import { NextResponse } from "next/server";
 import { renderToBuffer, Font } from "@react-pdf/renderer";
 import { createClient } from "@supabase/supabase-js";
 import { TeklifPdf } from "@/components/TeklifPdf";
+import fs from 'fs'; // ✅ fs modülünü import et
+import path from 'path'; // ✅ path modülünü import et
 
-// ✅ Fontu buffer olarak import et (Vercel için tek çalışan yöntem)
-import fontBuffer from "@/../public/fonts/DejaVuSans.ttf?buffer";
+// ✅ Font dosyasının yolunu doğru şekilde oluştur ve readFileSync ile buffer olarak oku
+// Projenizin kök dizininde 'public/fonts/DejaVuSans.ttf' dosyasının bulunduğunu varsayıyoruz.
+const fontPath = path.join(process.cwd(), 'public', 'fonts', 'DejaVuSans.ttf');
+const fontBuffer = fs.readFileSync(fontPath);
 
 Font.register({
   family: "DejaVu",
-  src: fontBuffer,
+  src: fontBuffer, // ✅ Okunan buffer'ı kullan
 });
 
 const supabase = createClient(
