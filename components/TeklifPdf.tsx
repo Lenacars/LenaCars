@@ -2,18 +2,19 @@ import React from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
 // Görsel URL’leri
-const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/c905a554-0f1f-4362-a0d0-c1509deb5d40.webp";
-const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png"; // sol üstteki logo
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png"; // footer görseli
 
 // Stiller
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 40,
+    paddingTop: 100,
     paddingLeft: 40,
     paddingRight: 40,
     paddingBottom: 100,
     fontSize: 10,
     fontFamily: "Helvetica",
+    position: "relative",
   },
   logo: {
     width: 100,
@@ -29,7 +30,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   title: {
-    marginTop: 80,
     textAlign: "center",
     fontSize: 14,
     fontWeight: "bold",
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   footerImage: {
     width: "100%",
     position: "absolute",
-    bottom: 40,
+    bottom: 30,
   },
   bold: {
     fontWeight: "bold",
@@ -96,12 +96,12 @@ export const TeklifPdf = ({
   customerName: string;
 }) => {
   const today = new Date().toLocaleDateString("tr-TR");
-
   const total = vehicles.reduce((acc, v) => acc + (v.fiyat || 0), 0);
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Header */}
         <Image src={logoUrl} style={styles.logo} />
         <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
 
@@ -117,7 +117,7 @@ export const TeklifPdf = ({
           Başarı yolculuğunuzda her adımınızı kolaylaştırmak için buradayız. Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
         </Text>
 
-        {/* Tablo Başlıkları */}
+        {/* Tablo */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Model Yılı</Text>
@@ -126,7 +126,6 @@ export const TeklifPdf = ({
           <Text style={styles.cell}>Fiyat</Text>
         </View>
 
-        {/* Araçlar */}
         {vehicles.map((v) => (
           <View style={styles.tableRow} key={v.id}>
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
@@ -145,6 +144,7 @@ export const TeklifPdf = ({
           </View>
         ))}
 
+        {/* Toplam */}
         <Text style={{ textAlign: "right", marginTop: 10, fontWeight: "bold" }}>
           Ara Toplam: {total.toLocaleString("tr-TR")} ₺
         </Text>
@@ -152,19 +152,18 @@ export const TeklifPdf = ({
           Toplam: {total.toLocaleString("tr-TR")} ₺
         </Text>
 
-        {/* Kiralama Koşulları */}
+        {/* Koşullar */}
         <View style={styles.conditions}>
           <Text style={styles.bold}>Genel Kiralama Koşulları:</Text>
           <Text>- Teklifimiz 15 gün geçerlidir.</Text>
           <Text>
-            - Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet Sigortası,
-            Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm vergiler dahildir.
+            - Teklif edilen kiralama fiyatlarımıza; Rent A Car Kaskosu, İhtiyari Mali Mesuliyet Sigortası, Zorunlu Trafik Sigortası, periyodik servis bakımları ve mülkiyetle ilgili tüm vergiler dahildir.
           </Text>
           <Text>
             - Belirtilen km aşıım durumunda her km için 8,50 TL ile 10,50 TL + KDV arası ücret alınır.
           </Text>
           <Text>
-            - Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi olduğu km esas alınacaktır.
+            - Araç lastikleri her 60.000 km’de bir değiştirilir. Aracın km’si de lastiğin yapısı gibi olduğu km esas alınacaktır.
           </Text>
           <Text>- Araçlarımız kira süresi boyunca sabit fiyat garantilidir.</Text>
           <Text>
@@ -178,7 +177,7 @@ export const TeklifPdf = ({
           <Text>LenaCars</Text>
         </View>
 
-        {/* Footer Marka Ailesi Görseli */}
+        {/* Footer */}
         <Image src={footerUrl} style={styles.footerImage} />
       </Page>
     </Document>
