@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { renderToBuffer, Font } from "@react-pdf/renderer";
 import { createClient } from "@supabase/supabase-js";
 import { TeklifPdf } from "@/components/TeklifPdf";
+import { readFileSync } from "fs";
+import { join } from "path";
 
-// Supabase sunucu tarafı bağlantısı
+// Fontu kaydet
+const fontPath = join(process.cwd(), "public", "fonts", "OpenSans-Regular.ttf");
+const fontData = readFileSync(fontPath);
+Font.register({ family: "OpenSans", src: fontData });
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -14,27 +20,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { vehicleIds, userId } = body;
 
-    if (!vehicleIds || vehicleIds.length === 0) {
-      return NextResponse.json(
-        { error: "Araç ID'leri belirtilmedi." },
-        { status: 400 }
-      );
-    }
-
-    // Supabase'den araç bilgilerini çek
     const { data, error } = await supabase
       .from("Araclar")
-      .select("id, isim, fiyat")
+      .select("id, isim, fiyat, vites, yakit_turu, km")
       .in("id", vehicleIds);
 
-    if (error || !data || data.length === 0) {
-      return NextResponse.json(
-        { error: "Araç bilgileri alınamadı veya bulunamadı." },
-        { status: 500 }
-      );
+    if (error || !data) {
+      return NextResponse.json({ error: "Araç bilgileri alınamadı." }, { status: 500 });
     }
 
-    // Kullanıcı bilgilerini çek (ad + soyad + firma)
     const { data: userProfile, error: userError } = await supabase
       .from("kullanicilar")
       .select("ad, soyad, firma")
@@ -42,78 +36,39 @@ export async function POST(req: Request) {
       .single();
 
     if (userError || !userProfile) {
-      return NextResponse.json(
-        { error: "Kullanıcı bilgileri alınamadı." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Kullanıcı bilgileri alınamadı." }, { status: 500 });
     }
 
-    // PDF oluştur
-    const pdfBuffer = await renderToBuffer(
-      TeklifPdf({ vehicles: data }) // JSX değil, function call
-    );
+    const pdfBuffer = await renderToBuffer(TeklifPdf({ vehicles: data }));
 
-    // Tarih ve teklif no hazırla
-    const teklifTarihi = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-    const teklifNo = Math.floor(1000 + Math.random() * 9000); // 4 haneli random no
+    const date = new Date().toISOString().slice(0, 10);
+    const teklifNo = Math.floor(1000 + Math.random() * 9000);
+    const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "");
+    const fileName = `teklifler/${musteriIsmi}-${date}-Teklif-${teklifNo}.pdf`;
 
-    // Kullanıcı ad soyadı dosya ismine uygun formatta
-    const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`
-      .replace(/\s+/g, "-")
-      .replace(/[^a-zA-Z0-9\-]/g, ""); // Güvenli karakterler
-
-    // Dosya adını belirle (kişisel isim + tarih + teklif no)
-    const fileName = `teklifler/${musteriIsmi}-${teklifTarihi}-Teklif-${teklifNo}.pdf`;
-
-    // Storage'a yükle (bucket: pdf-teklif)
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
       .upload(fileName, pdfBuffer, {
         contentType: "application/pdf",
-        upsert: true
+        upsert: true,
       });
 
     if (uploadError) {
-      console.error("PDF upload hatası:", uploadError);
-      return NextResponse.json(
-        { error: "PDF Supabase Storage'a yüklenemedi." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
     }
 
-    // PUBLIC URL OLUŞTUR
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    // ✅ teklif_dosyalar tablosuna kayıt ekle
-    const { error: insertError } = await supabase
-      .from("teklif_dosyalar")
-      .insert({
-        kullanici_id: userId,
-        pdf_url: publicUrl,
-        ad: userProfile.ad || null,
-        soyad: userProfile.soyad || null,
-        firma: userProfile.firma || null
-      });
-
-    if (insertError) {
-      console.error("teklif_dosyalar tablosuna ekleme hatası:", insertError);
-      return NextResponse.json(
-        { error: "teklif_dosyalar tablosuna kayıt eklenemedi." },
-        { status: 500 }
-      );
-    }
+    await supabase.from("teklif_dosyalar").insert({
+      kullanici_id: userId,
+      pdf_url: publicUrl,
+      ad: userProfile.ad,
+      soyad: userProfile.soyad,
+      firma: userProfile.firma,
+    });
 
     return NextResponse.json({ url: publicUrl });
-
   } catch (err) {
-    console.error("PDF oluşturma hatası:", err);
-    return NextResponse.json(
-      { error: "PDF oluşturulamadı." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "PDF oluşturulamadı." }, { status: 500 });
   }
-}
-
-export async function GET() {
-  return NextResponse.json({ message: "Teklif PDF API çalışıyor!" });
 }
