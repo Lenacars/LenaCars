@@ -5,10 +5,15 @@ import { TeklifPdf } from "@/components/TeklifPdf";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-// Fontu kaydet
-const fontPath = join(process.cwd(), "public", "fonts", "OpenSans-Regular.ttf");
-const fontData = readFileSync(fontPath);
-Font.register({ family: "OpenSans", src: fontData });
+let isFontRegistered = false;
+function registerFontOnce() {
+  if (!isFontRegistered) {
+    const fontPath = join(process.cwd(), "public", "fonts", "OpenSans-Regular.ttf");
+    const fontData = readFileSync(fontPath);
+    Font.register({ family: "OpenSans", src: fontData });
+    isFontRegistered = true;
+  }
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +22,9 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+    // 🔐 fontu önce bir defa kaydet
+    registerFontOnce();
+
     const body = await req.json();
     const { vehicleIds, userId } = body;
 
@@ -48,10 +56,7 @@ export async function POST(req: Request) {
 
     const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
-      .upload(fileName, pdfBuffer, {
-        contentType: "application/pdf",
-        upsert: true,
-      });
+      .upload(fileName, pdfBuffer, { contentType: "application/pdf", upsert: true });
 
     if (uploadError) {
       return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
@@ -69,6 +74,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: publicUrl });
   } catch (err) {
+    console.error("PDF oluşturma hatası:", err);
     return NextResponse.json({ error: "PDF oluşturulamadı." }, { status: 500 });
   }
 }
