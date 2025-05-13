@@ -8,20 +8,19 @@ import {
   Image,
   Font,
 } from "@react-pdf/renderer";
+import DejaVuSans from "@/public/fonts/DejaVuSans.ttf"; // ✅ import et
 
-// FONT REGISTER
+// ✅ FONT REGISTER
 Font.register({
   family: "DejaVu",
-  src: "/fonts/DejaVuSans.ttf",
+  src: DejaVuSans,
 });
 
-// GÖRSELLER
-const logoUrl =
-  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
-const footerUrl =
-  "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
+// Görsel URL’leri
+const logoUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/866644b2-4e89-4dec-84a8-e607311ece2e.png";
+const footerUrl = "https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/2bf3ea48-ca84-4f34-a109-0a6ef8c7f914.png";
 
-// STİLLER
+// Stiller
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
@@ -75,10 +74,10 @@ const styles = StyleSheet.create({
     paddingRight: 4,
   },
   footerImage: {
-    width: "40%", // %30-%40 arası daha şık görünüyor
+    width: "40%",
     position: "absolute",
     bottom: 20,
-    left: "30%", // ortalama için sol %30
+    left: "30%",
   },
   bold: {
     fontWeight: "bold",
@@ -118,14 +117,10 @@ export const TeklifPdf = ({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Üst Logo ve Tarih */}
         <Image src={logoUrl} style={styles.logo} />
         <Text style={styles.headerText}>Teklif Tarihi: {today}</Text>
-
-        {/* Başlık */}
         <Text style={styles.title}>Araç Kiralama Teklif Formu</Text>
 
-        {/* Giriş Paragrafı */}
         <Text style={styles.paragraph}>Değerli Müşteri Adayımız {customerName},</Text>
         <Text style={styles.paragraph}>
           “Birlikte kazanırsak, gerçekten kazanırız” anlayışıyla hareket eden LenaCars olarak,
@@ -136,7 +131,6 @@ export const TeklifPdf = ({
           Mutlu müşteri ailemizde sizi de görmekten memnuniyet duyarız.
         </Text>
 
-        {/* Tablo Başlıkları */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cell, { flex: 2 }]}>Araç Marka - Model</Text>
           <Text style={styles.cell}>Model Yılı</Text>
@@ -145,7 +139,6 @@ export const TeklifPdf = ({
           <Text style={styles.cell}>Fiyat</Text>
         </View>
 
-        {/* Araç Satırları */}
         {vehicles.map((v) => (
           <View style={styles.tableRow} key={v.id}>
             <Text style={[styles.cell, { flex: 2 }]}>{v.isim}</Text>
@@ -155,14 +148,11 @@ export const TeklifPdf = ({
               {typeof v.km === "number" ? `${v.km.toLocaleString("tr-TR")} km` : "-"}
             </Text>
             <Text style={styles.cell}>
-              {typeof v.fiyat === "number"
-                ? `${v.fiyat.toLocaleString("tr-TR")} ₺`
-                : "Fiyat Yok"}
+              {typeof v.fiyat === "number" ? `${v.fiyat.toLocaleString("tr-TR")} ₺` : "Fiyat Yok"}
             </Text>
           </View>
         ))}
 
-        {/* Toplam Fiyat */}
         <Text style={{ textAlign: "right", marginTop: 10, fontWeight: "bold" }}>
           Ara Toplam: {total.toLocaleString("tr-TR")} ₺
         </Text>
@@ -170,7 +160,6 @@ export const TeklifPdf = ({
           Toplam: {total.toLocaleString("tr-TR")} ₺
         </Text>
 
-        {/* Koşullar */}
         <View style={styles.conditions}>
           <Text style={styles.bold}>Genel Kiralama Koşulları:</Text>
           <Text>- Teklifimiz 15 gün geçerlidir.</Text>
@@ -193,13 +182,11 @@ export const TeklifPdf = ({
           </Text>
         </View>
 
-        {/* İmza */}
         <View style={styles.signature}>
           <Text>Saygılarımızla,</Text>
           <Text>LenaCars</Text>
         </View>
 
-        {/* Footer Görseli */}
         <Image src={footerUrl} style={styles.footerImage} />
       </Page>
     </Document>
