@@ -5,10 +5,12 @@ import { TeklifPdf } from "@/components/TeklifPdf";
 import { readFileSync } from "fs";
 import { join } from "path";
 
+// Fontu sadece bir kere register etmek için flag
 let isFontRegistered = false;
+
 function registerFontOnce() {
   if (!isFontRegistered) {
-    const fontPath = join(process.cwd(), "public", "fonts", "OpenSans-Regular.ttf");
+    const fontPath = join(process.cwd(), "app", "fonts", "OpenSans-Regular.ttf"); // ✔️ doğru konum
     const fontData = readFileSync(fontPath);
     Font.register({ family: "OpenSans", src: fontData });
     isFontRegistered = true;
@@ -22,11 +24,15 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    // 🔐 fontu önce bir defa kaydet
+    // 🔐 Fontu kaydet
     registerFontOnce();
 
     const body = await req.json();
     const { vehicleIds, userId } = body;
+
+    if (!vehicleIds || !userId) {
+      return NextResponse.json({ error: "Eksik veri gönderildi." }, { status: 400 });
+    }
 
     const { data, error } = await supabase
       .from("Araclar")
@@ -51,12 +57,17 @@ export async function POST(req: Request) {
 
     const date = new Date().toISOString().slice(0, 10);
     const teklifNo = Math.floor(1000 + Math.random() * 9000);
-    const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-]/g, "");
+    const musteriIsmi = `${userProfile.ad} ${userProfile.soyad}`
+      .replace(/\s+/g, "-")
+      .replace(/[^a-zA-Z0-9\-]/g, "");
     const fileName = `teklifler/${musteriIsmi}-${date}-Teklif-${teklifNo}.pdf`;
 
     const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
-      .upload(fileName, pdfBuffer, { contentType: "application/pdf", upsert: true });
+      .upload(fileName, pdfBuffer, {
+        contentType: "application/pdf",
+        upsert: true,
+      });
 
     if (uploadError) {
       return NextResponse.json({ error: "PDF yüklenemedi." }, { status: 500 });
@@ -73,6 +84,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ url: publicUrl });
+
   } catch (err) {
     console.error("PDF oluşturma hatası:", err);
     return NextResponse.json({ error: "PDF oluşturulamadı." }, { status: 500 });
