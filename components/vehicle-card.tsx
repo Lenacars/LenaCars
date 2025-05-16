@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase-browser";
+import { Loader2 } from "lucide-react";
 
 interface Variation {
   fiyat: number;
@@ -20,12 +21,13 @@ interface VehicleCardProps {
     rating?: number;
     features?: string[];
     price?: number;
-    variations?: Variation[]; // 🔑 Varyasyonlar buradan alınacak
+    variations?: Variation[];
   };
 }
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
   const {
     id,
@@ -45,40 +47,48 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
   const imageUrl = image || "/placeholder.svg";
 
   const handleAddToGarage = async () => {
+    setIsAdding(true);
+
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id;
 
-    if (userId) {
-      const { data: existing } = await supabase
-        .from("garaj")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("arac_id", id)
-        .maybeSingle();
+    try {
+      if (userId) {
+        const { data: existing } = await supabase
+          .from("garaj")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("arac_id", id)
+          .maybeSingle();
 
-      if (existing) {
-        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
-        return;
+        if (existing) {
+          toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
+          return;
+        }
+
+        await supabase.from("garaj").insert([{ user_id: userId, arac_id: id }]);
+        toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
+      } else {
+        let stored: string[] = [];
+        try {
+          stored = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
+        } catch {
+          stored = [];
+        }
+
+        if (stored.includes(id)) {
+          toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
+          return;
+        }
+
+        stored.push(id);
+        localStorage.setItem("guest_garaj", JSON.stringify(stored));
+        toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
       }
-
-      await supabase.from("garaj").insert([{ user_id: userId, arac_id: id }]);
-      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
-    } else {
-      let stored: string[] = [];
-      try {
-        stored = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
-      } catch {
-        stored = [];
-      }
-
-      if (stored.includes(id)) {
-        toast({ title: "Zaten eklenmiş", description: "Bu araç zaten garajınızda." });
-        return;
-      }
-
-      stored.push(id);
-      localStorage.setItem("guest_garaj", JSON.stringify(stored));
-      toast({ title: "Garaja Eklendi", description: `${name} başarıyla garajınıza eklendi.` });
+    } catch (error) {
+      toast({ title: "Hata", description: "Araç eklenirken bir sorun oluştu.", variant: "destructive" });
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -130,9 +140,17 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           </Link>
           <button
             onClick={handleAddToGarage}
-            className="text-sm px-4 py-2 border rounded"
+            disabled={isAdding}
+            className="text-sm px-4 py-2 border rounded flex items-center justify-center min-w-[120px]"
           >
-            Garaja Ekle
+            {isAdding ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Ekleniyor...
+              </>
+            ) : (
+              "Garaja Ekle"
+            )}
           </button>
         </div>
       </div>
