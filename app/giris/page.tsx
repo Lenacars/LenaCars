@@ -1,8 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Tabs,
@@ -23,16 +21,21 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabase-browser";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [redirect, setRedirect] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [redirect, setRedirect] = useState<string | null>(null);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setRedirect(params.get("redirect"));
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redir = params.get("redirect");
+      if (redir) setRedirect(redir);
+    }
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
