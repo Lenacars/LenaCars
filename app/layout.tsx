@@ -7,7 +7,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import MainHeader from "@/components/layout/MainHeader";
 import Footer from "@/components/footer";
-import { SearchProvider } from "@/context/SearchContext"; // ✅ SearchProvider eklendi
+import { SearchProvider } from "@/context/SearchContext";
+import { Toaster } from "@/components/ui/toaster"; // ✅ EKLENDİ
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,11 +57,12 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SearchProvider> {/* ✅ Context tüm siteyi sarar */}
+          <SearchProvider>
             <MainHeader pages={pages} />
             <main className="min-h-screen">{children}</main>
             <Footer />
           </SearchProvider>
+          <Toaster /> {/* ✅ Toast mesajlarının görünmesi için eklendi */}
         </ThemeProvider>
       </body>
     </html>
