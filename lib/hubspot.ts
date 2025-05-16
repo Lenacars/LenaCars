@@ -13,7 +13,21 @@ export async function createHubspotContact({
   firma?: string | null;
 }) {
   try {
+    console.log("📤 HubSpot için kullanıcı verisi gönderiliyor:", {
+      ad,
+      soyad,
+      email,
+      telefon,
+      firma,
+    });
+
     const token = process.env.HUBSPOT_PRIVATE_TOKEN;
+
+    if (!token) {
+      console.error("❌ HUBSPOT_PRIVATE_TOKEN bulunamadı!");
+      return;
+    }
+
     const response = await fetch("https://api.hubapi.com/crm/v3/objects/contacts", {
       method: "POST",
       headers: {
@@ -31,11 +45,12 @@ export async function createHubspotContact({
       }),
     });
 
+    const result = await response.json();
+
     if (!response.ok) {
-      const err = await response.json();
-      console.error("❌ HubSpot API Error:", err);
+      console.error("❌ HubSpot API Hatası:", result);
     } else {
-      console.log("✅ HubSpot kaydı başarılı");
+      console.log("✅ HubSpot kaydı başarılı:", result);
     }
   } catch (error) {
     console.error("❌ HubSpot bağlantı hatası:", error);
