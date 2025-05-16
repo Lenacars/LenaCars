@@ -41,6 +41,7 @@ export async function createHubspotContact({
           lastname: soyad,
           phone: telefon,
           company: firma || "",
+          hubspot_owner_id: "26066921", // 👈 info@lenacars.com hesabı
         },
       }),
     });
