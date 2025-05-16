@@ -13,7 +13,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -51,7 +50,7 @@ export default function LoginPage() {
       setMessage("E-posta veya şifre hatalı.");
     } else {
       setMessage("");
-      window.location.href = "/";
+      window.location.href = redirect === "teklif" ? "/garaj" : "/";
     }
 
     setIsLoading(false);
