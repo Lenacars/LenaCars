@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from "next/navigation";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -22,6 +28,9 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +110,13 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
+
+          {redirect === "teklif" && (
+            <div className="bg-yellow-100 text-yellow-800 text-sm font-medium p-3 rounded mb-4 border border-yellow-300">
+              Teklif oluşturmak için lütfen giriş yapın.
+            </div>
+          )}
+
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Giriş Yap</TabsTrigger>
