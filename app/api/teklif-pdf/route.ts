@@ -88,14 +88,27 @@ export async function POST(req: Request) {
       km: null,
     }));
 
-    const { data: userProfile, error: userError } = await supabase
-      .from("kullanicilar")
-      .select("ad, soyad, firma")
-      .eq("id", userId)
-      .single();
+    // Kullanıcı bilgileri varsayılan: misafir
+    let userProfile = {
+      ad: "Misafir",
+      soyad: "Kullanıcı",
+      firma: "",
+    };
 
-    if (userError || !userProfile) {
-      return NextResponse.json({ error: "Kullanıcı bilgileri alınamadı." }, { status: 500 });
+    if (userId) {
+      const { data: profileData, error: userError } = await supabase
+        .from("kullanicilar")
+        .select("ad, soyad, firma")
+        .eq("id", userId)
+        .single();
+
+      if (!userError && profileData) {
+        userProfile = {
+          ad: profileData.ad,
+          soyad: profileData.soyad,
+          firma: profileData.firma,
+        };
+      }
     }
 
     const pdfBuffer = await renderToBuffer(TeklifPdf({ vehicles }));
@@ -120,16 +133,19 @@ export async function POST(req: Request) {
 
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
 
-    const { error: insertError } = await supabase.from("teklif_dosyalar").insert({
-      kullanici_id: userId,
-      pdf_url: publicUrl,
-      ad: userProfile.ad || null,
-      soyad: userProfile.soyad || null,
-      firma: userProfile.firma || null,
-    });
+    // ❗ Sadece giriş yapmış kullanıcılar için Supabase'e kayıt
+    if (userId) {
+      const { error: insertError } = await supabase.from("teklif_dosyalar").insert({
+        kullanici_id: userId,
+        pdf_url: publicUrl,
+        ad: userProfile.ad,
+        soyad: userProfile.soyad,
+        firma: userProfile.firma,
+      });
 
-    if (insertError) {
-      return NextResponse.json({ error: "Veritabanı kaydı başarısız.", details: insertError.message }, { status: 500 });
+      if (insertError) {
+        return NextResponse.json({ error: "Veritabanı kaydı başarısız.", details: insertError.message }, { status: 500 });
+      }
     }
 
     return NextResponse.json({ url: publicUrl });
