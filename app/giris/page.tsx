@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabase-browser";
-import { createHubspotContact } from "@/lib/hubspot";
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +104,11 @@ export default function LoginPage() {
         return;
       }
 
-      await createHubspotContact({ ad, soyad, email, telefon: phone, firma });
+      await fetch("/api/hubspot-contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad, soyad, email, telefon: phone, firma }),
+      });
     }
 
     setMessage("Kayıt başarılı. Lütfen e-posta adresinizi kontrol edin.");
@@ -116,7 +119,6 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
-
           {redirect === "teklif" && (
             <div className="bg-yellow-100 text-yellow-800 text-sm font-medium p-3 rounded mb-4 border border-yellow-300 text-center">
               Teklif oluşturmak için lütfen giriş yapın.
@@ -129,7 +131,6 @@ export default function LoginPage() {
               <TabsTrigger value="register">Üye Ol</TabsTrigger>
             </TabsList>
 
-            {/* Giriş */}
             <TabsContent value="login">
               <Card>
                 <CardHeader>
@@ -181,7 +182,6 @@ export default function LoginPage() {
               </Card>
             </TabsContent>
 
-            {/* Üye Ol */}
             <TabsContent value="register">
               <Card>
                 <CardHeader>
