@@ -20,13 +20,17 @@ function registerFontsOnce() {
 
     for (const font of fontsToRegister) {
       const fontPath = path.join(process.cwd(), "lib", "fonts", font.name);
+      console.log("🔠 Font yolu kontrol ediliyor:", fontPath);
+
       if (!fs.existsSync(fontPath)) {
+        console.error("🚫 Font bulunamadı:", font.name);
         if (font.weight === "normal") throw new Error(`Font bulunamadı: ${font.name}`);
         continue;
       }
 
       const fontData = fs.readFileSync(fontPath);
       if (fontData.length === 0) {
+        console.error("🚫 Font dosyası boş:", font.name);
         if (font.weight === "normal") throw new Error(`Font boş: ${font.name}`);
         continue;
       }
@@ -46,7 +50,7 @@ function registerFontsOnce() {
     areFontsRegistered = true;
     console.log("✅ Fontlar başarıyla yüklendi.");
   } catch (err: any) {
-    console.error("Font yükleme hatası:", err.message);
+    console.error("❌ Font yükleme hatası:", err.message);
     throw err;
   }
 }
@@ -57,15 +61,22 @@ const supabase = createClient(
 );
 
 export async function POST(req: Request) {
+  console.log("📩 [POST] Teklif PDF API çağrıldı");
+
   try {
     registerFontsOnce();
 
     const body = await req.json();
+    console.log("📦 Request body:", body);
+
     const { vehicleIds, userId } = body;
 
     if (!vehicleIds?.length) {
+      console.error("🚫 Araç ID'leri boş!");
       return NextResponse.json({ error: "Araç ID'leri belirtilmedi." }, { status: 400 });
     }
+
+    console.log("🔍 Araçlar çekiliyor...");
 
     const { data: vehiclesData, error: vehiclesError } = await supabase
       .from("Araclar")
@@ -73,11 +84,14 @@ export async function POST(req: Request) {
       .in("id", vehicleIds);
 
     if (vehiclesError || !vehiclesData?.length) {
+      console.error("❌ Araçlar alınamadı:", vehiclesError?.message);
       return NextResponse.json(
         { error: "Araç bilgileri alınamadı.", details: vehiclesError?.message },
         { status: 500 }
       );
     }
+
+    console.log("✅ Araç verisi geldi:", vehiclesData);
 
     const vehicles = vehiclesData.map((v) => ({
       id: String(v.id),
@@ -88,7 +102,6 @@ export async function POST(req: Request) {
       km: null,
     }));
 
-    // Kullanıcı bilgileri varsayılan: misafir
     let userProfile = {
       ad: "Misafir",
       soyad: "Kullanıcı",
@@ -96,6 +109,7 @@ export async function POST(req: Request) {
     };
 
     if (userId) {
+      console.log("🔐 Giriş yapmış kullanıcı ID:", userId);
       const { data: profileData, error: userError } = await supabase
         .from("kullanicilar")
         .select("ad, soyad, firma")
@@ -103,14 +117,20 @@ export async function POST(req: Request) {
         .single();
 
       if (!userError && profileData) {
+        console.log("✅ Kullanıcı profili alındı:", profileData);
         userProfile = {
           ad: profileData.ad,
           soyad: profileData.soyad,
           firma: profileData.firma,
         };
+      } else {
+        console.error("🚫 Kullanıcı profili alınamadı:", userError?.message);
       }
+    } else {
+      console.log("👤 Misafir kullanıcı PDF oluşturuyor.");
     }
 
+    console.log("🧾 PDF hazırlanıyor...");
     const pdfBuffer = await renderToBuffer(TeklifPdf({ vehicles }));
 
     const teklifTarihi = new Date().toISOString().slice(0, 10);
@@ -120,6 +140,8 @@ export async function POST(req: Request) {
       .replace(/[^a-zA-Z0-9\-]/g, "");
     const fileName = `teklifler/${musteriIsmi}-${teklifTarihi}-Teklif-${teklifNo}.pdf`;
 
+    console.log("📤 PDF Supabase Storage'a yükleniyor:", fileName);
+
     const { error: uploadError } = await supabase.storage
       .from("pdf-teklif")
       .upload(fileName, pdfBuffer, {
@@ -128,13 +150,15 @@ export async function POST(req: Request) {
       });
 
     if (uploadError) {
+      console.error("❌ PDF yükleme hatası:", uploadError.message);
       return NextResponse.json({ error: "PDF yüklenemedi.", details: uploadError.message }, { status: 500 });
     }
 
     const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/pdf-teklif/${fileName}`;
+    console.log("✅ PDF başarıyla yüklendi:", publicUrl);
 
-    // ❗ Sadece giriş yapmış kullanıcılar için Supabase'e kayıt
     if (userId) {
+      console.log("📥 Supabase teklif_dosyalar tablosuna kayıt yapılıyor...");
       const { error: insertError } = await supabase.from("teklif_dosyalar").insert({
         kullanici_id: userId,
         pdf_url: publicUrl,
@@ -144,8 +168,11 @@ export async function POST(req: Request) {
       });
 
       if (insertError) {
+        console.error("❌ Veritabanı kaydı hatası:", insertError.message);
         return NextResponse.json({ error: "Veritabanı kaydı başarısız.", details: insertError.message }, { status: 500 });
       }
+
+      console.log("✅ Veritabanı kaydı tamamlandı.");
     }
 
     return NextResponse.json({ url: publicUrl });
