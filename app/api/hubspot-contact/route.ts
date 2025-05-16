@@ -1,37 +1,36 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    const { ad, soyad, email, telefon, firma } = body;
 
-  const { email, firstname, lastname, phone, company } = body;
-  const token = process.env.HUBSPOT_PRIVATE_TOKEN;
-
-  if (!token) {
-    return NextResponse.json({ error: "HubSpot token eksik" }, { status: 500 });
-  }
-
-  const hubspotRes = await fetch("https://api.hubapi.com/crm/v3/objects/contacts", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      properties: {
-        email,
-        firstname,
-        lastname,
-        phone,
-        company,
+    const response = await fetch("https://api.hubapi.com/crm/v3/objects/contacts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.HUBSPOT_PRIVATE_TOKEN}`,
+        "Content-Type": "application/json",
       },
-    }),
-  });
+      body: JSON.stringify({
+        properties: {
+          email,
+          firstname: ad,
+          lastname: soyad,
+          phone: telefon,
+          company: firma || "",
+        },
+      }),
+    });
 
-  const hubspotData = await hubspotRes.json();
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("❌ HubSpot API Hatası:", error);
+      return NextResponse.json({ error }, { status: 500 });
+    }
 
-  if (!hubspotRes.ok) {
-    return NextResponse.json({ error: hubspotData }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("❌ Sunucu hatası:", err);
+    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
-
-  return NextResponse.json({ success: true, data: hubspotData });
 }
