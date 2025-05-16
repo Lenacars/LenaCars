@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/lib/supabase-browser";
+import { createHubspotContact } from "@/lib/hubspot";
 
 export const dynamic = "force-dynamic";
 
@@ -103,6 +104,8 @@ export default function LoginPage() {
         setIsLoading(false);
         return;
       }
+
+      await createHubspotContact({ ad, soyad, email, telefon: phone, firma });
     }
 
     setMessage("Kayıt başarılı. Lütfen e-posta adresinizi kontrol edin.");
