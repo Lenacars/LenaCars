@@ -90,9 +90,9 @@ export default function GaragePage() {
         combinedVehicles = [...combinedVehicles, ...supabaseVehicles];
       }
     } else {
-      const guestGarageIds = JSON.parse(
-        localStorage.getItem("guest_garaj") || "[]"
-      ) as string[];
+      const guestGarageIds = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
+
+      console.log("👤 Misafir garaj ID'leri:", guestGarageIds);
 
       if (guestGarageIds.length > 0) {
         const { data, error } = await supabase
@@ -119,6 +119,7 @@ export default function GaragePage() {
       }
     }
 
+    console.log("✅ Garajdaki tüm araçlar:", combinedVehicles);
     setVehicles(combinedVehicles);
   };
 
@@ -133,13 +134,12 @@ export default function GaragePage() {
         .eq("user_id", userId)
         .eq("arac_id", vehicleId);
     } else {
-      const current = JSON.parse(
-        localStorage.getItem("guest_garaj") || "[]"
-      ) as string[];
+      const current = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
       const updated = current.filter((id) => id !== vehicleId);
       localStorage.setItem("guest_garaj", JSON.stringify(updated));
     }
 
+    console.log(`🗑️ Araç kaldırıldı: ${vehicleId}`);
     setVehicles(vehicles.filter((v) => v.id !== vehicleId));
     toast({ title: "Araç kaldırıldı." });
   };
@@ -149,7 +149,10 @@ export default function GaragePage() {
   };
 
   const handleGeneratePdf = async () => {
+    console.log("🟣 handleGeneratePdf tetiklendi");
+
     if (vehicles.length === 0) {
+      console.warn("⚠️ Garaj boş, PDF oluşturulamaz.");
       toast({
         title: "Hata",
         description: "Garajda araç bulunamadı.",
@@ -159,21 +162,16 @@ export default function GaragePage() {
     }
 
     const vehicleIds = vehicles.map((v) => v.id);
+    console.log("📦 Seçilen araç ID'leri:", vehicleIds);
+
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id;
-
-    if (!userId) {
-      toast({
-        title: "Hata",
-        description: "PDF oluşturmak için giriş yapmalısınız.",
-        variant: "destructive",
-      });
-      return;
-    }
+    console.log("👤 userId:", userId);
 
     setIsGeneratingPdf(true);
 
     try {
+      console.log("📨 API'ye istek atılıyor...");
       const response = await fetch("/api/teklif-pdf", {
         method: "POST",
         headers: {
@@ -184,6 +182,7 @@ export default function GaragePage() {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("❌ PDF API hatası:", errorText);
         toast({
           title: "PDF Hatası",
           description: `PDF oluşturulamadı: ${errorText}`,
@@ -192,22 +191,23 @@ export default function GaragePage() {
         return;
       }
 
-      // ✅ Artık JSON olarak URL dönüyor
       const result = await response.json();
+      console.log("📄 PDF API dönüşü:", result);
+
       if (result.url) {
-        window.open(result.url, "_blank"); // Yeni sekmede aç
+        window.open(result.url, "_blank");
         toast({
           title: "Başarılı",
           description: "PDF başarıyla oluşturuldu ve açıldı.",
         });
       } else {
+        console.error("❌ PDF URL alınamadı.");
         toast({
           title: "PDF Hatası",
           description: "URL alınamadı.",
           variant: "destructive",
         });
       }
-
     } catch (error) {
       console.error("🔴 PDF oluşturma hatası:", error);
       toast({
