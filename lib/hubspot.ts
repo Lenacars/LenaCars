@@ -42,7 +42,7 @@ export async function createHubspotContact({
           lastname: soyad,
           phone: telefon,
           company: firma || "",
-          hubspot_owner_id: "133212607", // ✅ info@lenacars.com'a ait owner ID
+          hubspot_owner_id: "26066921" // ✅ userId
         },
       }),
     });
