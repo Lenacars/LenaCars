@@ -91,7 +91,6 @@ export default function GaragePage() {
       }
     } else {
       const guestGarageIds = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
-
       console.log("👤 Misafir garaj ID'leri:", guestGarageIds);
 
       if (guestGarageIds.length > 0) {
@@ -167,6 +166,12 @@ export default function GaragePage() {
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id;
     console.log("👤 userId:", userId);
+
+    if (!userId) {
+      console.warn("👤 Misafir kullanıcı PDF oluşturmak istedi, yönlendiriliyor...");
+      window.location.href = "https://lena-cars.vercel.app/giris";
+      return;
+    }
 
     setIsGeneratingPdf(true);
 
@@ -264,9 +269,7 @@ export default function GaragePage() {
                     </TableCell>
                     <TableCell>{vehicle.name}</TableCell>
                     <TableCell>{vehicle.category}</TableCell>
-                    <TableCell>
-                      {vehicle.price.toLocaleString()} ₺
-                    </TableCell>
+                    <TableCell>{vehicle.price.toLocaleString()} ₺</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
