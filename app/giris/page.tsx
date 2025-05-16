@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Tabs,
@@ -24,18 +24,15 @@ import { supabase } from "@/lib/supabase-browser";
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
+  const [redirect, setRedirect] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [redirect, setRedirect] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const redir = params.get("redirect");
-      if (redir) setRedirect(redir);
-    }
+    const params = new URLSearchParams(window.location.search);
+    setRedirect(params.get("redirect"));
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -116,8 +113,9 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
+
           {redirect === "teklif" && (
-            <div className="bg-yellow-100 text-yellow-800 text-sm font-medium p-3 rounded mb-4 border border-yellow-300">
+            <div className="bg-yellow-100 text-yellow-800 text-sm font-medium p-3 rounded mb-4 border border-yellow-300 text-center">
               Teklif oluşturmak için lütfen giriş yapın.
             </div>
           )}
