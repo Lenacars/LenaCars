@@ -45,7 +45,7 @@ export default function MainHeader() {
               slug: item.slug,
               menu_group: item.menu_group,
               subItems: data
-                .filter(sub => sub.parent === item.slug)
+                .filter(sub => sub.parent === item.id) // <--- DEĞİŞİKLİK BURADA
                 .map(sub => ({
                   title: sub.title,
                   slug: sub.slug,
@@ -171,7 +171,7 @@ export default function MainHeader() {
     setSearchTerm(trimmedSearchTerm);
     setSuggestions([]);
     if (trimmedSearchTerm) {
-        const vehicleListElement = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
+        const vehicleListElement = document.getElementById('vehicle-list');
         if (vehicleListElement) {
             vehicleListElement.scrollIntoView({ behavior: "smooth" });
         }
@@ -181,7 +181,7 @@ export default function MainHeader() {
   const handleSuggestionClick = (suggestion: VehicleSuggestion) => {
     setSearchTerm(suggestion.name);
     setSuggestions([]);
-    const vehicleListElement = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
+    const vehicleListElement = document.getElementById('vehicle-list');
     if (vehicleListElement) {
       vehicleListElement.scrollIntoView({ behavior: "smooth" });
     }
@@ -320,10 +320,10 @@ export default function MainHeader() {
                 ))}
                 <li className="border-t">
                   <a
-                    href="#vehicle-list" // <--- ID GÜNCELLENDİ
+                    href="#vehicle-list"
                     onClick={(e) => {
                       e.preventDefault();
-                      const el = document.getElementById('vehicle-list'); // <--- ID GÜNCELLENDİ
+                      const el = document.getElementById('vehicle-list');
                       if (el) {
                         el.scrollIntoView({ behavior: "smooth" });
                       }
