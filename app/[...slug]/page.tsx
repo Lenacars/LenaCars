@@ -7,10 +7,10 @@ import remarkGfm from "remark-gfm";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-// MDX içinde kullanılacak özel React bileşenleri burada tanımlanır
+// MDX içerisinde kullanılabilecek özel React bileşenleri
 const components = {
   // Örnek: Timeline: dynamic(() => import("@/components/Timeline")),
-  // Örnek: CustomCard: dynamic(() => import("@/components/CustomCard")),
+  // Örnek: FeatureCard: dynamic(() => import("@/components/FeatureCard")),
 };
 
 interface PageProps {
@@ -31,7 +31,7 @@ export default async function DynamicPage({ params }: PageProps) {
 
   if (!page || error) return notFound();
 
-  // 🔸 Eğer sayfa "blog" listesi sayfasıysa
+  // 🔸 Özel durum: Blog liste sayfası
   if (decodedSlug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs } = await supabase
       .from("bloglar")
@@ -63,7 +63,7 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
-  // 🔹 MDX içeriği varsa onu render et
+  // 🔹 Eğer sayfa MDX içeriği içeriyorsa
   if (page.mdx_content) {
     return (
       <div className="max-w-5xl mx-auto p-6 prose prose-lg">
@@ -82,7 +82,7 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
-  // 🔹 Eski yapı: HTML content varsa onu göster
+  // 🔸 Eğer sayfa klasik HTML content içeriyorsa (legacy destek)
   return (
     <div className="max-w-5xl mx-auto p-6 prose prose-lg">
       <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
