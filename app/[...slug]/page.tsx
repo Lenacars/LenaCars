@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabase-browser";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { createServerSupabase } from "@/lib/supabase-server"; // 🟢 senin mevcut dosyan
 
 interface PageProps {
   params: { slug: string[] };
@@ -13,17 +13,19 @@ export default async function DynamicPage({ params }: PageProps) {
 
   console.log("🟣 İstenen slug:", decodedSlug);
 
+  const supabase = createServerSupabase(); // 🔑 Sunucu tarafı Supabase client
+
   const { data: page, error: pageError } = await supabase
     .from("Pages")
     .select("*")
-    .ilike("slug", decodedSlug)
+    .eq("slug", decodedSlug)
     .or("published.is.null,published.eq.true")
     .maybeSingle();
 
   console.log("📄 Gelen sayfa:", page);
+  if (pageError) console.error("⛔ Supabase Hatası:", pageError);
 
   if (!page || pageError) {
-    console.error("⛔ Sayfa bulunamadı veya hata:", pageError);
     return notFound();
   }
 
@@ -36,7 +38,6 @@ export default async function DynamicPage({ params }: PageProps) {
       .order("created_at", { ascending: false });
 
     console.log("🟢 Blog verileri:", blogs);
-
     if (!blogError && blogs) {
       blogList = blogs;
     }
