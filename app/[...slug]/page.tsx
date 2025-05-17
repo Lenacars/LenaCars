@@ -1,6 +1,6 @@
+import { supabase } from "@/lib/supabase-browser";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createServerSupabase } from "@/lib/supabase-server"; // 🟢 senin mevcut dosyan
 
 interface PageProps {
   params: { slug: string[] };
@@ -11,19 +11,17 @@ export default async function DynamicPage({ params }: PageProps) {
   const slug = Array.isArray(slugArray) ? slugArray.join("/") : slugArray;
   const decodedSlug = decodeURIComponent(slug);
 
-  console.log("🟣 İstenen slug:", decodedSlug);
-
-  const supabase = createServerSupabase(); // 🔑 Sunucu tarafı Supabase client
+  console.log("🟣 İstenen slug:", `"${decodedSlug}"`);
 
   const { data: page, error: pageError } = await supabase
     .from("Pages")
     .select("*")
     .eq("slug", decodedSlug)
-    .or("published.is.null,published.eq.true")
+    .eq("published", true)
     .maybeSingle();
 
   console.log("📄 Gelen sayfa:", page);
-  if (pageError) console.error("⛔ Supabase Hatası:", pageError);
+  console.log("⛔ Sayfa hatası:", pageError);
 
   if (!page || pageError) {
     return notFound();
