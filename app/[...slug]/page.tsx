@@ -7,10 +7,10 @@ import remarkGfm from "remark-gfm";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-// Örnek özel bileşenleri burada tanımla
+// MDX içinde kullanılacak özel React bileşenleri burada tanımlanır
 const components = {
-  // örnek: CustomButton: dynamic(() => import("@/components/CustomButton")),
-  // örnek: Timeline: dynamic(() => import("@/components/Timeline")),
+  // Örnek: Timeline: dynamic(() => import("@/components/Timeline")),
+  // Örnek: CustomCard: dynamic(() => import("@/components/CustomCard")),
 };
 
 interface PageProps {
@@ -31,7 +31,7 @@ export default async function DynamicPage({ params }: PageProps) {
 
   if (!page || error) return notFound();
 
-  // Özel durum: blog listeleme sayfası
+  // 🔸 Eğer sayfa "blog" listesi sayfasıysa
   if (decodedSlug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs } = await supabase
       .from("bloglar")
@@ -63,20 +63,30 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
+  // 🔹 MDX içeriği varsa onu render et
+  if (page.mdx_content) {
+    return (
+      <div className="max-w-5xl mx-auto p-6 prose prose-lg">
+        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
+        <MDXRemote
+          source={page.mdx_content}
+          components={components}
+          options={{
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+              rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+            },
+          }}
+        />
+      </div>
+    );
+  }
+
+  // 🔹 Eski yapı: HTML content varsa onu göster
   return (
     <div className="max-w-5xl mx-auto p-6 prose prose-lg">
       <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
-
-      <MDXRemote
-        source={page.content || ""}
-        components={components}
-        options={{
-          mdxOptions: {
-            remarkPlugins: [remarkGfm],
-            rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
-          },
-        }}
-      />
+      <div dangerouslySetInnerHTML={{ __html: page.content || "" }} />
     </div>
   );
 }
