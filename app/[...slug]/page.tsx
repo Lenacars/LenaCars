@@ -16,7 +16,7 @@ export default async function DynamicPage({ params }: PageProps) {
     .from("Pages")
     .select("*")
     .eq("slug", slug)
-    .eq("status", "published") // Bu satır tablo yapına uygunsa bırak, değilse yorum satırına al
+    .ilike("status", "published") // ✅ Case-insensitive eşleştirme
     .maybeSingle();
 
   console.log("📄 Gelen sayfa:", page);
