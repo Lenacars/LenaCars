@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase-server"; // SSR uyumlu supabase
+import { supabase } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -17,7 +17,7 @@ export default async function DynamicPage({ params }: PageProps) {
     .select("*")
     .eq("slug", slug)
     .ilike("status", "published")
-    .or("published.is.null,published.eq.true") // published: true veya NULL
+    .or("published.is.null,published.eq.true")
     .maybeSingle();
 
   console.log("📄 Gelen sayfa:", page);
