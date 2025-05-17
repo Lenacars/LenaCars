@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase-server";
+import { supabase } from "@/lib/supabase-browser";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
@@ -9,25 +9,26 @@ interface PageProps {
 export default async function DynamicPage({ params }: PageProps) {
   const slugArray = params.slug;
   const slug = Array.isArray(slugArray) ? slugArray.join("/") : slugArray;
+  const decodedSlug = decodeURIComponent(slug);
 
-  console.log("🔍 İstenen slug:", slug);
+  console.log("🟣 İstenen slug:", decodedSlug);
 
   const { data: page, error: pageError } = await supabase
     .from("Pages")
     .select("*")
-    .eq("slug", slug)
-    .ilike("status", "published")
+    .ilike("slug", decodedSlug)
     .or("published.is.null,published.eq.true")
     .maybeSingle();
 
   console.log("📄 Gelen sayfa:", page);
+
   if (!page || pageError) {
-    console.error("⛔ Sayfa bulunamadı veya hata oluştu:", pageError);
+    console.error("⛔ Sayfa bulunamadı veya hata:", pageError);
     return notFound();
   }
 
   let blogList = [];
-  if (slug === "lenacars-bilgilendiriyor/blog") {
+  if (decodedSlug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs, error: blogError } = await supabase
       .from("bloglar")
       .select("id, title, slug, thumbnail_image, seo_description, published")
@@ -45,7 +46,7 @@ export default async function DynamicPage({ params }: PageProps) {
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
 
-      {slug === "lenacars-bilgilendiriyor/blog" ? (
+      {decodedSlug === "lenacars-bilgilendiriyor/blog" ? (
         blogList.length === 0 ? (
           <p>Henüz eklenmiş bir blog bulunmamaktadır.</p>
         ) : (
