@@ -1,45 +1,63 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getMenuPages } from "@/lib/getMenuPages";
 
-interface Page {
-  id: string;
+interface SubItem {
   title: string;
   slug: string;
+  isExternal?: boolean;
 }
 
-export default function NavigationMenu() {
-  const [menuPages, setMenuPages] = useState<Page[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface MenuItem {
+  title: string;
+  slug: string;
+  subItems?: SubItem[];
+}
 
-  useEffect(() => {
-    const fetchMenuPages = async () => {
-      const pages = await getMenuPages();
-      setMenuPages(pages);
-      setIsLoading(false);
-    };
+interface Props {
+  menuItems: MenuItem[];
+  isMobile?: boolean;
+  isMobileMenuOpen?: boolean;
+  setIsMobileMenuOpen?: (val: boolean) => void;
+  activeDropdown?: string | null;
+  toggleDropdown?: (val: string) => void;
+}
 
-    fetchMenuPages();
-  }, []);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
+export default function NavigationMenu({
+  menuItems = [],
+  isMobile = false,
+  isMobileMenuOpen = false,
+  setIsMobileMenuOpen,
+  activeDropdown,
+  toggleDropdown,
+}: Props) {
   return (
-    <nav className="bg-white border-t border-b border-gray-200">
+    <nav className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4">
-        <ul className="flex flex-wrap justify-center md:justify-start space-x-1 md:space-x-6">
-          {menuPages.map((page) => (
-            <li key={page.id} className="relative group py-4">
+        <ul className={`flex ${isMobile ? "flex-col" : "flex-row"} space-x-4`}>
+          {menuItems.map((item) => (
+            <li key={item.slug} className="relative group py-4">
               <Link
-                href={`/${page.slug}`}
+                href={`/${item.slug}`}
                 className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
               >
-                {page.title}
+                {item.title}
               </Link>
+
+              {item.subItems && item.subItems.length > 0 && (
+                <ul className="absolute top-full left-0 mt-2 bg-white shadow-lg rounded-md z-20 hidden group-hover:block">
+                  {item.subItems.map((sub) => (
+                    <li key={sub.slug}>
+                      <Link
+                        href={`/${sub.slug}`}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        {sub.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
