@@ -10,14 +10,20 @@ export default async function DynamicPage({ params }: PageProps) {
   const slugArray = params.slug;
   const slug = Array.isArray(slugArray) ? slugArray.join("/") : slugArray;
 
+  console.log("🔍 İstenen slug:", slug);
+
   const { data: page, error: pageError } = await supabase
     .from("Pages")
     .select("*")
     .eq("slug", slug)
-    .eq("status", "published")
+    .eq("status", "published") // Bu satır tablo yapına uygunsa bırak, değilse yorum satırına al
     .maybeSingle();
 
-  if (!page || pageError) return notFound();
+  console.log("📄 Gelen sayfa:", page);
+  if (!page || pageError) {
+    console.error("⛔ Sayfa bulunamadı veya hata oluştu:", pageError);
+    return notFound();
+  }
 
   let blogList = [];
   if (slug === "lenacars-bilgilendiriyor/blog") {
@@ -27,7 +33,7 @@ export default async function DynamicPage({ params }: PageProps) {
       .eq("published", true)
       .order("created_at", { ascending: false });
 
-    console.log("🟢 Blog verileri:", blogs); // 🔥 LOG EKLENDİ
+    console.log("🟢 Blog verileri:", blogs);
 
     if (!blogError && blogs) {
       blogList = blogs;
