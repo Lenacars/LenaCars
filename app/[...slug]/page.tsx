@@ -7,10 +7,8 @@ import remarkGfm from "remark-gfm";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-// MDX içerisinde kullanılabilecek özel React bileşenleri
 const components = {
-  // Örnek: Timeline: dynamic(() => import("@/components/Timeline")),
-  // Örnek: FeatureCard: dynamic(() => import("@/components/FeatureCard")),
+  // Örnek bileşen tanımları: Timeline: dynamic(() => import("@/components/Timeline"))
 };
 
 interface PageProps {
@@ -31,7 +29,7 @@ export default async function DynamicPage({ params }: PageProps) {
 
   if (!page || error) return notFound();
 
-  // 🔸 Özel durum: Blog liste sayfası
+  // Blog liste özel durumu
   if (decodedSlug === "lenacars-bilgilendiriyor/blog") {
     const { data: blogs } = await supabase
       .from("bloglar")
@@ -63,7 +61,7 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
-  // 🔹 Eğer sayfa MDX içeriği içeriyorsa
+  // MDX varsa
   if (page.mdx_content) {
     return (
       <div className="max-w-5xl mx-auto p-6 prose prose-lg">
@@ -82,11 +80,16 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
-  // 🔸 Eğer sayfa klasik HTML content içeriyorsa (legacy destek)
-  return (
-    <div className="max-w-5xl mx-auto p-6 prose prose-lg">
-      <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: page.content || "" }} />
-    </div>
-  );
+  // 🔧 GÜNCELLENEN KISIM: Yeni HTML içeriği
+  if (page.html_content) {
+    return (
+      <div className="max-w-5xl mx-auto p-6 prose prose-lg">
+        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
+        <div dangerouslySetInnerHTML={{ __html: page.html_content }} />
+      </div>
+    );
+  }
+
+  // Herhangi bir içerik yoksa
+  return notFound();
 }
