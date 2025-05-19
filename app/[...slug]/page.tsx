@@ -39,7 +39,6 @@ export default async function DynamicPage({ params }: PageProps) {
 
     return (
       <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
         <div className="grid md:grid-cols-2 gap-6">
           {blogs?.map((blog) => (
             <Link key={blog.id} href={`/${blog.slug}`}>
@@ -65,7 +64,6 @@ export default async function DynamicPage({ params }: PageProps) {
   if (page.mdx_content) {
     return (
       <div className="max-w-5xl mx-auto p-6 prose prose-lg">
-        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
         <MDXRemote
           source={page.mdx_content}
           components={components}
@@ -80,16 +78,15 @@ export default async function DynamicPage({ params }: PageProps) {
     );
   }
 
-  // 🔧 GÜNCELLENEN KISIM: Yeni HTML içeriği
+  // HTML içerik varsa
   if (page.html_content) {
     return (
       <div className="max-w-5xl mx-auto p-6 prose prose-lg">
-        <h1 className="text-3xl font-bold mb-6">{page.title}</h1>
         <div dangerouslySetInnerHTML={{ __html: page.html_content }} />
       </div>
     );
   }
 
-  // Herhangi bir içerik yoksa
+  // Hiç içerik yoksa
   return notFound();
 }
