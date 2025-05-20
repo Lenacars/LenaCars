@@ -31,76 +31,77 @@ export default function MainHeader() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-  const fetchMenuItems = async () => {
-    const data = await getMenuPages();
-
-    const groups: { [key: string]: any[] } = {};
-    for (const page of data) {
-      const group = page.menu_group?.trim() || "Diğer";
-      if (!groups[group]) groups[group] = [];
-      groups[group].push(page);
-    }
-
-    const sortedMenuItems = Object.entries(groups)
-      .map(([group, pages]) => {
-        const parentPages = pages.filter((p) => !p.parent);
-        return parentPages.map((parent) => ({
-          title: parent.title,
-          slug: parent.external_url || parent.slug,
-          isExternal: !!parent.external_url,
-          group_sort_order: parent.group_sort_order ?? 0,
-          subItems: pages
-            .filter((child) => child.parent === parent.id)
-            .map((sub) => ({
-              title: sub.title,
-              slug: sub.external_url || sub.slug,
-              isExternal: !!sub.external_url,
-            })),
-        }));
-      })
-      .flat()
-      .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
-
-    setMenuItems(sortedMenuItems);
-  };
-
-  fetchMenuItems();
-}, []);
-  
-  useEffect(() => {
     const fetchMenuItems = async () => {
-      const { data, error } = await supabase
-        .from("Pages")
-        .select("*")
-        .eq("published", true)
-        .order("created_at", { ascending: true });
+      const data = await getMenuPages();
 
-      if (!error && data) {
-        const grouped = data.reduce((acc, item) => {
-          if (item.menu_group === "main") {
-            acc.push({
-              title: item.title,
-              slug: item.slug,
-              menu_group: item.menu_group,
-              subItems: data
-                .filter(sub => sub.parent === item.id) // <--- DEĞİŞİKLİK BURADA
-                .map(sub => ({
-                  title: sub.title,
-                  slug: sub.slug,
-                  menu_group: sub.menu_group,
-                  isExternal: sub.slug.startsWith("http")
-                }))
-            });
-          }
-          return acc;
-        }, [] as any[]);
-        setMenuItems(grouped);
-      } else if (error) {
-        console.error("Error fetching menu items:", error.message);
+      const groups: { [key: string]: any[] } = {};
+      for (const page of data) {
+        const group = page.menu_group?.trim() || "Diğer";
+        if (!groups[group]) groups[group] = [];
+        groups[group].push(page);
       }
+
+      const sortedMenuItems = Object.entries(groups)
+        .map(([group, pages]) => {
+          const parentPages = pages.filter((p) => !p.parent);
+          return parentPages.map((parent) => ({
+            title: parent.title,
+            slug: parent.external_url || parent.slug,
+            isExternal: !!parent.external_url,
+            group_sort_order: parent.group_sort_order ?? 0,
+            subItems: pages
+              .filter((child) => child.parent === parent.id)
+              .map((sub) => ({
+                title: sub.title,
+                slug: sub.external_url || sub.slug,
+                isExternal: !!sub.external_url,
+              })),
+          }));
+        })
+        .flat()
+        .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
+
+      setMenuItems(sortedMenuItems);
     };
+
     fetchMenuItems();
   }, []);
+
+  // Görseldeki talimata göre bu useEffect bloğu silindi.
+  // useEffect(() => {
+  //   const fetchMenuItems = async () => {
+  //     const { data, error } = await supabase
+  //       .from("Pages")
+  //       .select("*")
+  //       .eq("published", true)
+  //       .order("created_at", { ascending: true });
+
+  //     if (!error && data) {
+  //       const grouped = data.reduce((acc, item) => {
+  //         if (item.menu_group === "main") {
+  //           acc.push({
+  //             title: item.title,
+  //             slug: item.slug,
+  //             menu_group: item.menu_group,
+  //             subItems: data
+  //               .filter(sub => sub.parent === item.id)
+  //               .map(sub => ({
+  //                 title: sub.title,
+  //                 slug: sub.slug,
+  //                 menu_group: sub.menu_group,
+  //                 isExternal: sub.slug.startsWith("http")
+  //               }))
+  //           });
+  //         }
+  //         return acc;
+  //       }, [] as any[]);
+  //       setMenuItems(grouped);
+  //     } else if (error) {
+  //       console.error("Error fetching menu items:", error.message);
+  //     }
+  //   };
+  //   fetchMenuItems();
+  // }, []);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -166,8 +167,8 @@ export default function MainHeader() {
             cover_image: vehicle.cover_image?.startsWith("http")
               ? vehicle.cover_image
               : vehicle.cover_image
-                ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`
-                : "/placeholder.svg",
+              ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`
+              : "/placeholder.svg",
             price: enDusukFiyat,
           };
         });
@@ -229,7 +230,8 @@ export default function MainHeader() {
     setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
   };
 
-  const mainMenuItems = menuItems.filter(item => item.menu_group === "main");
+  // Görseldeki "Bonus" talimatına göre mainMenuItems tanımı güncellendi.
+  const mainMenuItems = menuItems;
 
   return (
     <header>
