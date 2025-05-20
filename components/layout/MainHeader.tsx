@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase-browser";
 import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
+import { getMenuPages } from "@/lib/getMenuPages";
 
 interface VehicleSuggestion {
   id: string;
@@ -29,6 +30,43 @@ export default function MainHeader() {
   const [allVehiclesForSuggestions, setAllVehiclesForSuggestions] = useState<VehicleSuggestion[]>([]);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+  const fetchMenuItems = async () => {
+    const data = await getMenuPages();
+
+    const groups: { [key: string]: any[] } = {};
+    for (const page of data) {
+      const group = page.menu_group?.trim() || "Diğer";
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(page);
+    }
+
+    const sortedMenuItems = Object.entries(groups)
+      .map(([group, pages]) => {
+        const parentPages = pages.filter((p) => !p.parent);
+        return parentPages.map((parent) => ({
+          title: parent.title,
+          slug: parent.external_url || parent.slug,
+          isExternal: !!parent.external_url,
+          group_sort_order: parent.group_sort_order ?? 0,
+          subItems: pages
+            .filter((child) => child.parent === parent.id)
+            .map((sub) => ({
+              title: sub.title,
+              slug: sub.external_url || sub.slug,
+              isExternal: !!sub.external_url,
+            })),
+        }));
+      })
+      .flat()
+      .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
+
+    setMenuItems(sortedMenuItems);
+  };
+
+  fetchMenuItems();
+}, []);
+  
   useEffect(() => {
     const fetchMenuItems = async () => {
       const { data, error } = await supabase
