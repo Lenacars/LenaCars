@@ -4,13 +4,14 @@ import Link from "next/link";
 
 interface SubItem {
   title: string;
-  slug: string;
+  slug: string; // slug veya tam external URL olabilir
   isExternal?: boolean;
 }
 
 interface MenuItem {
   title: string;
-  slug: string;
+  slug: string; // slug veya tam external URL olabilir
+  isExternal?: boolean;
   subItems?: SubItem[];
 }
 
@@ -38,10 +39,13 @@ export default function NavigationMenu({
           {menuItems.map((item) => (
             <li key={item.slug} className="relative group py-4">
               <Link
-                href={`/${item.slug}`}
+                href={item.isExternal ? item.slug : `/${item.slug}`}
+                target={item.isExternal ? "_blank" : "_self"}
+                rel={item.isExternal ? "noopener noreferrer" : undefined}
                 className="flex items-center text-gray-800 hover:text-[#6A3C96] font-medium transition-colors"
               >
                 {item.title}
+                {item.isExternal && <span className="ml-1 text-sm">↗</span>}
               </Link>
 
               {item.subItems && item.subItems.length > 0 && (
@@ -49,10 +53,13 @@ export default function NavigationMenu({
                   {item.subItems.map((sub) => (
                     <li key={sub.slug}>
                       <Link
-                        href={`/${sub.slug}`}
+                        href={sub.isExternal ? sub.slug : `/${sub.slug}`}
+                        target={sub.isExternal ? "_blank" : "_self"}
+                        rel={sub.isExternal ? "noopener noreferrer" : undefined}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         {sub.title}
+                        {sub.isExternal && <span className="ml-1 text-xs">↗</span>}
                       </Link>
                     </li>
                   ))}
