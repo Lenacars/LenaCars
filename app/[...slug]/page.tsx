@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase-browser";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation"; // ✅ redirect eklendi
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
@@ -28,6 +28,11 @@ export default async function DynamicPage({ params }: PageProps) {
     .maybeSingle();
 
   if (!page || error) return notFound();
+
+  // ✅ Dış bağlantıya yönlendirme kontrolü
+  if (page.external_url) {
+    return redirect(page.external_url);
+  }
 
   // Blog liste özel durumu
   if (decodedSlug === "lenacars-bilgilendiriyor/blog") {
