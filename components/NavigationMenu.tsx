@@ -10,8 +10,9 @@ interface SubItem {
 
 interface MenuItem {
   title: string;
-  slug: string; // slug veya tam external URL olabilir
+  slug: string;
   isExternal?: boolean;
+  group_sort_order?: number; // ✅ eklendi
   subItems?: SubItem[];
 }
 
@@ -32,11 +33,16 @@ export default function NavigationMenu({
   activeDropdown,
   toggleDropdown,
 }: Props) {
+  // ✅ Menüleri sıralıyoruz
+  const sortedItems = [...menuItems].sort(
+    (a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0)
+  );
+
   return (
     <nav className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4">
         <ul className={`flex ${isMobile ? "flex-col" : "flex-row"} space-x-4`}>
-          {menuItems.map((item) => (
+          {sortedItems.map((item) => (
             <li key={item.slug} className="relative group py-4">
               <Link
                 href={item.isExternal ? item.slug : `/${item.slug}`}
