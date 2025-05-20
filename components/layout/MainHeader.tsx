@@ -67,42 +67,6 @@ export default function MainHeader() {
     fetchMenuItems();
   }, []);
 
-  // Görseldeki talimata göre bu useEffect bloğu silindi.
-  // useEffect(() => {
-  //   const fetchMenuItems = async () => {
-  //     const { data, error } = await supabase
-  //       .from("Pages")
-  //       .select("*")
-  //       .eq("published", true)
-  //       .order("created_at", { ascending: true });
-
-  //     if (!error && data) {
-  //       const grouped = data.reduce((acc, item) => {
-  //         if (item.menu_group === "main") {
-  //           acc.push({
-  //             title: item.title,
-  //             slug: item.slug,
-  //             menu_group: item.menu_group,
-  //             subItems: data
-  //               .filter(sub => sub.parent === item.id)
-  //               .map(sub => ({
-  //                 title: sub.title,
-  //                 slug: sub.slug,
-  //                 menu_group: sub.menu_group,
-  //                 isExternal: sub.slug.startsWith("http")
-  //               }))
-  //           });
-  //         }
-  //         return acc;
-  //       }, [] as any[]);
-  //       setMenuItems(grouped);
-  //     } else if (error) {
-  //       console.error("Error fetching menu items:", error.message);
-  //     }
-  //   };
-  //   fetchMenuItems();
-  // }, []);
-
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -230,8 +194,8 @@ export default function MainHeader() {
     setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
   };
 
-  // Görseldeki "Bonus" talimatına göre mainMenuItems tanımı güncellendi.
-  const mainMenuItems = menuItems;
+  // Görseldeki yeni talimata göre mainMenuItems tanımı güncellendi.
+  const mainMenuItems = [...menuItems].sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
 
   return (
     <header>
