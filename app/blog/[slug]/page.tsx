@@ -25,31 +25,38 @@ export default async function BlogPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogs?.map((blog) => (
-          <Link key={blog.id} href={`/blog/${blog.slug}`} className="group">
-            <div className="bg-white border border-[#e3d5f3] rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#6A3C96]/50 flex flex-col h-full">
-              {blog.thumbnail_image && (
-                <Image
-                  src={blog.thumbnail_image}
-                  alt={blog.title}
-                  width={500}
-                  height={300}
-                  className="w-full h-52 object-cover transition-all duration-300 group-hover:scale-[1.02]"
-                />
-              )}
+          <div
+            key={blog.id}
+            className="bg-white border border-[#e3d5f3] rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#6A3C96]/50 flex flex-col h-full"
+          >
+            {blog.thumbnail_image && (
+              <Image
+                src={blog.thumbnail_image}
+                alt={blog.title}
+                width={500}
+                height={300}
+                className="w-full h-52 object-cover transition-all duration-300"
+              />
+            )}
 
-              <div className="p-5 flex flex-col flex-1">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                  {blog.title}
-                </h2>
-                <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                  {blog.seo_description || ""}
-                </p>
-                <span className="inline-block mt-auto text-sm font-medium text-white bg-[#6A3C96] px-4 py-2 rounded-md hover:bg-[#542d80] transition w-fit">
+            <div className="p-5 flex flex-col flex-1">
+              <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+                {blog.title}
+              </h2>
+              <p className="text-sm text-gray-600 line-clamp-3 mb-4">
+                {blog.seo_description || ""}
+              </p>
+
+              <div className="mt-auto">
+                <Link
+                  href={`/blog/${blog.slug}`}
+                  className="inline-block bg-[#6A3C96] text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-[#542d80] transition"
+                >
                   Devamını Oku
-                </span>
+                </Link>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </div>
