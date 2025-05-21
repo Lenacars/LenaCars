@@ -1,16 +1,16 @@
 "use client";
 
-export const dynamic = "force-dynamic"; // Kullanıcıya özel içerik için gerekli olabilir, ancak performansı etkileyebilir. Dikkatli değerlendirin.
+export const dynamic = "force-dynamic";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { supabase } from "@/lib/supabase-browser"; // Supabase client'ınızın doğru yolu olduğundan emin olun
-import NavigationMenu from "@/components/layout/NavigationMenu"; // Bu bileşenin yolu doğru mu?
-import { useSearch } from "@/context/SearchContext"; // Search context yolu doğru mu?
-import { getMenuPages } from "@/lib/getMenuPages"; // Bu fonksiyonun yolu doğru mu?
+import { useState, useEffect, useRef } from "react"; // useCallback kaldırıldı, bu versiyonda kullanılmıyordu.
+import { supabase } from "@/lib/supabase-browser";
+import NavigationMenu from "@/components/layout/NavigationMenu";
+import { useSearch } from "@/context/SearchContext";
+import { getMenuPages } from "@/lib/getMenuPages";
 
-// Tipler
+// Tipler (Daha önceki versiyondaki gibi)
 interface SubMenuItem {
   title: string;
   slug: string;
@@ -23,11 +23,8 @@ interface MenuItem {
   isExternal: boolean;
   group_sort_order: number;
   subItems: SubMenuItem[];
-  // Orijinal veriden gelen diğer alanlar buraya eklenebilir (id, parent, menu_group vb.)
-  // Eğer menü işleme mantığında kullanılıyorsa.
 }
 
-// getMenuPages'den dönen ham sayfa verisi için tip (ihtiyaçlarınıza göre detaylandırın)
 interface RawPageData {
   id: string;
   title: string;
@@ -36,9 +33,8 @@ interface RawPageData {
   parent?: string | null;
   menu_group?: string | null;
   group_sort_order?: number | null;
-  sort_order?: number | null; // Bu da kullanılıyor gibi duruyor fetchMenuItems içinde
+  sort_order?: number | null;
 }
-
 
 interface VehicleSuggestion {
   id: string;
@@ -48,24 +44,18 @@ interface VehicleSuggestion {
   price?: number;
 }
 
-// /api/araclar'dan gelen ham araç verisi için tip (ihtiyaçlarınıza göre detaylandırın)
 interface RawVehicle {
   id: string;
-  isim: string; // 'name' yerine 'isim' kullanılmış API'de
+  isim: string;
   slug?: string;
   cover_image?: string;
-  fiyat?: number; // Ana fiyat, varyasyon yoksa
+  fiyat?: number;
   variations?: { status: string; fiyat: number }[];
 }
-
-// Örnek bir Icon bileşeni konsepti (ayrı bir dosyada oluşturulabilir)
-// const Icon = ({ type, className }) => { /* SVG pathlerine göre render eder */ return <svg>...</svg>; };
-
 
 // Custom Hook: Kullanıcı Detayları için
 function useUserDetails() {
   const [userName, setUserName] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchUser = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -75,48 +65,41 @@ function useUserDetails() {
       }
       const userId = sessionData.session?.user?.id;
       if (!userId) return;
-
       const { data, error } = await supabase
         .from("kullanicilar")
         .select("ad, soyad")
         .eq("id", userId)
         .single();
-
       if (!error && data) {
         setUserName(`${data.ad} ${data.soyad}`);
-      } else if (error && error.code !== 'PGRST116') { // PGRST116: Kayıt bulunamadı hatası, bu bir hata değil.
+      } else if (error && error.code !== 'PGRST116') {
         console.error("Error fetching user name:", error.message);
       }
     };
     fetchUser();
   }, []);
-
   return userName;
 }
 
 // Custom Hook: Menü Öğeleri için
 function useMenuItems() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
   useEffect(() => {
     const fetchAndProcessMenuItems = async () => {
       const data: RawPageData[] = await getMenuPages();
       const groups: { [key: string]: RawPageData[] } = {};
-
       for (const page of data) {
         const isParent = !page.parent;
         const groupKey = page.menu_group?.trim();
-
         if (isParent && groupKey) {
           if (!groups[groupKey]) groups[groupKey] = [];
           groups[groupKey].push(page);
         } else if (isParent) {
-          groups[page.id] = [page]; // Grupsuz ana sayfalar kendi ID'leriyle grup oluşturur
+          groups[page.id] = [page];
         }
       }
-
-      const processedMenuItems = Object.values(groups) // Object.entries'e gerek yok, sadece değerler lazım
-        .flatMap((pagesInGroupOrParentItemArray) => // flatMap ile iç içe map ve flat birleştirildi
+      const processedMenuItems = Object.values(groups)
+        .flatMap((pagesInGroupOrParentItemArray) =>
           pagesInGroupOrParentItemArray.map((parentPage) => ({
             title: parentPage.title,
             slug: parentPage.external_url || parentPage.slug,
@@ -132,21 +115,17 @@ function useMenuItems() {
           }))
         )
         .sort((a, b) => a.group_sort_order - b.group_sort_order);
-
       setMenuItems(processedMenuItems);
     };
-
     fetchAndProcessMenuItems();
   }, []);
-
   return menuItems;
 }
 
-
 export default function MainHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
-  const menuItems = useMenuItems(); // Custom hook kullanımı
-  const userName = useUserDetails(); // Custom hook kullanımı
+  const menuItems = useMenuItems();
+  const userName = useUserDetails();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -156,12 +135,11 @@ export default function MainHeader() {
   const [allVehiclesForSuggestions, setAllVehiclesForSuggestions] = useState<VehicleSuggestion[]>([]);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Mobil durumunu kontrol et
   useEffect(() => {
     const checkMobile = () => {
-      const mobileCheck = window.innerWidth < 768; // md breakpoint
+      const mobileCheck = window.innerWidth < 768;
       setIsMobile(mobileCheck);
-      if (!mobileCheck) { // Eğer desktop'a geçildiyse mobil menüyü ve dropdown'ı kapat
+      if (!mobileCheck) {
         setIsMobileMenuOpen(false);
         setActiveDropdown(null);
       }
@@ -171,14 +149,11 @@ export default function MainHeader() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Araç önerileri için tüm araçları çek (Optimizasyon için SWR/React Query düşünülebilir)
   useEffect(() => {
     const fetchAllVehiclesForSuggestions = async () => {
       try {
-        // TODO: Bu API endpoint'ini ve cache stratejisini gözden geçirin.
-        // Sık değişmeyen veri ise SWR ile cache'lemek daha iyi olabilir.
         const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
-          cache: "no-store", // Verinin güncelliği kritikse bu kalabilir.
+          cache: "no-store",
         });
         if (!res.ok) {
           console.error("Failed to fetch vehicles for suggestions. Status:", res.status);
@@ -187,30 +162,26 @@ export default function MainHeader() {
         }
         const json = await res.json();
         const rawVehicles: RawVehicle[] = json.data || [];
-        
         const transformedForSuggestions: VehicleSuggestion[] = rawVehicles.map((vehicle) => {
           const aktifVaryasyonlar = vehicle.variations?.filter((v) => v.status === "Aktif") || [];
           const enDusukFiyat =
             aktifVaryasyonlar.length > 0
               ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
               : vehicle.fiyat ?? 0;
-          
-          let coverImage = "/placeholder.svg"; // Varsayılan placeholder
+          let coverImage = "/placeholder.svg";
           if (vehicle.cover_image) {
             if (vehicle.cover_image.startsWith("http")) {
               coverImage = vehicle.cover_image;
             } else {
-              // Supabase storage URL'nizi ve bucket adınızı kontrol edin
               coverImage = `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${vehicle.cover_image.replace(/^\/+/, "")}`;
             }
           }
-
           return {
             id: vehicle.id,
             name: vehicle.isim || "Araç İsmi Yok",
-            slug: vehicle.slug || vehicle.id, // Slug yoksa ID kullan
+            slug: vehicle.slug || vehicle.id,
             cover_image: coverImage,
-            price: enDusukFiyat > 0 ? enDusukFiyat : undefined, // Fiyat 0 ise undefined yapalım ki koşullu render'da sorun olmasın
+            price: enDusukFiyat > 0 ? enDusukFiyat : undefined,
           };
         });
         setAllVehiclesForSuggestions(transformedForSuggestions);
@@ -222,19 +193,17 @@ export default function MainHeader() {
     fetchAllVehiclesForSuggestions();
   }, []);
 
-  // Arama terimine göre önerileri filtrele
   useEffect(() => {
     if (searchTerm.trim().length > 1 && allVehiclesForSuggestions.length > 0) {
       const filtered = allVehiclesForSuggestions
         .filter(vehicle => vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .slice(0, 5); // En fazla 5 öneri göster
+        .slice(0, 5);
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
     }
   }, [searchTerm, allVehiclesForSuggestions]);
 
-  // Arama alanı dışına tıklanınca önerileri kapat
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -243,14 +212,13 @@ export default function MainHeader() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []); // searchContainerRef bağımlılıktan çıkarıldı, çünkü ref.current değişmez.
+  }, []);
 
   const handleSearchFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedSearchTerm = searchTerm.trim();
-    // setSearchTerm(trimmedSearchTerm); // Zaten onChange ile set ediliyor, burada tekrar etmeye gerek olmayabilir.
-                                      // Ancak kullanıcı boşluk bırakıp arama yaparsa diye trimlenmiş halini set etmek iyi olabilir.
-    setSuggestions([]); // Arama yapıldığında önerileri kapat
+    setSearchTerm(trimmedSearchTerm); // Arama yapıldığında input'taki değeri de trim'lenmiş haliyle güncelle
+    setSuggestions([]);
     if (trimmedSearchTerm) {
       const vehicleListElement = document.getElementById('vehicle-list');
       vehicleListElement?.scrollIntoView({ behavior: "smooth" });
@@ -258,9 +226,8 @@ export default function MainHeader() {
   };
 
   const handleSuggestionClick = (suggestion: VehicleSuggestion) => {
-    setSearchTerm(suggestion.name); // Arama input'unu öneri ile doldur
-    setSuggestions([]); // Önerileri kapat
-    // Kullanıcı bir öneriye tıkladığında da arama sonuçlarına scroll et
+    setSearchTerm(suggestion.name);
+    setSuggestions([]);
     const vehicleListElement = document.getElementById('vehicle-list');
     vehicleListElement?.scrollIntoView({ behavior: "smooth" });
   };
@@ -268,83 +235,79 @@ export default function MainHeader() {
   const toggleDropdown = (menuGroupTitle: string) => {
     setActiveDropdown(activeDropdown === menuGroupTitle ? null : menuGroupTitle);
   };
-  
-  // Sıralama zaten useMenuItems hook'unda yapıldığı için burada tekrar sıralamaya gerek yok.
-  // const mainMenuItems = menuItems; 
 
   return (
-    <header>
-      {/* Üst Bilgi Çubuğu (TopBar) - Ayrı bir bileşen olabilir */}
-      {/* TODO: Tailwind config'e renkleri ekle: bg-primary-purple (örn: #6A3C96) */}
-      <div className="bg-[#6A3C96] text-white py-3 px-4">
+    // Kurumsal renk için bg-primary kullanıldı. tailwind.config.js'de tanımlamanız gerekir.
+    <header className="shadow-sm"> {/* Header'a genel hafif bir gölge */}
+      {/* Üst Bilgi Çubuğu */}
+      <div className="bg-primary text-white py-3 px-4 md:py-4 md:px-6"> {/* Renginizi bg-primary olarak kullanın, padding ayarlandı */}
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            {/* TODO: Bu ikonları <Icon type="location" /> gibi bir bileşenle değiştirmeyi düşünün */}
-            <Link href="/iletisim" className="flex items-center hover:text-gray-200" aria-label="Adres">
+            <Link href="/iletisim" className="flex items-center hover:text-gray-200 transition-colors" aria-label="Adres">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </Link>
-            <Link href="/iletisim" className="flex items-center hover:text-gray-200" aria-label="E-posta">
+            <Link href="/iletisim" className="flex items-center hover:text-gray-200 transition-colors" aria-label="E-posta">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </Link>
-            <Link href="/iletisim" className="flex items-center hover:text-gray-200" aria-label="Telefon">
+            <Link href="/iletisim" className="flex items-center hover:text-gray-200 transition-colors" aria-label="Telefon">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
             </Link>
           </div>
           <div className="text-center hidden md:block">
-            {/* Semantik olarak <p> daha uygun olabilir, stil ile h2 gibi gösterilebilir */}
-            <p className="text-lg font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p>
+            <p className="text-base font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</p> {/* Font boyutu ayarlandı */}
           </div>
           <div className="hidden md:flex items-center space-x-3">
-            {/* Sosyal medya linkleri, target="_blank" yanına rel="noopener noreferrer" eklemek iyi bir pratiktir */}
-            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-200" aria-label="Facebook">
+            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Facebook">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                 <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
               </svg>
             </Link>
-            {/* Diğer sosyal medya ikonları benzer şekilde (Instagram, LinkedIn, YouTube) */}
+            {/* Diğer sosyal medya ikonları benzer şekilde güncellenebilir */}
+             <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-200 transition-colors" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+              </svg>
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Ana Header Alanı */}
-      <div className="bg-white py-4 px-4 shadow-sm">
+      <div className="bg-white py-4 px-4 md:px-6 shadow-sm"> {/* Hafif gölge eklendi */}
         <div className="container mx-auto flex justify-between items-center">
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/LENACARS.svg"
+              src="/LENACARS.svg" // Logonuzun yolu
               alt="LenaCars Logo"
-              width={200} // Next.js Image için width ve height zorunlu (layout="intrinsic" veya "fixed" için)
-              height={60}
-              className="w-auto h-auto max-h-16" // Bu class'lar stil için, Image optimizasyonu width/height'e göre yapar
-              priority // LCP (Largest Contentful Paint) öğesi ise
+              width={250} // Logo genişliği artırıldı
+              height={70} // Logo yüksekliği artırıldı
+              className="w-auto" // max-h-XX kaldırıldı, width/height ile oran korunacak
+              priority
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                // Basit bir fallback, .svg yüklenemezse .png dene
-                if (target.src.includes(".svg")) { // Sadece .svg ise değiştir
-                  target.src = "/LENACARS.png"; // .png dosyanızın public klasöründe olduğundan emin olun
+                if (target.src.includes(".svg")) {
+                  target.src = "/LENACARS.png"; // PNG fallback'iniz
                 }
               }}
             />
           </Link>
 
-          {/* Desktop Arama */}
-          <div ref={searchContainerRef} className="hidden md:block flex-grow mx-4 max-w-md relative">
+          <div ref={searchContainerRef} className="hidden md:block flex-grow mx-6 max-w-lg relative"> {/* mx ve max-w ayarlandı */}
             <form onSubmit={handleSearchFormSubmit} className="relative">
               <input
                 type="text"
                 placeholder="Araç Ara (örn: Honda Civic)"
-                className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent"
+                // Yumuşak tasarım için padding, border, rounded, shadow ve focus stilleri güncellendi
+                className="w-full py-3 px-5 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => { // Bu onFocus'un içeriği, useEffect ile çakışmaması için gözden geçirilebilir.
-                               // Temel amacı, odaklanıldığında (ve arama terimi varsa) önerileri göstermektir.
+                onFocus={() => {
                   if (searchTerm.trim().length > 1 && allVehiclesForSuggestions.length > 0) {
                     const filtered = allVehiclesForSuggestions.filter(vehicle =>
                       vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -352,12 +315,13 @@ export default function MainHeader() {
                     setSuggestions(filtered);
                   }
                 }}
-                aria-haspopup="listbox" // Erişilebilirlik: Bu input bir liste açar
-                aria-controls="search-suggestions-desktop" // Açılan listenin ID'si
+                aria-haspopup="listbox"
+                aria-controls="search-suggestions-desktop"
               />
               <button
                 type="submit"
-                className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md hover:bg-[#D35400] transition-colors"
+                // Arama butonu stili güncellendi (turuncu renk, yumuşak köşeler)
+                className="absolute right-0 top-0 h-full px-5 bg-orange-500 text-white rounded-r-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors shadow-sm"
                 aria-label="Ara"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -368,27 +332,28 @@ export default function MainHeader() {
             {suggestions.length > 0 && (
               <ul 
                 id="search-suggestions-desktop"
-                role="listbox" // Erişilebilirlik: Bu bir seçenek listesidir
-                className="absolute top-full left-0 right-0 z-20 w-full bg-white border border-gray-300 border-t-0 rounded-b-md shadow-lg max-h-80 overflow-y-auto"
+                role="listbox"
+                // Öneri listesi stili güncellendi (yumuşak köşe ve gölge)
+                className="absolute top-full mt-1 left-0 right-0 z-20 w-full bg-white border border-gray-200 rounded-lg shadow-md max-h-80 overflow-y-auto"
               >
                 {suggestions.map((vehicle) => (
-                  <li key={vehicle.id} role="option"> {/* Erişilebilirlik: Bu bir seçenektir */}
+                  <li key={vehicle.id} role="option">
                     <button
                       type="button"
                       onClick={() => handleSuggestionClick(vehicle)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-gray-100 flex items-center gap-3 transition-colors duration-150"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-3 transition-colors duration-150" // Padding ayarlandı
                     >
                       <Image
                         src={vehicle.cover_image || "/placeholder.svg"}
                         alt={vehicle.name}
                         width={50}
                         height={32}
-                        className="object-cover rounded flex-shrink-0"
-                        unoptimized={vehicle.cover_image?.startsWith("http")} // Dışarıdan gelen resimler için optimizasyonu kapat
+                        className="object-cover rounded-md flex-shrink-0" // Resim köşeleri yumuşatıldı
+                        unoptimized={vehicle.cover_image?.startsWith("http")}
                       />
                       <div className="flex-grow overflow-hidden">
                         <p className="font-medium text-sm text-gray-700 truncate">{vehicle.name}</p>
-                        {vehicle.price && ( // Sadece fiyat varsa göster
+                        {vehicle.price && (
                           <p className="text-xs text-gray-500">
                             {vehicle.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 })} / Gün
                           </p>
@@ -397,17 +362,17 @@ export default function MainHeader() {
                     </button>
                   </li>
                 ))}
-                <li className="border-t">
+                <li className="border-t border-gray-100"> {/* Border rengi yumuşatıldı */}
                   <a
-                    href="#vehicle-list" // Bu ID'nin sayfada bir yerde olması lazım
+                    href="#vehicle-list"
                     onClick={(e) => {
                       e.preventDefault();
                       const el = document.getElementById('vehicle-list');
                       el?.scrollIntoView({ behavior: "smooth" });
-                      // setSearchTerm(searchTerm.trim()); // Zaten set edilmiş durumda
-                      setSuggestions([]); // Önerileri kapat
+                      setSuggestions([]);
                     }}
-                    className="block text-center py-3 text-sm font-medium text-[#6A3C96] hover:underline hover:bg-gray-50 transition-colors duration-150"
+                    // "Tüm sonuçları gör" linki stili güncellendi (primary renk)
+                    className="block text-center py-3 text-sm font-medium text-primary hover:underline hover:bg-gray-50 transition-colors duration-150"
                   >
                     Tüm sonuçları gör "{searchTerm}"
                   </a>
@@ -416,14 +381,14 @@ export default function MainHeader() {
             )}
           </div>
 
-          {/* Mobil Menü Butonu */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+              // Mobil menü butonu stili güncellendi (yumuşak köşe)
+              className="p-2.5 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300"
               aria-label={isMobileMenuOpen ? "Menüyü Kapat" : "Menüyü Aç"}
               aria-expanded={isMobileMenuOpen}
-              aria-controls="mobile-navigation-menu" // Açılacak menünün ID'si
+              aria-controls="mobile-navigation-menu"
             >
               {isMobileMenuOpen ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -437,16 +402,22 @@ export default function MainHeader() {
             </button>
           </div>
 
-          {/* Desktop Sağ Kısım (Garaj, Giriş/Profil) */}
           <div className="hidden md:flex items-center space-x-3">
-            <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-md flex items-center hover:bg-gray-50 transition-colors">
+            <Link 
+              href="/garaj" 
+              // "Garaj" butonu stili güncellendi (yumuşak köşe, primary renk, hafif gölge)
+              className="border border-primary text-primary px-5 py-2.5 rounded-lg shadow-sm hover:bg-primary hover:text-white transition-colors duration-150 font-medium text-sm"
+            >
               Garaj
             </Link>
             <Link
               href={userName ? "/profil" : "/giris"}
+              // "Giriş/Profil" butonu stili güncellendi
               className={`${
-                userName ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-[#6A3C96] text-white hover:bg-[#5a3080]"
-              } px-4 py-2 rounded-md transition-colors flex items-center`}
+                userName 
+                  ? "bg-green-100 text-green-700 hover:bg-green-200" 
+                  : "bg-primary text-white hover:bg-opacity-90" // bg-primary/90 da kullanılabilir
+              } px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-150 font-medium text-sm`}
             >
               {userName || "Giriş Yap / Üye Ol"}
             </Link>
@@ -454,33 +425,31 @@ export default function MainHeader() {
         </div>
       </div>
 
-      {/* Ana Navigasyon Menüsü */}
-      {/* NavigationMenu bileşeninin id="mobile-navigation-menu" gibi bir ID alması iyi olur (aria-controls için) */}
       <NavigationMenu
-        menuItems={menuItems} // Sıralı menü öğeleri (mainMenuItems yerine doğrudan menuItems kullanılabilir)
+        menuItems={menuItems}
         isMobile={isMobile}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         activeDropdown={activeDropdown}
         toggleDropdown={toggleDropdown}
-        // id="mobile-navigation-menu" // Eğer mobil menü bu bileşen içinde render ediliyorsa
+        // Bu bileşenin içine de benzer yumuşatma (rounded-lg, shadow-sm/md) ve padding ayarları yapmanız gerekebilir.
       />
 
-      {/* Mobil Arama */}
       {isMobile && (
-        <form onSubmit={handleSearchFormSubmit} className="bg-white py-2 px-4 border-t border-gray-200">
+        <form onSubmit={handleSearchFormSubmit} className="bg-white py-3 px-4 border-t border-gray-100"> {/* Padding ve border rengi ayarlandı */}
           <div className="relative">
-            {/* Mobil arama için de öneri listesi ve ARIA etiketleri eklenebilir (desktop'takine benzer) */}
             <input
               type="text"
               placeholder="Araç Ara"
-              className="w-full py-2 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent"
+              // Mobil arama input stili güncellendi
+              className="w-full py-2.5 px-4 text-sm border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-shadow"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button
               type="submit"
-              className="absolute right-0 top-0 h-full px-4 bg-[#E67E22] text-white rounded-r-md hover:bg-[#D35400] transition-colors"
+              // Mobil arama butonu stili güncellendi
+              className="absolute right-0 top-0 h-full px-4 bg-orange-500 text-white rounded-r-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-colors shadow-sm"
               aria-label="Ara"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -488,7 +457,6 @@ export default function MainHeader() {
               </svg>
             </button>
           </div>
-          {/* Mobil için arama önerileri buraya da eklenebilir, benzer bir mantıkla */}
         </form>
       )}
     </header>
