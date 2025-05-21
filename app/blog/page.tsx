@@ -1,6 +1,11 @@
-import { supabase } from "@/lib/supabase-browser";
+import { supabase } from "@/lib/supabase-browser"; // Supabase import yolunuzun doğru olduğundan emin olun
 import Link from "next/link";
 import Image from "next/image";
+
+// Eğer CSS modülü kullanıyorsanız:
+// import styles from './BlogPage.module.css'; 
+// Ve aşağıdaki className'leri styles.className şeklinde güncelleyin.
+// Örneğin: className={styles.blogPageContainer}
 
 export default async function BlogPage() {
   const { data: blogs, error } = await supabase
@@ -10,30 +15,54 @@ export default async function BlogPage() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return <div className="p-6 text-red-500">Bloglar yüklenemedi.</div>;
+    console.error("Blog yazıları yüklenirken hata oluştu:", error);
+    return <div className="p-6 text-red-500 text-center">Blog yazıları yüklenirken bir sorun oluştu. Lütfen daha sonra tekrar deneyin.</div>;
   }
 
+  if (!blogs || blogs.length === 0) {
+    return <div className="p-6 text-gray-700 text-center">Henüz yayınlanmış bir blog yazısı bulunmamaktadır.</div>;
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    try {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('tr-TR', options);
+    } catch (e) {
+      console.error("Tarih formatlama hatası:", e);
+      return ""; 
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8">Blog</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs?.map((blog) => (
-          <Link key={blog.id} href={`/blog/${blog.slug}`}>
-            <div className="border rounded-lg overflow-hidden hover:shadow-lg transition">
-              {blog.thumbnail_image && (
-                <Image
-                  src={blog.thumbnail_image}
-                  alt={blog.title}
-                  width={400}
-                  height={250}
-                  className="w-full h-48 object-cover"
-                />
-              )}
-              <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
-                <p className="text-sm text-gray-600">{blog.seo_description || ""}</p>
+    <div className="blog-page-container"> {/* Ana konteyner için özel sınıf */}
+      
+      {/* Banner bölümü isteğiniz üzerine kaldırıldı */}
+      
+      <h1 className="blog-page-title">Blog</h1> {/* Başlık için özel sınıf */}
+      
+      <div className="blog-grid"> {/* Grid için özel sınıf */}
+        {blogs.map((blog) => (
+          <Link key={blog.id} href={`/blog/${blog.slug}`} passHref legacyBehavior>
+            <a className="blog-card-link"> 
+              <div className="blog-card"> 
+                {blog.thumbnail_image && (
+                  <div className="blog-card-image-wrapper"> 
+                    <Image
+                      src={blog.thumbnail_image}
+                      alt={blog.title || "Blog görseli"}
+                      layout="fill" 
+                      objectFit="cover"
+                    />
+                  </div>
+                )}
+                <div className="blog-card-content">
+                  <h2 className="blog-card-title">{blog.title}</h2>
+                  <p className="blog-card-description">{blog.seo_description || "Açıklama bulunamadı."}</p>
+                  <p className="blog-card-date">{formatDate(blog.created_at)}</p> 
+                </div>
               </div>
-            </div>
+            </a>
           </Link>
         ))}
       </div>
