@@ -1,63 +1,74 @@
 import { supabase } from "@/lib/supabase-browser";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 
-export default async function BlogPage() {
-  const { data: blogs, error } = await supabase
-    .from("bloglar")
-    .select("id, title, slug, seo_description, thumbnail_image, created_at")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+interface PageProps {
+  params: { slug: string };
+}
 
-  if (error) {
-    return (
-      <div className="p-6 text-red-500 text-center">
-        Bloglar yüklenemedi. Lütfen daha sonra tekrar deneyin.
-      </div>
-    );
-  }
+export default async function BlogDetailPage({ params }: PageProps) {
+  const { slug } = params;
+
+  const { data: blog, error } = await supabase
+    .from("bloglar")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .single();
+
+  if (!blog || error) return notFound();
+
+  const kelimeSayisi = blog.content?.split(" ").length || 0;
+  const okumaSuresi = Math.ceil(kelimeSayisi / 180);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-center text-[#6A3C96] mb-10">
-        LenaCars Blog
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold text-[#6A3C96] mb-4 text-center">
+        {blog.title}
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogs?.map((blog) => (
-          <div
-            key={blog.id}
-            className="bg-white border border-[#e3d5f3] rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#6A3C96]/50 flex flex-col h-full"
-          >
-            {blog.thumbnail_image && (
-              <Image
-                src={blog.thumbnail_image}
-                alt={blog.title}
-                width={500}
-                height={300}
-                className="w-full h-52 object-cover transition-all duration-300"
-              />
-            )}
+      <p className="text-sm text-gray-500 text-center mb-8">
+        Yayın Tarihi:{" "}
+        {new Date(blog.created_at).toLocaleDateString("tr-TR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}{" "}
+        • Tahmini Okuma: {okumaSuresi} dk
+      </p>
 
-            <div className="p-5 flex flex-col flex-1">
-              <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                {blog.title}
-              </h2>
-              <p className="text-sm text-gray-600 line-clamp-3 mb-4">
-                {blog.seo_description || ""}
-              </p>
+      {blog.thumbnail_image && (
+        <div className="mb-10">
+          <Image
+            src={blog.thumbnail_image}
+            alt={blog.title}
+            width={900}
+            height={500}
+            className="rounded-lg w-full object-cover shadow"
+          />
+        </div>
+      )}
 
-              <div className="mt-auto">
-                <Link
-                  href={`/blog/${blog.slug}`}
-                  className="inline-block bg-[#6A3C96] text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-[#542d80] transition"
-                >
-                  Devamını Oku
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div
+        className="prose prose-lg max-w-none text-gray-800 prose-headings:text-[#6A3C96] prose-a:text-[#6A3C96] prose-img:rounded-lg"
+        dangerouslySetInnerHTML={{ __html: blog.content }}
+      />
+
+      <div className="mt-12 flex gap-4">
+        <a
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blog.slug}`}
+          target="_blank"
+          className="bg-[#6A3C96] text-white px-4 py-2 rounded hover:bg-[#542d80] transition text-sm"
+        >
+          LinkedIn'de Paylaş
+        </a>
+        <a
+          href={`https://wa.me/?text=${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blog.slug}`}
+          target="_blank"
+          className="bg-[#6A3C96] text-white px-4 py-2 rounded hover:bg-[#542d80] transition text-sm"
+        >
+          WhatsApp'ta Paylaş
+        </a>
       </div>
     </div>
   );
