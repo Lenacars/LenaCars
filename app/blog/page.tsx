@@ -25,26 +25,22 @@ export default async function BlogPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogs?.map((blog) => (
-          <Link
-            key={blog.id}
-            href={`/blog/${blog.slug}`}
-            className="group"
-          >
-            <div className="border rounded-xl overflow-hidden shadow-sm bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+          <Link key={blog.id} href={`/blog/${blog.slug}`} className="group">
+            <div className="bg-white border border-[#e3d5f3] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#6A3C96]/50">
               {blog.thumbnail_image && (
                 <Image
                   src={blog.thumbnail_image}
                   alt={blog.title}
-                  width={400}
-                  height={250}
-                  className="w-full h-52 object-cover transition-all duration-300 group-hover:scale-[1.02]"
+                  width={500}
+                  height={300}
+                  className="w-full h-52 object-cover transition-all duration-300 group-hover:scale-105"
                 />
               )}
-              <div className="p-5">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+              <div className="p-5 flex flex-col h-full">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
                   {blog.title}
                 </h2>
-                <p className="text-sm text-gray-600 line-clamp-3">
+                <p className="text-sm text-gray-600 line-clamp-3 flex-grow">
                   {blog.seo_description || ""}
                 </p>
                 <div className="mt-4">
