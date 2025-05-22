@@ -10,8 +10,9 @@ import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
 import { getMenuPages } from "@/lib/getMenuPages";
 
-// 1. toTitleCase() Fonksiyonu Tanımla
-function toTitleCase(str: string) {
+// 1. toTitleCase() Fonksiyonu Tanımla (Null kontrolü ile güncellendi)
+function toTitleCase(str: string | null | undefined) {
+  if (!str) return ""; // Ekstra güvenlik için null kontrolü
   return str
     .toLocaleLowerCase("tr-TR")
     .split(" ")
@@ -45,10 +46,10 @@ export default function MainHeader() {
 
       const groups: { [key: string]: any[] } = {};
 
-      // Görseldeki "Onun yerine ŞÖYLE YAP:" kısmındaki yeni gruplama mantığı
       for (const page of data) {
         const isParent = !page.parent;
-        const groupKey = page.menu_group?.trim();
+        // GÖRSELDEKİ DEĞİŞİKLİK: groupKey artık toTitleCase ile oluşturuluyor
+        const groupKey = toTitleCase(page.menu_group); // .trim() kaldırıldı, toTitleCase zaten string döndürecek veya boş string
 
         if (isParent && groupKey) {
           // Eğer sayfa ana sayfa ve grubu varsa grup altında topla
@@ -57,28 +58,24 @@ export default function MainHeader() {
         } else if (isParent) {
           // Eğer sayfa ana sayfa ama grubu yoksa, doğrudan menüye (grupsuz) ID'si ile ekle
           // Her biri tekil ana menü öğesi gibi davranacak
+          // Burada page.id'yi toTitleCase yapmaya gerek yok, çünkü bu bir grup adı değil, öğenin kendi ID'si.
+          // Eğer page.id'nin de başlık olarak kullanılmasını istiyorsanız o zaman toTitleCase(page.id) olabilir.
+          // Ancak mevcut mantıkta bu grupsuz, tekil öğeler için bir anahtar görevi görüyor.
           groups[page.id] = [page];
         }
-        // Alt sayfalar (isParent === false olanlar) burada doğrudan gruplara eklenmez,
-        // ana sayfaların subItems'ları oluşturulurken data üzerinden bulunurlar.
       }
 
-      // Görseldeki "Ve sonra aşağıdaki map kısmında bu farkı gözeterek işlersin:" kısmındaki değişiklikler
       const sortedMenuItems = Object.entries(groups)
         .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
-          // pagesInGroupOrParentItemArray artık doğrudan ana sayfa(ları) içeriyor.
-          // Bu yüzden '.filter((p) => !p.parent)' adımına gerek kalmadı.
           return pagesInGroupOrParentItemArray.map((parent) => ({
-            title: toTitleCase(parent.title), // GÖRSELDEKİ DEĞİŞİKLİK
+            title: toTitleCase(parent.title),
             slug: parent.external_url || parent.slug,
             isExternal: !!parent.external_url,
-            // group_sort_order için fallback eklendi
             group_sort_order: parent.group_sort_order ?? parent.sort_order ?? 0,
-            // subItems tüm 'data' dizisinden filtrelenerek bulunur
             subItems: data
               .filter((child) => child.parent === parent.id)
               .map((sub) => ({
-                title: toTitleCase(sub.title), // GÖRSELDEKİ DEĞİŞİKLİK
+                title: toTitleCase(sub.title),
                 slug: sub.external_url || sub.slug,
                 isExternal: !!sub.external_url,
               })),
