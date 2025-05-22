@@ -46,15 +46,13 @@ export default function Footer() {
               <Image
                 src="/LENACARS-FOOTER.svg"
                 alt="LenaCars Footer Logo"
-                width={287} // Yeni %70 büyütülmüş genişlik (80px yüksekliğe göre)
-                height={80}  // Yeni %70 büyütülmüş yükseklik
-                className="h-20 w-auto mx-auto md:mx-0" // h-20 (80px)
+                width={244} // %15 KÜÇÜLTÜLMÜŞ GENİŞLİK (68px yüksekliğe göre)
+                height={68}  // %15 KÜÇÜLTÜLMÜŞ YÜKSEKLİK
+                className="h-[68px] w-auto mx-auto md:mx-0" // Yükseklik 68px olarak ayarlandı
                 priority
               />
             </Link>
-            <p className="text-xs leading-normal text-gray-400">
-              İhtiyaçlarınıza özel, esnek ve güvenilir kiralama deneyimi için doğru adrestesiniz. Kurumsal araç kiralamada yenilikçi çözümler sunuyoruz.
-            </p>
+            {/* İstenmeyen yazı kaldırıldı */}
             <div className="flex justify-center md:justify-start space-x-2.5 pt-1">
               {socialLinks.map((item) => (
                 <Link
