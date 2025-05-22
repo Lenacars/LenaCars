@@ -8,11 +8,22 @@ import VehicleCard from "@/components/vehicle-card";
 import HowItWorks from "@/components/how-it-works";
 import HeroSlider from "@/components/hero-slider";
 import { useSearch } from "@/context/SearchContext";
+// import { ChevronDown } from "lucide-react"; // Paket kullanmayacağız
+
+// Filtrelerin state tipi (Home bileşenine özel)
+interface HomeFiltersState {
+  brand: string;
+  segment: string;
+  bodyType: string;
+  yakit_turu: string; // Ana sayfa state'inde bu şekilde
+  vites: string;
+  durum: string;
+}
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<HomeFiltersState>({ // Tip güncellendi
     brand: "",
     segment: "",
     bodyType: "",
@@ -24,6 +35,7 @@ export default function Home() {
 
   const { searchTerm } = useSearch();
 
+  // Araçları çekme ve filtreleme useEffect'leri aynı kalıyor...
   useEffect(() => {
     const fetchVehicles = async () => {
       const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
@@ -62,11 +74,8 @@ export default function Home() {
           variations: aktifVaryasyonlar,
         };
       });
-
       setVehicles(transformed);
-      // setFiltered(transformed); // Filtreleme useEffect'i bunu zaten yapacak
     };
-
     fetchVehicles();
   }, []);
 
@@ -95,19 +104,40 @@ export default function Home() {
     } else if (sortType === "rating") {
       results.sort((a, b) => b.rating - a.rating);
     }
-
     setFiltered(results);
   }, [filters, sortType, vehicles, searchTerm]);
+
+
+  // --- TASARIM GÜNCELLEMELERİ BURADAN BAŞLIYOR ---
+  const selectBaseClasses = "w-full bg-white border border-gray-300 text-gray-700 py-2.5 px-4 pr-8 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-150 ease-in-out appearance-none";
+  const selectPlaceholderClasses = "text-gray-400";
+
+  const ChevronDownIcon = () => (
+    <svg
+      className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      strokeWidth="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  );
+  // --- TASARIM GÜNCELLEMELERİ BURADA BİTİYOR ---
 
   return (
     <>
       <HeroSlider />
 
       <div className="container mx-auto px-4 py-8">
-        <Card className="mb-12 shadow-lg">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+        {/* Filtreler bölümü bg-gray-50 ve daha fazla padding ile güncellendi */}
+        <Card className="mb-12 shadow-xl bg-gray-50 rounded-xl">
+          <CardContent className="p-5 sm:p-6"> {/* Padding ayarlandı */}
+            {/* Grid yapısı ve gap ayarlandı */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[
+                // Filtre key'leri Home bileşenindeki `filters` state'i ile eşleşmeli
                 { key: "brand", label: "Marka Seçin" },
                 { key: "segment", label: "Segment Seçin" },
                 { key: "bodyType", label: "Kasa Tipi Seçin" },
@@ -115,50 +145,48 @@ export default function Home() {
                 { key: "vites", label: "Vites Tipi Seçin" },
                 { key: "durum", label: "Durum Seçin" },
               ].map(({ key, label }) => (
-                <select
-                  key={key}
-                  className="border p-2 rounded-md focus:ring-2 focus:ring-indigo-500 transition-shadow"
-                  value={filters[key as keyof typeof filters]}
-                  onChange={(e) => setFilters({ ...filters, [key]: e.target.value })}
-                >
-                  <option value="">{label}</option>
-                  {Array.from(new Set(vehicles.map((v) => v[key as keyof typeof v]).filter(Boolean))).map((value: any) => (
-                    <option key={value} value={value}>{value}</option>
-                  ))}
-                </select>
+                // Her select için relative div ve ChevronDownIcon eklendi
+                <div className="relative" key={key}>
+                  <select
+                    className={`${selectBaseClasses} ${filters[key as keyof HomeFiltersState] === "" ? selectPlaceholderClasses : "text-gray-800 font-medium"}`}
+                    value={filters[key as keyof HomeFiltersState]}
+                    onChange={(e) => setFilters({ ...filters, [key]: e.target.value })}
+                  >
+                    <option value="" className="text-gray-500">{label}</option>
+                    {/* Options are dynamically generated from 'vehicles' data */}
+                    {Array.from(new Set(vehicles.map((v) => v[key as keyof typeof v]).filter(Boolean))).sort().map((value: any) => (
+                      <option key={value} value={value}>{value}</option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon />
+                </div>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Araç Filomuz bölümünün ana kapsayıcısına id="vehicle-list-section" (veya görseldeki gibi "vehicle-list") ekleniyor */}
-        {/* Görseldeki ID "vehicle-list" olduğu için onu kullanıyorum. */}
-        {/* Eğer MainHeader'da "vehicle-list-section" kullandıysanız, burayı da onunla eşleştirin. */}
-        <div id="vehicle-list" className="mb-12"> {/* <--- ID BURAYA EKLENDİ */}
+        <div id="vehicle-list" className="mb-12">
           <div className="flex justify-between items-center mb-6 flex-wrap gap-y-4">
             <h2 className="text-3xl font-extrabold text-gray-800">Araç Filomuz</h2>
             <div className="flex items-center gap-x-3">
               <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">{filtered.length} sonuç bulundu</span>
-              <select
-                value={sortType}
-                onChange={(e) => setSortType(e.target.value)}
-                className="p-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              >
-                <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
-                <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
-                <option value="rating">Puan: En Yüksek</option>
-              </select>
+              {/* Sıralama select'i için de aynı stil uygulanabilir */}
+              <div className="relative">
+                <select
+                  value={sortType}
+                  onChange={(e) => setSortType(e.target.value)}
+                  className={`${selectBaseClasses} ${sortType === "" ? selectPlaceholderClasses : "text-gray-800 font-medium"}`} // Stil uygulandı
+                >
+                  <option value="price-asc">Fiyat: Düşükten Yükseğe</option>
+                  <option value="price-desc">Fiyat: Yüksekten Düşüğe</option>
+                  <option value="rating">Puan: En Yüksek</option>
+                </select>
+                <ChevronDownIcon />
+              </div>
             </div>
           </div>
 
           {filtered.length > 0 ? (
-            // Araç kartlarının render edildiği grid'e ID vermek yerine,
-            // bu grid'i de içeren bir üst kapsayıcıya ID vermek daha genel bir çözüm olabilir.
-            // Görseldeki örnek direkt grid'e ID veriyor, ona uyuyorum.
-            // Ancak, "Araç Filomuz" başlığını ve sıralama seçeneklerini de içeren
-            // genel bir "Araç Listesi Bölümü"ne ID vermek daha mantıklı olabilir.
-            // Bu yüzden yukarıdaki ana div'e id="vehicle-list" ekledim.
-            // Eğer direkt grid'e eklenecekse: <div id="vehicle-list" className="grid...">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
