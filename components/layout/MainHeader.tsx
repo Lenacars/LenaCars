@@ -231,8 +231,8 @@ export default function MainHeader() {
             <Image
               src="/LENACARS.svg"
               alt="LenaCars Logo"
-              width={281} // Logo %30 büyütüldü
-              height={78} // Logo %30 büyütüldü
+              width={230} // Logo %30 büyütüldü
+              height={64} // Logo %30 büyütüldü
               className="w-auto h-auto max-h-28" // max-h-28 (112px)
               priority
               onError={(e) => { const target = e.target as HTMLImageElement; if (target.src.endsWith(".svg")) { target.src = "/LENACARS.png"; }}}
