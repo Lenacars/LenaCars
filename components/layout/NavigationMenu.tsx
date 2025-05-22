@@ -30,30 +30,26 @@ export default function NavigationMenu() {
       const { data, error } = await supabase
         .from("Pages")
         .select("id, title, slug, menu_group, parent, published, sort_order")
-        .eq("published", true)
-        .order("sort_order", { ascending: true });
+        .eq("published", true);
 
       if (!error && data) {
-        const normalize = (str: string) =>
-          str
-            .toLocaleLowerCase("tr-TR")
-            .trim()
-            .split(/\s+/)
-            .map(word => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
-            .join(" ");
-
         const grouped: { [key: string]: { title: string; slug: string }[] } = {};
         const ungrouped: { title: string; slug: string }[] = [];
 
         data.forEach((page) => {
           const isParent = !page.parent;
-          const groupKey = page.menu_group?.trim();
+          const groupKey = page.menu_group?.trim() || "";
 
-          if (isParent && groupKey) {
-            const group = normalize(groupKey);
-            if (!grouped[group]) grouped[group] = [];
-            grouped[group].push({ title: page.title, slug: page.slug });
-          } else if (isParent && !groupKey) {
+          const normalizedGroup = groupKey
+            .toLocaleLowerCase("tr-TR")
+            .split(" ")
+            .map(word => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1).toLocaleLowerCase("tr-TR"))
+            .join(" ");
+
+          if (isParent && normalizedGroup) {
+            if (!grouped[normalizedGroup]) grouped[normalizedGroup] = [];
+            grouped[normalizedGroup].push({ title: page.title, slug: page.slug });
+          } else if (isParent) {
             ungrouped.push({ title: page.title, slug: page.slug });
           }
         });
@@ -66,7 +62,7 @@ export default function NavigationMenu() {
           "Basın Köşesi",
           "LenaCars Bilgilendiriyor",
           "S.S.S.",
-          "Nasıl Çalışır"
+          "Nasıl Çalışır",
         ];
 
         const orderedMenu: MenuItem[] = [];
@@ -78,15 +74,14 @@ export default function NavigationMenu() {
           }
         });
 
+        // Geri kalan grupları alfabetik sırayla sona ekle
         Object.entries(grouped).forEach(([groupName, pages]) => {
           orderedMenu.push({ groupName, pages });
         });
 
+        // Ungrouped sayfalar başlık gibi eklenecek
         ungrouped.forEach((page) => {
-          orderedMenu.push({
-            groupName: page.title,
-            pages: [],
-          });
+          orderedMenu.push({ groupName: page.title, pages: [] });
         });
 
         setMenuItems(orderedMenu);
@@ -109,7 +104,6 @@ export default function NavigationMenu() {
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
-      {/* Mobile Top */}
       <div className="md:hidden flex justify-between items-center px-4 py-3">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -126,7 +120,6 @@ export default function NavigationMenu() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isMobile && isMenuOpen && (
         <div className="px-4 pb-4">
           <ul className="space-y-2">
@@ -146,13 +139,7 @@ export default function NavigationMenu() {
                       className="w-full flex justify-between items-center py-2 px-3 text-gray-800 font-semibold bg-gray-100 rounded"
                     >
                       {group.groupName}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-4 w-4 transition-transform ${activeDropdown === group.groupName ? "rotate-180" : ""}`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform ${activeDropdown === group.groupName ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -178,7 +165,6 @@ export default function NavigationMenu() {
         </div>
       )}
 
-      {/* Desktop Menu */}
       {!isMobile && (
         <div className="max-w-7xl mx-auto flex justify-center px-4 py-2 space-x-8 text-sm font-medium">
           {menuItems.map((group) => (
