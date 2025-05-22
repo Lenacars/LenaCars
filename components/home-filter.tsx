@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown } from "lucide-react"; // İkon için
+// import { ChevronDown } from "lucide-react"; // Bu satırı kaldırıyoruz
 
 interface FilterProps {
   onFilterChange: (filters: Filters) => void;
@@ -28,7 +28,6 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
 
   const [brands, setBrands] = useState<string[]>([]);
 
-  // Mevcut useEffect'leriniz (işlevsellik) olduğu gibi kalıyor
   useEffect(() => {
     async function fetchBrands() {
       try {
@@ -47,11 +46,24 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
 
   useEffect(() => {
     onFilterChange(filters);
-  }, [filters, onFilterChange]); // onFilterChange'i dependency array'e eklemek iyi bir pratiktir
+  }, [filters, onFilterChange]);
 
-  // Her bir select için ortak stil sınıfları
   const selectBaseClasses = "w-full bg-white border border-gray-300 text-gray-700 py-2.5 px-4 pr-8 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-150 ease-in-out appearance-none";
-  const selectPlaceholderClasses = "text-gray-400"; // Seçili değilken placeholder rengi
+  const selectPlaceholderClasses = "text-gray-400";
+
+  // Basit bir aşağı ok SVG ikonu
+  const ChevronDownIcon = () => (
+    <svg
+      className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      strokeWidth="2"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  );
 
   return (
     <div className="bg-gray-50 p-4 sm:p-6 rounded-xl shadow-lg">
@@ -70,7 +82,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
             <option value="Hibrit">Hibrit</option>
             <option value="Benzin + LPG">Benzin + LPG</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
 
         {/* Vites Filtresi */}
@@ -84,7 +96,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
             <option value="Manuel">Manuel</option>
             <option value="Otomatik">Otomatik</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
 
         {/* Marka Filtresi */}
@@ -99,7 +111,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
               <option key={b} value={b}>{b}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
 
         {/* Segment Filtresi */}
@@ -115,7 +127,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
             <option value="Orta + Üst">Orta + Üst</option>
             <option value="Lux">Lüks</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
 
         {/* Kasa Tipi Filtresi */}
@@ -132,7 +144,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
             <option value="Crossover">Crossover</option>
             {/* Diğer kasa tipleri eklenebilir */}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
 
         {/* Durum Filtresi */}
@@ -146,7 +158,7 @@ export default function HomeFilter({ onFilterChange }: FilterProps) {
             <option value="Sıfır">Sıfır</option>
             <option value="İkinci El">İkinci El</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+          <ChevronDownIcon />
         </div>
       </div>
     </div>
