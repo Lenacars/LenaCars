@@ -10,14 +10,18 @@ import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
 import { getMenuPages } from "@/lib/getMenuPages";
 
-// 1. toTitleCase() Fonksiyonu Tanımla (Null kontrolü ile güncellendi)
+// toTitleCase Fonksiyonu (Güncellenmiş Hali)
 function toTitleCase(str: string | null | undefined) {
-  if (!str) return ""; // Ekstra güvenlik için null kontrolü
+  if (!str) return "";
   return str
     .toLocaleLowerCase("tr-TR")
-    .split(" ")
-    .map((word) => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
-    .join(" ");
+    .trim() // Önce baştaki ve sondaki tüm boşlukları temizle
+    .split(/\s+/) // Bir veya daha fazla herhangi bir boşluk karakterine göre ayır
+    .map((word) => {
+      if (word.length === 0) return ""; // Bölme sonucu boş kelime oluşursa diye kontrol
+      return word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1);
+    })
+    .join(" "); // Standart boşlukla tekrar birleştir
 }
 
 interface VehicleSuggestion {
@@ -48,19 +52,12 @@ export default function MainHeader() {
 
       for (const page of data) {
         const isParent = !page.parent;
-        // GÖRSELDEKİ DEĞİŞİKLİK: groupKey artık toTitleCase ile oluşturuluyor
-        const groupKey = toTitleCase(page.menu_group); // .trim() kaldırıldı, toTitleCase zaten string döndürecek veya boş string
+        const groupKey = toTitleCase(page.menu_group);
 
         if (isParent && groupKey) {
-          // Eğer sayfa ana sayfa ve grubu varsa grup altında topla
           if (!groups[groupKey]) groups[groupKey] = [];
           groups[groupKey].push(page);
         } else if (isParent) {
-          // Eğer sayfa ana sayfa ama grubu yoksa, doğrudan menüye (grupsuz) ID'si ile ekle
-          // Her biri tekil ana menü öğesi gibi davranacak
-          // Burada page.id'yi toTitleCase yapmaya gerek yok, çünkü bu bir grup adı değil, öğenin kendi ID'si.
-          // Eğer page.id'nin de başlık olarak kullanılmasını istiyorsanız o zaman toTitleCase(page.id) olabilir.
-          // Ancak mevcut mantıkta bu grupsuz, tekil öğeler için bir anahtar görevi görüyor.
           groups[page.id] = [page];
         }
       }
