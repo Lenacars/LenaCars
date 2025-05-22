@@ -53,9 +53,6 @@ export default function Footer() {
                 priority
               />
             </Link>
-            <p className="text-xs leading-relaxed text-gray-300 pt-1"> {/* Motto rengi gray-300 */}
-              Araç kiralamada güvenilir ve yenilikçi ortağınız.
-            </p>
             <div className="pt-2">
               <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-2.5 text-center md:text-left"> {/* Başlık mb artırıldı */}
                 Bizi Takip Edin
