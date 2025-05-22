@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase-browser";
 
@@ -20,21 +21,11 @@ interface MenuItem {
 }
 
 export default function NavigationMenu() {
+  const pathname = usePathname();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-
-  const menuOrder = [
-    "Kurumsal",
-    "Kiralama",
-    "İkinci El",
-    "Elektrikli Araçlar",
-    "Basın Köşesi",
-    "LenaCars Bilgilendiriyor",
-    "S.S.S.",
-    "Nasıl Çalışır",
-  ];
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -65,9 +56,19 @@ export default function NavigationMenu() {
           }
         });
 
+        const menuOrder = [
+          "Kurumsal",
+          "Kiralama",
+          "İkinci El",
+          "Elektrikli Araçlar",
+          "Basın Köşesi",
+          "LenaCars Bilgilendiriyor",
+          "S.S.S.",
+          "Nasıl Çalışır",
+        ];
+
         const orderedMenu: MenuItem[] = [];
 
-        // Belirli sıralamaya göre grupları sırala
         menuOrder.forEach((groupName) => {
           if (grouped[groupName]) {
             orderedMenu.push({ groupName, pages: grouped[groupName] });
@@ -75,12 +76,10 @@ export default function NavigationMenu() {
           }
         });
 
-        // Geri kalan gruplar (tanımsız olanlar) alfabetik sırayla eklenebilir
         Object.entries(grouped).forEach(([groupName, pages]) => {
           orderedMenu.push({ groupName, pages });
         });
 
-        // Grubu olmayanlar sona eklenir
         ungrouped.forEach((page) => {
           orderedMenu.push({ groupName: page.title, pages: [] });
         });
@@ -104,7 +103,8 @@ export default function NavigationMenu() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm">
+    <nav className="bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
+      {/* Mobile toggle */}
       <div className="md:hidden flex justify-between items-center px-4 py-3">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -121,6 +121,7 @@ export default function NavigationMenu() {
         </button>
       </div>
 
+      {/* Mobile Menu */}
       {isMobile && isMenuOpen && (
         <div className="px-4 pb-4">
           <ul className="space-y-2">
@@ -166,29 +167,32 @@ export default function NavigationMenu() {
         </div>
       )}
 
+      {/* Desktop Menu */}
       {!isMobile && (
-        <div className="max-w-7xl mx-auto flex justify-center px-4 py-2 space-x-8 text-sm font-medium">
+        <div className="max-w-7xl mx-auto flex justify-center px-6 py-4 space-x-10 text-base font-semibold">
           {menuItems.map((group) => (
             <div key={group.groupName} className="relative group">
               {group.pages.length === 0 ? (
                 <Link
                   href={`/${group.groupName.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="text-gray-800 hover:text-[#6A3C96]"
+                  className={`relative text-gray-800 hover:text-[#6A3C96] ${
+                    pathname === `/${group.groupName.toLowerCase().replace(/\s+/g, "-")}` ? "text-[#6A3C96] after:w-full" : "after:w-0"
+                  } after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-[#6A3C96] after:transition-all after:duration-300`}
                 >
                   {group.groupName}
                 </Link>
               ) : (
                 <>
-                  <span className="cursor-pointer text-gray-800 hover:text-[#6A3C96]">
+                  <span className="cursor-pointer text-gray-800 hover:text-[#6A3C96] relative after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-[#6A3C96] after:transition-all after:duration-300 group-hover:after:w-full after:w-0">
                     {group.groupName}
                   </span>
-                  <div className="absolute left-0 mt-2 w-48 bg-white shadow-md border border-gray-100 rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg border border-gray-200 rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <ul className="py-2">
                       {group.pages.map((page) => (
                         <li key={page.slug}>
                           <Link
                             href={`/${page.slug}`}
-                            className="block px-4 py-2 text-gray-700 hover:bg-[#6A3C96] hover:text-white"
+                            className="block px-4 py-2 text-gray-700 hover:bg-[#6A3C96] hover:text-white transition-colors duration-150"
                           >
                             {page.title}
                           </Link>
