@@ -18,45 +18,49 @@ export default function Footer() {
     { name: "Facebook", href: "https://www.facebook.com/lenacars2020/", icon: Facebook },
     { name: "Instagram", href: "https://www.instagram.com/lena.cars/", icon: Instagram },
     { name: "LinkedIn", href: "https://tr.linkedin.com/company/lenacars", icon: Linkedin },
-    { name: "YouTube", href: "https://www.youtube.com/channel/UCHSB4vxpEegkVmop4qJqCPQ", icon: Youtube }, // Verdiğiniz link
+    { name: "YouTube", href: "https://www.youtube.com/channel/UCHSB4vxpEegkVmop4qJqCPQ", icon: Youtube },
   ];
 
-  // "Hızlı Linkler" -> "Hızlı Menü" olarak güncellendi
   const quickLinks = [
     { name: "Nasıl Çalışır", href: "https://lena-cars.vercel.app/nas%C4%B1l-%C3%A7al%C4%B1%C5%9F%C4%B1r-" },
     { name: "Sıkça Sorulan Sorular", href: "https://lena-cars.vercel.app/s.s.s." },
     { name: "Kısa Süreli Kiralama", href: "/kisa-sureli-kiralama" },
     { name: "İletişim", href: "https://lena-cars.vercel.app/iletisim" },
-    { name: "Uzun Dönem Kiralama", href: "/uzun-donem-kiralama" }, // Örnek olarak eklendi, isteğe bağlı
+    { name: "Uzun Dönem Kiralama", href: "/uzun-donem-kiralama" },
   ];
 
   const corporateLinks = [
     { name: "Hakkımızda", href: "/hakkimizda" },
     { name: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
     { name: "Kullanım Koşulları", href: "/kullanim-kosullari" },
-    { name: "Blog", href: "/blog" }, // Örnek olarak eklendi, isteğe bağlı
+    { name: "Blog", href: "/blog" },
   ];
 
   return (
     <footer style={{ backgroundColor: corporateColor }} className="text-gray-200">
-      <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-10 text-center md:grid-cols-2 md:text-left lg:grid-cols-4 lg:gap-8">
+      {/* Ana dikey padding py-12'ye düşürüldü */}
+      <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        {/* Sütunlar arası gap-8'e düşürüldü */}
+        <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-2 md:text-left lg:grid-cols-4 lg:gap-8">
+          
           {/* Sütun 1: Logo ve Şirket Açıklaması */}
-          <div className="space-y-5 md:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-block"> {/* Link etrafında gereksiz space-x kaldırıldı */}
+          {/* İç dikey boşluk space-y-4'e düşürüldü */}
+          <div className="space-y-4 md:col-span-2 lg:col-span-1">
+            <Link href="/" className="inline-block">
               <Image
-                src="/LENACARS-FOOTER.svg" // Footer için özel logo
+                src="/LENACARS-FOOTER.svg"
                 alt="LenaCars Footer Logo"
                 width={150} 
                 height={42}
-                className="h-10 w-auto" // Yüksekliği Tailwind ile sınırlayarak boyutu ayarla (h-10 = 40px)
-                priority // Footer logosu önemliyse eklenebilir
+                className="h-10 w-auto mx-auto md:mx-0" // Mobil için ortalama, masaüstü için sola dayalı
+                priority
               />
             </Link>
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-300 leading-normal sm:leading-relaxed">
               İhtiyaçlarınıza özel, esnek ve güvenilir kiralama deneyimi için doğru adrestesiniz. Kurumsal araç kiralamada yenilikçi çözümler sunuyoruz.
             </p>
-            <div className="flex justify-center md:justify-start space-x-4 pt-2">
+            {/* Sosyal medya ikonları arası space-x-3 ve ikon boyutu h-5 w-5 yapıldı */}
+            <div className="flex justify-center md:justify-start space-x-3">
               {socialLinks.map((item) => (
                 <Link
                   key={item.name}
@@ -66,7 +70,7 @@ export default function Footer() {
                   aria-label={item.name}
                   className="text-gray-300 hover:text-white transition-transform hover:scale-110 duration-200"
                 >
-                  <item.icon className="h-6 w-6" />
+                  <item.icon className="h-5 w-5" /> {/* İkon boyutu küçültüldü */}
                 </Link>
               ))}
             </div>
@@ -74,13 +78,15 @@ export default function Footer() {
 
           {/* Sütun 2: Hızlı Menü */}
           <div>
-            <h3 className="text-md font-semibold text-white uppercase tracking-wider">
-              Hızlı Menü {/* "Hızlı Linkler" -> "Hızlı Menü" olarak güncellendi */}
+            {/* Başlık alt boşluğu mt-3 yapıldı */}
+            <h3 className="text-sm sm:text-md font-semibold text-white uppercase tracking-wider">
+              Hızlı Menü
             </h3>
-            <ul role="list" className="mt-4 space-y-3">
+            {/* Linkler arası dikey boşluk space-y-2.5 yapıldı */}
+            <ul role="list" className="mt-3 space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm hover:text-white hover:underline transition-colors duration-150">
+                  <Link href={link.href} className="text-xs sm:text-sm hover:text-white hover:underline transition-colors duration-150">
                     {link.name}
                   </Link>
                 </li>
@@ -90,13 +96,13 @@ export default function Footer() {
 
           {/* Sütun 3: Kurumsal Linkler */}
           <div>
-            <h3 className="text-md font-semibold text-white uppercase tracking-wider">
+            <h3 className="text-sm sm:text-md font-semibold text-white uppercase tracking-wider">
               Kurumsal
             </h3>
-            <ul role="list" className="mt-4 space-y-3">
+            <ul role="list" className="mt-3 space-y-2.5">
               {corporateLinks.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="text-sm hover:text-white hover:underline transition-colors duration-150">
+                  <Link href={link.href} className="text-xs sm:text-sm hover:text-white hover:underline transition-colors duration-150">
                     {link.name}
                   </Link>
                 </li>
@@ -106,31 +112,32 @@ export default function Footer() {
           
           {/* Sütun 4: İletişim Bilgileri */}
           <div>
-            <h3 className="text-md font-semibold text-white uppercase tracking-wider">
+            <h3 className="text-sm sm:text-md font-semibold text-white uppercase tracking-wider">
               Bize Ulaşın
             </h3>
-            <ul role="list" className="mt-4 space-y-3">
-              <li className="flex items-start space-x-3">
-                <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0 text-gray-300" />
-                <address className="text-sm not-italic">
+            {/* İletişim bilgileri arası dikey boşluk space-y-2.5 yapıldı */}
+            <ul role="list" className="mt-3 space-y-2.5">
+              <li className="flex items-start space-x-2.5"> {/* İkon ve metin arası boşluk space-x-2.5 yapıldı */}
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5 flex-shrink-0 text-gray-300" />
+                <address className="text-xs sm:text-sm not-italic leading-snug">
                   Crea Center – Merkez, Çavuşbaşı Cd. 105/1-2, 34782 Çekmeköy / İstanbul
                 </address>
               </li>
-              <li className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 flex-shrink-0 text-gray-300" />
-                <Link href="tel:+908505327929" className="text-sm hover:text-white hover:underline transition-colors duration-150">
+              <li className="flex items-center space-x-2.5">
+                <Phone className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-gray-300" />
+                <Link href="tel:+908505327929" className="text-xs sm:text-sm hover:text-white hover:underline transition-colors duration-150">
                   +90 850 532 7929
                 </Link>
               </li>
-              <li className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 flex-shrink-0 text-gray-300" />
-                <Link href="tel:+905377777929" className="text-sm hover:text-white hover:underline transition-colors duration-150">
+              <li className="flex items-center space-x-2.5">
+                <Phone className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-gray-300" />
+                <Link href="tel:+905377777929" className="text-xs sm:text-sm hover:text-white hover:underline transition-colors duration-150">
                   +90 537 777 7929
                 </Link>
               </li>
-              <li className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 flex-shrink-0 text-gray-300" />
-                <Link href="mailto:info@lenacars.com" className="text-sm hover:text-white hover:underline transition-colors duration-150">
+              <li className="flex items-center space-x-2.5">
+                <Mail className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-gray-300" />
+                <Link href="mailto:info@lenacars.com" className="text-xs sm:text-sm hover:text-white hover:underline transition-colors duration-150">
                   info@lenacars.com
                 </Link>
               </li>
@@ -138,8 +145,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 border-t border-gray-200/20 pt-8">
-          <p className="text-sm text-gray-300 text-center">
+        {/* Copyright bölümü üst boşluğu mt-12, iç padding pt-6 yapıldı */}
+        <div className="mt-12 border-t border-gray-200/20 pt-6">
+          <p className="text-xs sm:text-sm text-gray-300 text-center">
             © {year} LenaCars. Tüm hakları saklıdır.
           </p>
         </div>
