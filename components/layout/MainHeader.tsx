@@ -12,9 +12,9 @@ import { getMenuPages } from "@/lib/getMenuPages";
 
 // toTitleCase Fonksiyonu (loglar şimdilik duruyor)
 function toTitleCase(str: string | null | undefined) {
-  console.log("toTitleCase GİRDİ:", str, "| Tip:", typeof str);
+  // console.log("toTitleCase GİRDİ:", str, "| Tip:", typeof str);
   if (!str) {
-    console.log("toTitleCase ÇIKTI (null/undefined giriş için):", "");
+    // console.log("toTitleCase ÇIKTI (null/undefined giriş için):", "");
     return "";
   }
   const result = str
@@ -26,7 +26,7 @@ function toTitleCase(str: string | null | undefined) {
       return word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1);
     })
     .join(" ");
-  console.log("toTitleCase ÇIKTI ('" + str + "' için):", result);
+  // console.log("toTitleCase ÇIKTI ('" + str + "' için):", result);
   return result;
 }
 
@@ -50,27 +50,23 @@ export default function MainHeader() {
   const [allVehiclesForSuggestions, setAllVehiclesForSuggestions] = useState<VehicleSuggestion[]>([]);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // Mevcut useEffect'leriniz aynı kalıyor...
   useEffect(() => {
     const fetchMenuItems = async () => {
-      console.log("fetchMenuItems çağrıldı.");
+      // console.log("fetchMenuItems çağrıldı.");
       try {
-        const data = await getMenuPages(); 
-        console.log("getMenuPages'den gelen veri:", data); 
+        const data = await getMenuPages();
+        // console.log("getMenuPages'den gelen veri:", data);
         if (!data || data.length === 0) {
-          console.warn("getMenuPages'den boş veya tanımsız veri geldi.");
+          // console.warn("getMenuPages'den boş veya tanımsız veri geldi.");
           setMenuItems([]);
           return;
         }
         const groups: { [key: string]: any[] } = {};
-        for (const page of data) {
-          if (!page) {
-            console.warn("Veri içinde tanımsız bir sayfa bulundu, atlanıyor.");
-            continue;
-          }
+        for (const page of data) { 
+          if (!page) { console.warn("Veri içinde tanımsız bir sayfa bulundu."); continue; }
           const isParent = !page.parent;
-          console.log(`Sayfa işleniyor: ${page.title}, Ana Sayfa Mı: ${isParent}, Grup: ${page.menu_group}`);
           const groupKey = toTitleCase(page.menu_group);
-          console.log(`Sayfa: ${page.title}, Oluşturulan GroupKey: ${groupKey}`);
           if (isParent && groupKey) {
             if (!groups[groupKey]) groups[groupKey] = [];
             groups[groupKey].push(page);
@@ -78,45 +74,24 @@ export default function MainHeader() {
             groups[page.id] = [page];
           }
         }
-        console.log("Oluşturulan gruplar:", groups);
         const sortedMenuItems = Object.entries(groups)
-          .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
-            console.log(`Grup/ParentId işleniyor: ${groupOrParentId}`);
-            return pagesInGroupOrParentItemArray.map((parent) => {
-              if (!parent || typeof parent.title === 'undefined') {
-                console.warn("Tanımsız parent veya parent.title tanımsız:", parent);
-                return { title: "Hatalı Veri", slug: "#", isExternal: false, group_sort_order:0, subItems: [] };
-              }
-              console.log("İŞLENECEK PARENT.TITLE:", parent.title, "| Tip:", typeof parent.title);
-              const processedTitle = toTitleCase(parent.title);
-              console.log("İŞLENMİŞ PARENT.TITLE ('" + parent.title + "' için):", processedTitle);
-              return {
-                title: processedTitle,
-                slug: parent.external_url || parent.slug,
-                isExternal: !!parent.external_url,
-                group_sort_order: parent.group_sort_order ?? parent.sort_order ?? 0,
-                subItems: data
-                  .filter((child) => child && child.parent === parent.id)
-                  .map((sub) => {
-                    if (!sub || typeof sub.title === 'undefined') {
-                      console.warn("Tanımsız sub veya sub.title tanımsız:", sub);
-                      return { title: "Hatalı Alt Veri", slug: "#", isExternal: false };
-                    }
-                    console.log("İŞLENECEK SUB.TITLE:", sub.title, "| Tip:", typeof sub.title);
-                    const processedSubTitle = toTitleCase(sub.title);
-                    console.log("İŞLENMİŞ SUB.TITLE ('" + sub.title + "' için):", processedSubTitle);
-                    return {
-                      title: processedSubTitle,
-                      slug: sub.external_url || sub.slug,
-                      isExternal: !!sub.external_url,
-                    };
-                  }),
-              };
-            });
+         .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
+            return pagesInGroupOrParentItemArray.map((parent: any) => ({ // parent tipini any olarak değiştirdim, ya da daha spesifik bir tip tanımlanmalı
+              title: toTitleCase(parent.title),
+              slug: parent.external_url || parent.slug,
+              isExternal: !!parent.external_url,
+              group_sort_order: parent.group_sort_order ?? parent.sort_order ?? 0,
+              subItems: data
+                .filter((child: any) => child && child.parent === parent.id) // child tipini any olarak değiştirdim
+                .map((sub: any) => ({ // sub tipini any olarak değiştirdim
+                  title: toTitleCase(sub.title),
+                  slug: sub.external_url || sub.slug,
+                  isExternal: !!sub.external_url,
+                })),
+            }));
           })
-          .flat()
-          .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
-        console.log("Sıralanmış Menü Öğeleri:", sortedMenuItems);
+         .flat()
+         .sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0)); // a, b tipleri eklendi
         setMenuItems(sortedMenuItems);
       } catch (error) {
         console.error("fetchMenuItems sırasında hata oluştu:", error);
@@ -126,7 +101,7 @@ export default function MainHeader() {
     fetchMenuItems();
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { 
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) {
@@ -139,7 +114,7 @@ export default function MainHeader() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { 
     const fetchUser = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) { console.error("Error getting session:", sessionError.message); return; }
@@ -156,7 +131,7 @@ export default function MainHeader() {
     const fetchAllVehiclesForSuggestions = async () => {
       try {
         const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", { cache: "no-store" });
-        if (!res.ok) { console.error("Failed to fetch vehicles for suggestions. Status:", res.status); setAllVehiclesForSuggestions([]); return; }
+        if (!res.ok) { console.error("Failed to fetch vehicles. Status:", res.status); setAllVehiclesForSuggestions([]); return; }
         const json = await res.json();
         const rawVehicles = json.data || [];
         const transformedForSuggestions: VehicleSuggestion[] = rawVehicles.map((vehicle: any) => {
@@ -171,12 +146,12 @@ export default function MainHeader() {
           };
         });
         setAllVehiclesForSuggestions(transformedForSuggestions);
-      } catch (error) { console.error("Error fetching all vehicles for suggestions:", error); setAllVehiclesForSuggestions([]); }
+      } catch (error) { console.error("Error fetching suggestions:", error); setAllVehiclesForSuggestions([]); }
     };
     fetchAllVehiclesForSuggestions();
-  }, []);
+   }, []);
 
-  useEffect(() => {
+  useEffect(() => { 
     if (searchTerm.trim().length > 1) {
       const filtered = allVehiclesForSuggestions.filter(vehicle => vehicle.name.toLowerCase().includes(searchTerm.toLowerCase())).slice(0, 5);
       setSuggestions(filtered);
@@ -185,17 +160,17 @@ export default function MainHeader() {
     }
   }, [searchTerm, allVehiclesForSuggestions]);
 
-  useEffect(() => {
+  useEffect(() => { 
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setSuggestions([]);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => { document.removeEventListener("mousedown", handleClickOutside); };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [searchContainerRef]);
 
-  const handleSearchFormSubmit = (e: FormEvent<HTMLFormElement>) => { // FormEvent React'ten import edilmeli
+  const handleSearchFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const trimmedSearchTerm = searchTerm.trim();
     setSearchTerm(trimmedSearchTerm);
@@ -221,14 +196,14 @@ export default function MainHeader() {
     setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
   };
 
-  const mainMenuItems = [...menuItems].sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
+  const mainMenuItems = [...menuItems].sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0)); // a,b tipleri eklendi
 
   return (
-    <header className="sticky top-0 z-50 bg-white"> {/* Header'a sticky ve z-index, shadow kaldırıldı (alttaki bar'da var) */}
+    <header className="sticky top-0 z-50 bg-white">
       {/* Üst Bilgi Çubuğu */}
-      <div className="bg-[#6A3C96] text-white py-2.5 px-4 text-sm"> {/* Hafif padding ayarı */}
+      <div className="bg-[#6A3C96] text-white py-2.5 px-4 text-sm">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3 md:space-x-4"> {/* Responsive boşluk */}
+          <div className="flex items-center space-x-3 md:space-x-4">
             <Link href="/iletisim" className="flex items-center hover:text-gray-200 transition-colors" aria-label="Adres">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -249,11 +224,19 @@ export default function MainHeader() {
           <div className="text-center hidden md:block">
             <h2 className="text-sm md:text-base font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
           </div>
-          <div className="hidden md:flex items-center space-x-2.5">
-            {/* Sosyal Medya Linkleri */}
-            <Link href="https://facebook.com" target="_blank" className="text-white hover:text-gray-300 transition-colors" aria-label="Facebook"><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg></Link>
-            <Link href="https://instagram.com" target="_blank" className="text-white hover:text-gray-300 transition-colors" aria-label="Instagram"><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg></Link>
-            {/* LinkedIn ve YouTube ikonları da benzer şekilde eklenebilir */}
+          <div className="hidden md:flex items-center space-x-3"> {/* space-x-3 sosyal medya ikonları arası boşluk */}
+            <Link href="https://www.facebook.com/lenacars2020/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg>
+            </Link>
+            <Link href="https://www.instagram.com/lena.cars/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+            </Link>
+            <Link href="https://tr.linkedin.com/company/lenacars" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="LinkedIn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>
+            </Link>
+            <Link href="https://www.youtube.com/channel/UCHSB4vxpEegkVmop4qJqCPQ" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="YouTube"> {/* YouTube linki güncellendi */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
+            </Link>
           </div>
         </div>
       </div>
@@ -264,34 +247,40 @@ export default function MainHeader() {
             <Image
               src="/LENACARS.svg"
               alt="LenaCars Logo"
-              width={170} // Biraz küçültüldü
-              height={48}
-              className="w-auto h-auto max-h-12" // Max yükseklik
+              width={200} // Logo boyutu büyütüldü
+              height={56} // Orantılı yükseklik (yaklaşık)
+              className="w-auto h-auto max-h-14" // max-h güncellendi (56px)
               priority
               onError={(e) => { const target = e.target as HTMLImageElement; if (target.src.endsWith(".svg")) { target.src = "/LENACARS.png"; }}}
             />
           </Link>
 
           {/* MASAÜSTÜ ARAMA KUTUSU */}
-          <div ref={searchContainerRef} className="hidden md:flex flex-grow items-center mx-6 max-w-xl relative"> {/* flex eklendi */}
-            <form onSubmit={handleSearchFormSubmit} className="relative w-full flex items-center group"> {/* group eklendi */}
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6A3C96] transition-colors pointer-events-none"> {/* Odaklanınca ikon rengi */}
+          <div ref={searchContainerRef} className="hidden md:flex flex-grow items-center mx-6 max-w-xl relative">
+            <form onSubmit={handleSearchFormSubmit} className="relative w-full flex items-center group shadow-sm rounded-lg hover:shadow-md focus-within:shadow-md transition-shadow duration-200"> {/* Form'a shadow ve rounding */}
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6A3C96] transition-colors pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </span>
               <input
                 type="text"
-                placeholder="Araç Ara (Model, Marka vb.)" // Placeholder güncellendi
-                className="w-full py-3 pl-12 pr-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-md text-sm" // py-3, pl-12, rounded-lg, border-gray-200, text-sm
+                placeholder="Araç Ara (Model, Marka vb.)"
+                className="w-full py-3 pl-12 pr-4 border border-gray-200 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent text-sm border-r-0" // rounded-l-lg, border-r-0
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => { if (searchTerm.trim().length > 1 && allVehiclesForSuggestions.length > 0) { /* ... */ } }}
               />
-              {/* Arama butonu yorum satırında kalabilir veya isteğe bağlı eklenebilir */}
+              <button // ARA BUTONU EKLENDİ
+                type="submit"
+                className="px-5 py-3 bg-[#E67E22] text-white rounded-r-lg hover:bg-[#D35400] focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:ring-opacity-50 transition-colors text-sm font-medium"
+                aria-label="Ara"
+              >
+                Ara
+              </button>
             </form>
             {suggestions.length > 0 && (
-              <ul className="absolute top-full left-0 right-0 mt-1.5 z-30 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-200px)] overflow-y-auto py-1.5"> {/* max-h ayarlandı, py-1.5 */}
+              <ul className="absolute top-full left-0 right-0 mt-1.5 z-30 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-200px)] overflow-y-auto py-1.5">
                 {suggestions.map((vehicle) => (
                   <li key={vehicle.id}>
                     <button
@@ -302,9 +291,9 @@ export default function MainHeader() {
                       <Image
                         src={vehicle.cover_image || "/placeholder.svg"}
                         alt={vehicle.name}
-                        width={72} // Boyut artırıldı
-                        height={48} // Boyut artırıldı
-                        className="object-cover rounded-md flex-shrink-0 bg-gray-100 aspect-[3/2]" // aspect ratio
+                        width={72} 
+                        height={48}
+                        className="object-cover rounded-md flex-shrink-0 bg-gray-100 aspect-[3/2]"
                       />
                       <div className="flex-grow overflow-hidden">
                         <p className="font-medium text-sm text-gray-800 group-hover:text-[#6A3C96] truncate transition-colors">
@@ -324,7 +313,7 @@ export default function MainHeader() {
                     <a
                       href="#vehicle-list" 
                       onClick={(e) => { e.preventDefault(); handleSearchFormSubmit(e as any); }}
-                      className="block text-center py-2.5 text-sm font-medium text-[#6A3C96] hover:bg-purple-50 transition-colors duration-150 rounded-b-md" // hover:underline kaldırıldı, bg eklendi
+                      className="block text-center py-2.5 text-sm font-medium text-[#6A3C96] hover:bg-purple-50 transition-colors duration-150 rounded-b-md"
                     >
                       Tüm sonuçları gör "{searchTerm}"
                     </a>
@@ -334,9 +323,8 @@ export default function MainHeader() {
             )}
           </div>
 
-          {/* Sağ Kısım: Mobil Menü Butonu ve Linkler */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="md:hidden"> {/* Mobil menü butonu */}
+            <div className="md:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#6A3C96]"
@@ -376,7 +364,7 @@ export default function MainHeader() {
       {/* MOBİL ARAMA KUTUSU */}
       {isMobile && (
         <div className="bg-gray-50 p-3 border-t border-gray-200">
-          <form onSubmit={handleSearchFormSubmit} className="relative flex items-center group">
+          <form onSubmit={handleSearchFormSubmit} className="relative flex items-center group"> {/* group eklendi */}
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#6A3C96] transition-colors pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -385,16 +373,12 @@ export default function MainHeader() {
             <input
               type="text"
               placeholder="Araç Ara..."
-              className="w-full py-2.5 pl-12 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent transition-shadow duration-200 shadow-sm text-sm" // text-sm eklendi
+              className="w-full py-2.5 pl-12 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:border-transparent transition-shadow duration-200 shadow-sm text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {/* Mobil arama butonu genellikle olmaz, enter ile arama yapılır */}
+            {/* Mobil arama için de buton eklenebilir, ancak genellikle enter yeterlidir */}
           </form>
-          {/* Mobil için öneri listesi, eğer istenirse, masaüstündeki gibi ama farklı bir UI ile eklenebilir.
-              Örneğin, input'a tıklandığında tam ekran bir overlay içinde görünebilir.
-              Bu örnekte, basitlik adına mobil öneri listesi UI'ı eklenmemiştir.
-          */}
            {isMobile && suggestions.length > 0 && (
               <ul className="mt-1.5 z-30 w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-250px)] overflow-y-auto py-1.5">
                 {suggestions.map((vehicle) => (
