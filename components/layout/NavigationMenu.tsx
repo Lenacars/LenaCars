@@ -25,6 +25,17 @@ export default function NavigationMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  const menuOrder = [
+    "Kurumsal",
+    "Kiralama",
+    "İkinci El",
+    "Elektrikli Araçlar",
+    "Basın Köşesi",
+    "LenaCars Bilgilendiriyor",
+    "S.S.S.",
+    "Nasıl Çalışır",
+  ];
+
   useEffect(() => {
     const fetchMenuItems = async () => {
       const { data, error } = await supabase
@@ -54,19 +65,9 @@ export default function NavigationMenu() {
           }
         });
 
-        const menuOrder = [
-          "Kurumsal",
-          "Kiralama",
-          "İkinci El",
-          "Elektrikli Araçlar",
-          "Basın Köşesi",
-          "LenaCars Bilgilendiriyor",
-          "S.S.S.",
-          "Nasıl Çalışır",
-        ];
-
         const orderedMenu: MenuItem[] = [];
 
+        // Belirli sıralamaya göre grupları sırala
         menuOrder.forEach((groupName) => {
           if (grouped[groupName]) {
             orderedMenu.push({ groupName, pages: grouped[groupName] });
@@ -74,12 +75,12 @@ export default function NavigationMenu() {
           }
         });
 
-        // Geri kalan grupları alfabetik sırayla sona ekle
+        // Geri kalan gruplar (tanımsız olanlar) alfabetik sırayla eklenebilir
         Object.entries(grouped).forEach(([groupName, pages]) => {
           orderedMenu.push({ groupName, pages });
         });
 
-        // Ungrouped sayfalar başlık gibi eklenecek
+        // Grubu olmayanlar sona eklenir
         ungrouped.forEach((page) => {
           orderedMenu.push({ groupName: page.title, pages: [] });
         });
