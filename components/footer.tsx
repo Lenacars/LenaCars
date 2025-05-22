@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image"; // Logo için Image bileşenini import ediyoruz
+import Image from "next/image";
 import {
   Facebook,
   Instagram,
@@ -21,21 +21,21 @@ export default function Footer() {
     { name: "YouTube", href: "https://www.youtube.com/channel/UCHSB4vxpEegkVmop4qJqCPQ", icon: Youtube }, // Verdiğiniz link
   ];
 
+  // "Hızlı Linkler" -> "Hızlı Menü" olarak güncellendi
   const quickLinks = [
     { name: "Nasıl Çalışır", href: "https://lena-cars.vercel.app/nas%C4%B1l-%C3%A7al%C4%B1%C5%9F%C4%B1r-" },
     { name: "Sıkça Sorulan Sorular", href: "https://lena-cars.vercel.app/s.s.s." },
-    { name: "Kısa Süreli Kiralama", href: "/kisa-sureli-kiralama" }, // Bu link için tam URL yoksa iç link olarak kalabilir
+    { name: "Kısa Süreli Kiralama", href: "/kisa-sureli-kiralama" },
     { name: "İletişim", href: "https://lena-cars.vercel.app/iletisim" },
+    { name: "Uzun Dönem Kiralama", href: "/uzun-donem-kiralama" }, // Örnek olarak eklendi, isteğe bağlı
   ];
 
-  // Örnek diğer linkler (isteğe bağlı olarak eklenebilir veya düzenlenebilir)
   const corporateLinks = [
     { name: "Hakkımızda", href: "/hakkimizda" },
     { name: "Gizlilik Politikası", href: "/gizlilik-politikasi" },
     { name: "Kullanım Koşulları", href: "/kullanim-kosullari" },
-    { name: "Blog", href: "/blog" },
+    { name: "Blog", href: "/blog" }, // Örnek olarak eklendi, isteğe bağlı
   ];
-
 
   return (
     <footer style={{ backgroundColor: corporateColor }} className="text-gray-200">
@@ -43,15 +43,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 text-center md:grid-cols-2 md:text-left lg:grid-cols-4 lg:gap-8">
           {/* Sütun 1: Logo ve Şirket Açıklaması */}
           <div className="space-y-5 md:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-flex items-center space-x-2"> {/* flex items-center eklendi */}
+            <Link href="/" className="inline-block"> {/* Link etrafında gereksiz space-x kaldırıldı */}
               <Image
                 src="/LENACARS-FOOTER.svg" // Footer için özel logo
                 alt="LenaCars Footer Logo"
-                width={150} // Footer için uygun bir genişlik
-                height={42}  // Orantılı yükseklik (width/height oranı ~3.57)
+                width={150} 
+                height={42}
                 className="h-10 w-auto" // Yüksekliği Tailwind ile sınırlayarak boyutu ayarla (h-10 = 40px)
+                priority // Footer logosu önemliyse eklenebilir
               />
-              {/* <h2 className="text-xl font-semibold text-white">LENACARS</h2> // Logo yeterince büyükse bu kaldırılabilir */}
             </Link>
             <p className="text-sm text-gray-300 leading-relaxed">
               İhtiyaçlarınıza özel, esnek ve güvenilir kiralama deneyimi için doğru adrestesiniz. Kurumsal araç kiralamada yenilikçi çözümler sunuyoruz.
@@ -72,10 +72,10 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Sütun 2: Hızlı Linkler */}
+          {/* Sütun 2: Hızlı Menü */}
           <div>
             <h3 className="text-md font-semibold text-white uppercase tracking-wider">
-              Hızlı Linkler
+              Hızlı Menü {/* "Hızlı Linkler" -> "Hızlı Menü" olarak güncellendi */}
             </h3>
             <ul role="list" className="mt-4 space-y-3">
               {quickLinks.map((link) => (
@@ -85,12 +85,10 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
-              {/* İsteğe bağlı olarak daha fazla link eklenebilir */}
-               <li><Link href="/uzun-donem-kiralama" className="text-sm hover:text-white hover:underline transition-colors duration-150">Uzun Dönem Kiralama</Link></li>
             </ul>
           </div>
 
-          {/* Sütun 3: Kurumsal Linkler (Örnek) */}
+          {/* Sütun 3: Kurumsal Linkler */}
           <div>
             <h3 className="text-md font-semibold text-white uppercase tracking-wider">
               Kurumsal
@@ -140,7 +138,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 border-t border-gray-200/20 pt-8"> {/* Ayracın opaklığı düşürüldü */}
+        <div className="mt-16 border-t border-gray-200/20 pt-8">
           <p className="text-sm text-gray-300 text-center">
             © {year} LenaCars. Tüm hakları saklıdır.
           </p>
