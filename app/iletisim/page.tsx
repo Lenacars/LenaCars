@@ -1,9 +1,9 @@
 "use client";
 
 import Script from "next/script";
-import Link from "next/link"; // Link bileşenini import ediyoruz
+import Link from "next/link"; // Kullanılmıyorsa kaldırılabilir, ama iyi bir pratiktir
 
-// İkonlar için SVG bileşenleri (MainHeader'dakilere benzer şekilde)
+// İkonlar için SVG bileşenleri
 const PhoneIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className || "w-5 h-5"}><path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C6.852 22.5 1.5 17.148 1.5 9.75V7.5A3 3 0 014.5 4.5H6A3 3 0 019 1.5V4.5H4.5a3 3 0 01-3-3V1.5A3 3 0 014.5-1.5H6a3 3 0 013 3V1.5H4.5z" clipRule="evenodd" /></svg>
 );
@@ -28,10 +28,9 @@ const YouTubeIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className || "w-6 h-6"}><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
 );
 
-
 export default function IletisimPage() {
   return (
-    <div className="bg-gray-50 min-h-screen"> {/* Sayfa arka planı */}
+    <div className="bg-gray-50 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         <h1 className="text-4xl sm:text-5xl font-extrabold text-[#6A3C96] mb-12 text-center">Bize Ulaşın</h1>
 
@@ -80,15 +79,15 @@ export default function IletisimPage() {
               </div>
             </div>
             
-            <div className="border-2 border-[#6A3C96] rounded-lg overflow-hidden shadow-lg mt-8 aspect-w-16 aspect-h-9"> {/* Kenarlık rengi ve en-boy oranı */}
+            <div className="border-2 border-[#6A3C96] rounded-lg overflow-hidden shadow-lg mt-8 aspect-w-16 aspect-h-9">
               <iframe
-                src="https://www.google.com/maps/place/LenaCars+-+Kurumsal+Ara%C3%A7+Kiralama+%C3%87%C3%B6z%C3%BCmleri/@41.048229,29.176655,16z/data=!4m6!3m5!1s0x14cacfb86412d245:0xe36d559bd131606d!8m2!3d41.0482285!4d29.1766548!16s%2Fg%2F11rsl7rtx9?hl=tr&entry=ttu&g_ep=EgoyMDI1MDUxNS4xIKXMDSoASAFQAw%3D%3D" // Güncellenmiş harita linki
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3009.0505893045806!2d29.174426675860477!3d41.04602277134519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cacf1eabb73537%3A0x289fbd81d20298d0!2sCrea%20Center%20%C3%87ekmek%C3%B6y!5e0!3m2!1str!2str!4v1747925140075!5m2!1str!2str" // SİZİN VERDİĞİNİZ YENİ HARİTA SRC'Sİ
                 width="100%"
-                height="100%" // Kapsayıcıya göre %100 yükseklik
+                height="100%"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full border-0" // iframe kenarlığı kaldırıldı
+                className="w-full h-full border-0"
               ></iframe>
             </div>
           </div>
@@ -96,7 +95,7 @@ export default function IletisimPage() {
           {/* Sağ: HubSpot Form */}
           <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
             <h2 className="text-2xl font-bold text-[#6A3C96] mb-6 text-center">Mesaj Gönderin</h2>
-            <div id="hubspotFormContainer" className="min-h-[400px]"> {/* HubSpot formu için sarmalayıcı ve min yükseklik */}
+            <div id="hubspotFormContainer" className="min-h-[400px]">
                  {/* HubSpot formu buraya yüklenecek */}
             </div>
           </div>
@@ -105,24 +104,21 @@ export default function IletisimPage() {
 
       {/* HubSpot embed script */}
       <Script
-        id="hubspot-form-script" // Script'e bir id vermek iyi bir pratiktir
-        src="https://js.hsforms.net/forms/embed/v2.js"
+        id="hubspot-form-script"
+        src="//js-eu1.hsforms.net/forms/embed/v2.js" // HubSpot script src'si sizin verdiğiniz gibi güncellendi
         strategy="afterInteractive"
         onLoad={() => {
           if (typeof window.hbspt !== "undefined") {
             window.hbspt.forms.create({
-              region: "eu1",
-              portalId: "143064526",
-              formId: "1zt6yVBYITImT_obcTTUXKQevtuh", // Bu form ID'si sizin verdiğiniz değil, örnek bir ID. Kendi form ID'nizi kullanmalısınız.
-              target: "#hubspotFormContainer", // Yukarıdaki div'in ID'si ile eşleşmeli
+              region: "eu1", // SİZİN VERDİĞİNİZ BİLGİ
+              portalId: "24999641", // SİZİN VERDİĞİNİZ YENİ PORTAL ID
+              formId: "cedeb254-1608-4c89-93fe-86dc4d351729", // SİZİN VERDİĞİNİZ YENİ FORM ID
+              target: "#hubspotFormContainer",
               onFormReady: ($form) => {
-                // Form yüklendiğinde yapılacaklar (isteğe bağlı)
                 console.log("HubSpot formu yüklendi:", $form);
               },
               onFormSubmit: ($form) => {
-                // Form gönderildiğinde yapılacaklar (isteğe bağlı)
                 console.log("HubSpot formu gönderildi:", $form);
-                // Örneğin bir teşekkür mesajı gösterebilir veya yönlendirme yapabilirsiniz.
               }
             });
           } else {
