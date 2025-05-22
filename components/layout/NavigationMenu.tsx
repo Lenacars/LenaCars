@@ -34,8 +34,13 @@ export default function NavigationMenu() {
         .order("sort_order", { ascending: true });
 
       if (!error && data) {
-        const capitalize = (str: string) =>
-          str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        const normalize = (str: string) =>
+          str
+            .toLocaleLowerCase("tr-TR")
+            .trim()
+            .split(/\s+/)
+            .map(word => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
+            .join(" ");
 
         const grouped: { [key: string]: { title: string; slug: string }[] } = {};
         const ungrouped: { title: string; slug: string }[] = [];
@@ -45,7 +50,7 @@ export default function NavigationMenu() {
           const groupKey = page.menu_group?.trim();
 
           if (isParent && groupKey) {
-            const group = capitalize(groupKey);
+            const group = normalize(groupKey);
             if (!grouped[group]) grouped[group] = [];
             grouped[group].push({ title: page.title, slug: page.slug });
           } else if (isParent && !groupKey) {
@@ -57,9 +62,11 @@ export default function NavigationMenu() {
           "Kurumsal",
           "Kiralama",
           "İkinci El",
-          "LenaCars Bilgilendiriyor",
+          "Elektrikli Araçlar",
           "Basın Köşesi",
-          "Elektrikli Araçlar"
+          "LenaCars Bilgilendiriyor",
+          "S.S.S.",
+          "Nasıl Çalışır"
         ];
 
         const orderedMenu: MenuItem[] = [];
@@ -75,11 +82,10 @@ export default function NavigationMenu() {
           orderedMenu.push({ groupName, pages });
         });
 
-        // Her bir ungrouped sayfa, tek başına başlık olacak şekilde eklenir
         ungrouped.forEach((page) => {
           orderedMenu.push({
             groupName: page.title,
-            pages: [], // dropdown olmadan göster
+            pages: [],
           });
         });
 
@@ -142,9 +148,7 @@ export default function NavigationMenu() {
                       {group.groupName}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className={`h-4 w-4 transition-transform ${
-                          activeDropdown === group.groupName ? "rotate-180" : ""
-                        }`}
+                        className={`h-4 w-4 transition-transform ${activeDropdown === group.groupName ? "rotate-180" : ""}`}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
