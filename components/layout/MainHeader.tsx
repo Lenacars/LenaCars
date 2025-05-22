@@ -10,6 +10,15 @@ import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
 import { getMenuPages } from "@/lib/getMenuPages";
 
+// 1. toTitleCase() Fonksiyonu Tanımla
+function toTitleCase(str: string) {
+  return str
+    .toLocaleLowerCase("tr-TR")
+    .split(" ")
+    .map((word) => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
+    .join(" ");
+}
+
 interface VehicleSuggestion {
   id: string;
   name: string;
@@ -60,7 +69,7 @@ export default function MainHeader() {
           // pagesInGroupOrParentItemArray artık doğrudan ana sayfa(ları) içeriyor.
           // Bu yüzden '.filter((p) => !p.parent)' adımına gerek kalmadı.
           return pagesInGroupOrParentItemArray.map((parent) => ({
-            title: parent.title,
+            title: toTitleCase(parent.title), // GÖRSELDEKİ DEĞİŞİKLİK
             slug: parent.external_url || parent.slug,
             isExternal: !!parent.external_url,
             // group_sort_order için fallback eklendi
@@ -69,7 +78,7 @@ export default function MainHeader() {
             subItems: data
               .filter((child) => child.parent === parent.id)
               .map((sub) => ({
-                title: sub.title,
+                title: toTitleCase(sub.title), // GÖRSELDEKİ DEĞİŞİKLİK
                 slug: sub.external_url || sub.slug,
                 isExternal: !!sub.external_url,
               })),
