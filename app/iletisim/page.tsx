@@ -47,11 +47,11 @@ export default function IletisimPage() {
                 <h3 className="text-xl font-semibold text-[#6A3C96] border-b pb-2">İletişim Detayları</h3>
                 <a href="tel:+908505327929" className="flex items-center space-x-3 text-gray-700 hover:text-[#6A3C96] transition-colors group">
                   <PhoneIcon className="w-5 h-5 text-[#6A3C96] group-hover:scale-110 transition-transform" />
-                  <span className="text-base">+90 850 532 7929</span>
+                  <span className="text-base">+90 850 532 79 29</span>
                 </a>
                 <a href="tel:+905377779729" className="flex items-center space-x-3 text-gray-700 hover:text-[#6A3C96] transition-colors group">
                   <PhoneIcon className="w-5 h-5 text-[#6A3C96] group-hover:scale-110 transition-transform" />
-                  <span className="text-base">+90 537 777 9729</span>
+                  <span className="text-base">+90 537 777 79 29</span>
                 </a>
                 <a href="mailto:info@lenacars.com" className="flex items-center space-x-3 text-gray-700 hover:text-[#6A3C96] transition-colors group">
                   <MailIcon className="w-5 h-5 text-[#6A3C96] group-hover:scale-110 transition-transform" />
