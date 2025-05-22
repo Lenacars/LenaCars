@@ -8,20 +8,26 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase-browser";
 import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
-import { getMenuPages } from "@/lib/getMenuPages";
+import { getMenuPages } from "@/lib/getMenuPages"; // Bu fonksiyonun içeriği önemli
 
-// toTitleCase Fonksiyonu (Güncellenmiş Hali)
+// toTitleCase Fonksiyonu (console.log eklenmiş)
 function toTitleCase(str: string | null | undefined) {
-  if (!str) return "";
-  return str
+  console.log("toTitleCase GİRDİ:", str, "| Tip:", typeof str); // Gelen değeri logla
+  if (!str) {
+    console.log("toTitleCase ÇIKTI (null/undefined giriş için):", "");
+    return "";
+  }
+  const result = str
     .toLocaleLowerCase("tr-TR")
-    .trim() // Önce baştaki ve sondaki tüm boşlukları temizle
-    .split(/\s+/) // Bir veya daha fazla herhangi bir boşluk karakterine göre ayır
+    .trim()
+    .split(/\s+/)
     .map((word) => {
-      if (word.length === 0) return ""; // Bölme sonucu boş kelime oluşursa diye kontrol
+      if (word.length === 0) return "";
       return word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1);
     })
-    .join(" "); // Standart boşlukla tekrar birleştir
+    .join(" ");
+  console.log("toTitleCase ÇIKTI ('" + str + "' için):", result); // Çıkan değeri logla
+  return result;
 }
 
 interface VehicleSuggestion {
@@ -46,42 +52,86 @@ export default function MainHeader() {
 
   useEffect(() => {
     const fetchMenuItems = async () => {
-      const data = await getMenuPages(); // Tüm sayfaları içeren ana veri
+      console.log("fetchMenuItems çağrıldı.");
+      try {
+        const data = await getMenuPages(); // Tüm sayfaları içeren ana veri
+        console.log("getMenuPages'den gelen veri:", data); // getMenuPages'den gelen veriyi logla
 
-      const groups: { [key: string]: any[] } = {};
-
-      for (const page of data) {
-        const isParent = !page.parent;
-        const groupKey = toTitleCase(page.menu_group);
-
-        if (isParent && groupKey) {
-          if (!groups[groupKey]) groups[groupKey] = [];
-          groups[groupKey].push(page);
-        } else if (isParent) {
-          groups[page.id] = [page];
+        if (!data || data.length === 0) {
+          console.warn("getMenuPages'den boş veya tanımsız veri geldi.");
+          setMenuItems([]);
+          return;
         }
+
+        const groups: { [key: string]: any[] } = {};
+
+        for (const page of data) {
+          if (!page) {
+            console.warn("Veri içinde tanımsız bir sayfa bulundu, atlanıyor.");
+            continue;
+          }
+          const isParent = !page.parent;
+          console.log(`Sayfa işleniyor: ${page.title}, Ana Sayfa Mı: ${isParent}, Grup: ${page.menu_group}`);
+          const groupKey = toTitleCase(page.menu_group);
+          console.log(`Sayfa: ${page.title}, Oluşturulan GroupKey: ${groupKey}`);
+
+
+          if (isParent && groupKey) {
+            if (!groups[groupKey]) groups[groupKey] = [];
+            groups[groupKey].push(page);
+          } else if (isParent) {
+            // Grupsuz ana sayfalar için kendi ID'lerini kullanıyoruz, bu ID'yi title case yapmaya gerek yok.
+            // Ancak, eğer bu ID bir şekilde başlık olarak gösteriliyorsa ve onu da formatlamak isterseniz
+            // toTitleCase(page.id) gibi bir şey düşünebilirsiniz ama genellikle ID'ler formatlanmaz.
+            groups[page.id] = [page];
+          }
+        }
+        console.log("Oluşturulan gruplar:", groups);
+
+        const sortedMenuItems = Object.entries(groups)
+          .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
+            console.log(`Grup/ParentId işleniyor: ${groupOrParentId}`);
+            return pagesInGroupOrParentItemArray.map((parent) => {
+              if (!parent || typeof parent.title === 'undefined') {
+                console.warn("Tanımsız parent veya parent.title tanımsız:", parent);
+                return { title: "Hatalı Veri", slug: "#", isExternal: false, group_sort_order:0, subItems: [] }; // Hatalı veri için fallback
+              }
+              console.log("İŞLENECEK PARENT.TITLE:", parent.title, "| Tip:", typeof parent.title);
+              const processedTitle = toTitleCase(parent.title);
+              console.log("İŞLENMİŞ PARENT.TITLE ('" + parent.title + "' için):", processedTitle);
+              return {
+                title: processedTitle,
+                slug: parent.external_url || parent.slug,
+                isExternal: !!parent.external_url,
+                group_sort_order: parent.group_sort_order ?? parent.sort_order ?? 0,
+                subItems: data // 'data'nın burada tekrar kullanılması tüm sayfaları içerir, dikkatli olunmalı.
+                  .filter((child) => child && child.parent === parent.id) // child'ın da null/undefined olmamasını kontrol et
+                  .map((sub) => {
+                    if (!sub || typeof sub.title === 'undefined') {
+                      console.warn("Tanımsız sub veya sub.title tanımsız:", sub);
+                      return { title: "Hatalı Alt Veri", slug: "#", isExternal: false }; // Hatalı veri için fallback
+                    }
+                    console.log("İŞLENECEK SUB.TITLE:", sub.title, "| Tip:", typeof sub.title);
+                    const processedSubTitle = toTitleCase(sub.title);
+                    console.log("İŞLENMİŞ SUB.TITLE ('" + sub.title + "' için):", processedSubTitle);
+                    return {
+                      title: processedSubTitle,
+                      slug: sub.external_url || sub.slug,
+                      isExternal: !!sub.external_url,
+                    };
+                  }),
+              };
+            });
+          })
+          .flat()
+          .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
+
+        console.log("Sıralanmış Menü Öğeleri:", sortedMenuItems);
+        setMenuItems(sortedMenuItems);
+      } catch (error) {
+        console.error("fetchMenuItems sırasında hata oluştu:", error);
+        setMenuItems([]); // Hata durumunda menüyü boşalt
       }
-
-      const sortedMenuItems = Object.entries(groups)
-        .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
-          return pagesInGroupOrParentItemArray.map((parent) => ({
-            title: toTitleCase(parent.title),
-            slug: parent.external_url || parent.slug,
-            isExternal: !!parent.external_url,
-            group_sort_order: parent.group_sort_order ?? parent.sort_order ?? 0,
-            subItems: data
-              .filter((child) => child.parent === parent.id)
-              .map((sub) => ({
-                title: toTitleCase(sub.title),
-                slug: sub.external_url || sub.slug,
-                isExternal: !!sub.external_url,
-              })),
-          }));
-        })
-        .flat()
-        .sort((a, b) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
-
-      setMenuItems(sortedMenuItems);
     };
 
     fetchMenuItems();
@@ -118,7 +168,7 @@ export default function MainHeader() {
 
       if (!error && data) {
         setUserName(`${data.ad} ${data.soyad}`);
-      } else if (error && error.code !== 'PGRST116') {
+      } else if (error && error.code !== 'PGRST116') { // PGRST116: " esattamente una riga attesa, ma 0 ne sono state trovate " (Exactly one row expected, but 0 were found)
         console.error("Error fetching user name:", error.message);
       }
     };
