@@ -1,14 +1,23 @@
-// app/araclar/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase-browser";
 import Image from "next/image";
-import Link from "next/link";
 import { toast } from "@/hooks/use-toast";
+import Link from "next/link";
 import {
-  Star, Users, Fuel, Settings2, CalendarDays, Package, ShieldCheck,
-  MessageCircle, Send, CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText
+  Star,
+  Fuel,
+  Settings2,
+  CalendarDays,
+  Package,
+  ShieldCheck,
+  MessageCircle,
+  Send,
+  CarFront,
+  Loader2,
+  CheckCircle2,
+  CreditCard,
 } from "lucide-react";
 
 interface Variation {
@@ -43,25 +52,11 @@ interface Vehicle {
   fiyat: number;
   cover_image: string;
   gallery_images: string[];
-  kisi_kapasitesi?: string;
 }
 
 interface Props {
   params: { id: string };
 }
-
-const SpecIcon = ({ iconName }: { iconName?: string }) => {
-  switch (iconName?.toLowerCase()) {
-    case "yakıt": case "yakit_turu": return <Fuel size={18} className="text-[#6A3C96]" />;
-    case "vites": return <Settings2 size={18} className="text-[#6A3C96]" />;
-    case "kapasite": case "kisi_kapasitesi": return <Users size={18} className="text-[#6A3C96]" />;
-    case "segment": return <Package size={18} className="text-[#6A3C96]" />;
-    case "marka": return <ShieldCheck size={18} className="text-[#6A3C96]" />;
-    case "bodytype": case "kasa tipi": return <CarFront size={18} className="text-[#6A3C96]" />;
-    case "durum": return <CalendarDays size={18} className="text-[#6A3C96]" />;
-    default: return <HelpCircle size={18} className="text-gray-400" />;
-  }
-};
 
 export default function Page({ params }: Props) {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
@@ -73,127 +68,136 @@ export default function Page({ params }: Props) {
   const [selectedSure, setSelectedSure] = useState("");
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(5);
-  const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState(false);
   const [isVehicleAddedToGarage, setIsVehicleAddedToGarage] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState(false);
+
+  const fetchData = async () => {
+    const { data: aracData } = await supabase
+      .from("Araclar")
+      .select("*")
+      .eq("id", params.id)
+      .maybeSingle();
+
+    if (!aracData) return;
+
+    setVehicle(aracData as Vehicle);
+
+    const { data: varData } = await supabase
+      .from("variations")
+      .select("*")
+      .eq("arac_id", params.id);
+
+    setVariations(varData || []);
+
+    const { data: yorumlar } = await supabase
+      .from("yorumlar")
+      .select("*, kullanici:kullanicilar(ad,soyad)")
+      .eq("arac_id", params.id)
+      .order("created_at", { ascending: false });
+
+    setComments(yorumlar || []);
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    setSession(sessionData.session);
+
+    const aktif = (varData || []).filter((v) => v.status === "Aktif");
+    if (aktif.length > 0) {
+      const enUcuz = aktif.reduce((prev, curr) => (curr.fiyat < prev.fiyat ? curr : prev), aktif[0]);
+      setSelectedKm(enUcuz.kilometre);
+      setSelectedSure(enUcuz.sure);
+    }
+
+    const imageUrl = aracData.cover_image
+      ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${aracData.cover_image.replace(/^\/+/, "")}`
+      : "/placeholder.svg";
+
+    setSelectedImage(imageUrl);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      const { data: arac } = await supabase.from("Araclar").select("*").eq("id", params.id).maybeSingle();
-      if (!arac) return setVehicle(null);
-
-      setVehicle(arac);
-      const imageUrl = `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image?.replace(/^\/+/, "")}`;
-      setSelectedImage(arac.cover_image ? imageUrl : "/placeholder.svg");
-
-      const { data: varData } = await supabase.from("variations").select("*").eq("arac_id", params.id);
-      setVariations(varData || []);
-
-      const { data: yorumlar } = await supabase
-        .from("yorumlar")
-        .select("*, kullanici:kullanicilar(ad,soyad)")
-        .eq("arac_id", params.id)
-        .order("created_at", { ascending: false });
-      setComments(yorumlar || []);
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      setSession(sessionData?.session || null);
-
-      if (sessionData?.session?.user?.id) {
-        const { data: existing } = await supabase
-          .from("garaj")
-          .select("id")
-          .eq("user_id", sessionData.session.user.id)
-          .eq("arac_id", arac.id)
-          .maybeSingle();
-        setIsVehicleAddedToGarage(!!existing);
-      } else {
-        const stored = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
-        if (stored.includes(arac.id)) setIsVehicleAddedToGarage(true);
-      }
-
-      const aktif = (varData || []).filter(v => v.status === "Aktif");
-      if (aktif.length > 0) {
-        const enUcuz = aktif.reduce((prev, curr) => (curr.fiyat < prev.fiyat ? curr : prev), aktif[0]);
-        setSelectedKm(enUcuz.kilometre);
-        setSelectedSure(enUcuz.sure);
-      }
-
-      setIsLoading(false);
-    };
-
     fetchData();
   }, [params.id]);
 
-  if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Yükleniyor...</div>;
-  }
+  const activeVariations = variations.filter((v) => v.status === "Aktif");
 
-  if (!vehicle) {
-    return <div className="flex justify-center items-center min-h-screen text-xl">Araç bulunamadı.</div>;
-  }
+  const availableKms = [...new Set(activeVariations.map((v) => v.kilometre))];
+  const availableSures = [...new Set(activeVariations.map((v) => v.sure))];
 
-  const activeVariations = variations.filter(v => v.status === "Aktif");
-  const availableKms = [...new Set(activeVariations.map(v => v.kilometre))];
-  const availableSures = [...new Set(activeVariations.map(v => v.sure))];
-  const matched = activeVariations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
-  const fiyat = matched?.fiyat ?? activeVariations[0]?.fiyat ?? vehicle.fiyat;
+  const matchedVariation = activeVariations.find(
+    (v) => v.kilometre === selectedKm && v.sure === selectedSure
+  );
 
-  const handleAddComment = async () => {
-    if (!session?.user?.id || !newComment.trim()) return;
-    const { error } = await supabase.from("yorumlar").insert([{ arac_id: vehicle.id, user_id: session.user.id, yorum: newComment, puan: newRating }]);
-    if (!error) {
-      setNewComment(""); setNewRating(5);
-      toast({ title: "Yorum eklendi" });
-    }
-  };
+  const lowestPrice =
+    activeVariations.length > 0
+      ? Math.min(...activeVariations.map((v) => v.fiyat))
+      : vehicle?.fiyat ?? null;
+
+  const displayPrice = matchedVariation?.fiyat ?? lowestPrice ?? null;
+
+  const gallery =
+    vehicle?.gallery_images?.filter((img) => img) || [];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-2">{vehicle.isim}</h1>
-      <Image src={selectedImage || "/placeholder.svg"} alt="Kapak" width={800} height={600} className="rounded-lg" />
+    <div className="max-w-6xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-2">{vehicle?.isim}</h1>
+      <p className="text-sm text-gray-500 mb-4">{vehicle?.kisa_aciklama}</p>
 
-      <div className="my-4">
-        <div className="text-xl font-semibold text-[#6A3C96]">{fiyat.toLocaleString("tr-TR")} ₺ <span className="text-sm text-gray-500">/ Ay + KDV</span></div>
-        <div className="mt-2 grid grid-cols-2 gap-3">
-          <select className="border rounded p-2" value={selectedKm} onChange={(e) => setSelectedKm(e.target.value)}>
-            <option value="">KM Seç</option>
-            {availableKms.map((v, i) => <option key={i} value={v}>{v}</option>)}
-          </select>
-          <select className="border rounded p-2" value={selectedSure} onChange={(e) => setSelectedSure(e.target.value)}>
-            <option value="">Süre Seç</option>
-            {availableSures.map((v, i) => <option key={i} value={v}>{v}</option>)}
-          </select>
+      {/* Fiyat */}
+      <div className="text-xl font-semibold text-[#6A3C96] mb-2">
+        {displayPrice !== null && displayPrice !== undefined
+          ? `${displayPrice.toLocaleString("tr-TR")} ₺`
+          : "Fiyat Seçin"}
+        <span className="text-xs text-gray-500 ml-1">/ Ay + KDV</span>
+      </div>
+
+      {/* Galeri */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+        {selectedImage && (
+          <div className="w-full aspect-[4/3] bg-gray-100 relative rounded overflow-hidden border">
+            <Image
+              src={selectedImage}
+              alt="Kapak"
+              fill
+              className="object-contain p-2"
+            />
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {gallery.map((imgKey, i) => (
+            <Image
+              key={i}
+              src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`}
+              alt={`Galeri ${i + 1}`}
+              width={100}
+              height={100}
+              className="rounded border object-cover"
+              onClick={() =>
+                setSelectedImage(
+                  `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`
+                )
+              }
+            />
+          ))}
         </div>
       </div>
 
-      <div className="my-6">
-        <h2 className="text-xl font-semibold mb-3">Açıklama</h2>
-        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: vehicle.aciklama }} />
+      {/* Teknik özellikler */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Teknik Özellikler</h2>
+        <ul className="grid sm:grid-cols-2 gap-2 text-sm">
+          <li><b>Marka:</b> {vehicle?.brand}</li>
+          <li><b>Segment:</b> {vehicle?.segment}</li>
+          <li><b>Yakıt:</b> {vehicle?.yakit_turu}</li>
+          <li><b>Vites:</b> {vehicle?.vites}</li>
+          <li><b>Durum:</b> {vehicle?.durum}</li>
+          <li><b>Kasa Tipi:</b> {vehicle?.bodyType}</li>
+        </ul>
       </div>
 
-      <div className="my-6">
-        <h2 className="text-xl font-semibold mb-3">Yorumlar ({comments.length})</h2>
-        {comments.map((c) => (
-          <div key={c.id} className="mb-4 p-3 border rounded bg-white">
-            <div className="flex justify-between">
-              <strong>{c.kullanici?.ad} {c.kullanici?.soyad}</strong>
-              <span>{[...Array(5)].map((_, i) => <Star key={i} className={i < c.puan ? "text-yellow-500" : "text-gray-300"} size={16} />)}</span>
-            </div>
-            <p className="text-sm text-gray-700 mt-1">{c.yorum}</p>
-          </div>
-        ))}
-
-        {session ? (
-          <div className="mt-4">
-            <textarea className="w-full border rounded p-2 mb-2" rows={3} value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Yorumunuz..." />
-            <button onClick={handleAddComment} className="bg-[#6A3C96] text-white px-4 py-2 rounded">Yorumu Gönder</button>
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500 mt-2">Yorum yapmak için <Link href="/giris" className="text-[#6A3C96] underline">giriş yapın</Link>.</p>
-        )}
-      </div>
+      {/* Açıklama */}
+      {vehicle?.aciklama && (
+        <div className="mt-8 prose max-w-none" dangerouslySetInnerHTML={{ __html: vehicle.aciklama }} />
+      )}
     </div>
   );
 }
