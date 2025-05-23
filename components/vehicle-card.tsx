@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Fuel, Settings2, Info, Car, Loader2, CheckCircle2 } from "lucide-react"; // Heart yerine Car eklendi
+import { Star, Fuel, Settings2, Info, CarFront, Loader2, CheckCircle2 } from "lucide-react"; // Car yerine CarFront eklendi/değiştirildi
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase-browser";
@@ -185,7 +185,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
               </>
             ) : (
               <>
-                <Car size={15} className="mr-1 sm:mr-1.5" /> {/* KALP YERİNE ARABA İKONU */}
+                <CarFront size={15} className="mr-1 sm:mr-1.5" /> {/* DEĞİŞİKLİK BURADA: CarFront ikonu kullanıldı */}
                 Garaja Ekle
               </>
             )}
