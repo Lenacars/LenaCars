@@ -72,7 +72,7 @@ export default function MainHeader() {
           .map(([groupOrParentId, pagesInGroupOrParentItemArray]) => {
             return pagesInGroupOrParentItemArray.map((parent: any) => {
               if (!parent || typeof parent.title === 'undefined') {
-                 return { title: "Hatalı Veri", slug: "#", isExternal: false, group_sort_order:0, subItems: [] };
+                  return { title: "Hatalı Veri", slug: "#", isExternal: false, group_sort_order:0, subItems: [] };
               }
               return {
                 title: toTitleCase(parent.title),
@@ -231,9 +231,9 @@ export default function MainHeader() {
             <Image
               src="/LENACARS.svg"
               alt="LenaCars Logo"
-              width={230} // Logo %30 büyütüldü
-              height={64} // Logo %30 büyütüldü
-              className="w-auto h-auto max-h-28" // max-h-28 (112px)
+              width={230}
+              height={64}
+              className="h-10 md:h-16 w-auto" {/* MOBİL UYUMLULUK İÇİN DEĞİŞTİRİLDİ */}
               priority
               onError={(e) => { const target = e.target as HTMLImageElement; if (target.src.endsWith(".svg")) { target.src = "/LENACARS.png"; }}}
             />
@@ -297,7 +297,7 @@ export default function MainHeader() {
                   </li>
                 ))}
                 {searchTerm.trim().length > 0 && (
-                   <li className="border-t border-gray-100 mt-1 pt-1">
+                    <li className="border-t border-gray-100 mt-1 pt-1">
                     <a
                       href="#vehicle-list" 
                       onClick={(e) => { e.preventDefault(); handleSearchFormSubmit(e as any); }}
@@ -320,7 +320,7 @@ export default function MainHeader() {
                 aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> ) 
-                                 : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
+                                  : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
               </button>
             </div>
             <div className="hidden md:flex items-center space-x-3">
@@ -374,7 +374,7 @@ export default function MainHeader() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </button>
           </form>
-           {isMobile && suggestions.length > 0 && (
+            {isMobile && suggestions.length > 0 && (
               <ul className="mt-1.5 z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-250px)] overflow-y-auto py-1.5">
                 {/* ... mobil öneri listesi içeriği aynı ... */}
                  {suggestions.map((vehicle) => (
@@ -405,7 +405,7 @@ export default function MainHeader() {
                   </li>
                 ))}
                  {searchTerm.trim().length > 0 && (
-                   <li className="border-t border-gray-100 mt-1 pt-1">
+                    <li className="border-t border-gray-100 mt-1 pt-1">
                     <a
                       href="#vehicle-list" 
                       onClick={(e) => { e.preventDefault(); handleSearchFormSubmit(e as any); }}
