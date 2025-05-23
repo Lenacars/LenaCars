@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"; // Bu sayfada kullanılmıyor
 import { supabase } from "@/lib/supabase-browser";
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
+import Link from "next/link"
 import {
   ChevronLeft, ChevronRight, Star, Tag, Users, Gauge, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
   Heart, // Garaja ekle için (opsiyonel, CarFront da olabilir)
