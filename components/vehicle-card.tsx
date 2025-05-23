@@ -103,8 +103,8 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
 
   return (
     <div className="group flex flex-col w-full max-w-sm rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
-      {/* ÜST BİLGİ: Marka, Yakıt, Vites - AÇIK MAVİ ARKA PLAN, BEYAZ YAZI */}
-      <div className="flex justify-between items-center px-3 py-1.5 bg-sky-500 text-xs text-white border-b border-sky-600"> {/* AÇIK MAVİ (sky-500) OLARAK GÜNCELLENDİ */}
+      {/* ÜST BİLGİ: Marka, Yakıt, Vites - MOR ARKA PLAN, BEYAZ YAZI */}
+      <div className="flex justify-between items-center px-3 py-1.5 bg-[#6A3C96] text-xs text-white border-b border-[#58307d]">
         <span className="font-semibold truncate pr-2">{make}</span>
         <div className="flex items-center gap-x-2 shrink-0">
           <span className="flex items-center">
@@ -129,8 +129,8 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         />
       </div>
 
-      {/* Kart İçeriği */}
-      <div className="p-3 flex flex-col flex-1">
+      {/* Kart Ana İçeriği (Butonlar Hariç) */}
+      <div className="p-3 flex flex-col flex-1"> {/* flex-1 burası için önemli */}
         <div className="flex justify-between items-start mb-1.5">
           <h3 className="text-[0.9rem] font-semibold text-gray-700 leading-tight pr-2 group-hover:text-[#6A3C96]">
             {vehicleDisplayName}
@@ -144,16 +144,22 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           )}
         </div>
 
-        <div className="text-lg font-bold text-[#6A3C96] mb-2.5">
+        <div className="text-lg font-bold text-[#6A3C96] mb-2.5"> {/* Fiyat rengi mor */}
           {enDusukFiyat.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 })}
-          <span className="text-[0.7rem] font-normal text-gray-500 ml-1">/aylık + KDV</span>
+          <span className="text-[0.7rem] font-normal text-gray-500 ml-1"> + KDV / Ay</span> {/* Fiyat formatı güncellendi */}
         </div>
+        
+        {/* mt-auto bu div'i (butonları içeren) en alta itecek */}
+        <div className="mt-auto"></div>
+      </div>
 
-        {/* Butonlar */}
-        <div className="flex flex-col sm:flex-row gap-2 mt-auto">
+
+      {/* BUTON ALANI - MOR ARKA PLAN */}
+      <div className="bg-[#6A3C96] p-3">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Link
             href={`/araclar/${id}`}
-            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-[#6A3C96] text-white rounded-md hover:bg-[#58307d] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:ring-opacity-50 flex items-center justify-center"
+            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-white text-[#6A3C96] rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75 flex items-center justify-center" // Beyaz buton, mor yazı
           >
             <Info size={15} className="mr-1 sm:mr-1.5" />
             Detaylar
@@ -161,12 +167,12 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           <button
             onClick={handleAddToGarage}
             disabled={isAdding || isAdded}
-            className={`flex-1 text-center text-xs font-medium px-3 py-2 border rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-50 flex items-center justify-center min-h-[36px] ${
+            className={`flex-1 text-center text-xs font-medium px-3 py-2 border rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75 flex items-center justify-center min-h-[36px] ${
               isAdded
-                ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default"
+                ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default" // Bu stil mor zeminde iyi durabilir
                 : isAdding
-                ? "bg-gray-100 text-gray-400 border-gray-300 cursor-wait"
-                : "border-gray-300 text-gray-700 hover:border-[#6A3C96] hover:text-[#6A3C96] focus:border-[#6A3C96] focus:text-[#6A3C96] focus:ring-[#6A3C96]"
+                ? "bg-white/30 text-white/70 border-white/50 cursor-wait" // Mor zemine uygun disabled stili
+                : "border-white text-white hover:bg-white hover:text-[#6A3C96] focus:ring-white" // Beyaz çerçeve/yazı, hover'da beyaz bg/mor yazı
             }`}
           >
             {isAdded ? (
