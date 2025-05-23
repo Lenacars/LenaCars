@@ -11,6 +11,7 @@ import {
   CarFront, Loader2, CheckCircle2, ShoppingCart, CreditCard, HelpCircle, FileText, BookOpen
 } from "lucide-react";
 
+// Interface'ler
 interface Variation {
   kilometre: string;
   sure: string;
@@ -24,7 +25,7 @@ interface Comment {
   yorum: string;
   puan: number;
   created_at: string;
-  kullanici?: { ad: string; soyad:string };
+  kullanici?: { ad: string; soyad: string };
 }
 
 interface Vehicle {
@@ -50,7 +51,8 @@ interface Props {
   params: { id: string };
 }
 
-const SpecIcon = ({ iconName }: { iconName?: string }) => { // iconName opsiyonel yapıldı
+// Yardımcı İkon Bileşeni
+const SpecIcon = ({ iconName }: { iconName?: string }) => {
   switch (iconName?.toLowerCase()) {
     case "yakıt": case "yakit_turu": return <Fuel size={18} className="text-[#6A3C96]" />;
     case "vites": return <Settings2 size={18} className="text-[#6A3C96]" />;
@@ -59,7 +61,7 @@ const SpecIcon = ({ iconName }: { iconName?: string }) => { // iconName opsiyone
     case "marka": return <ShieldCheck size={18} className="text-[#6A3C96]" />;
     case "kasa tipi": case "bodytype": return <CarFront size={18} className="text-[#6A3C96]" />;
     case "durum": return <CalendarDays size={18} className="text-[#6A3C96]" />;
-    default: return <HelpCircle size={18} className="text-gray-400" />; // Varsayılan ikon
+    default: return <HelpCircle size={18} className="text-gray-400" />;
   }
 };
 
@@ -69,41 +71,46 @@ export default function Page({ params }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [session, setSession] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedKm, setSelectedKm] = useState("");
-  const [selectedSure, setSelectedSure] = useState("");
-  const [newComment, setNewComment] = useState("");
-  const [newRating, setNewRating] = useState(5);
-  const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState(false);
-  const [isVehicleAddedToGarage, setIsVehicleAddedToGarage] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedKm, setSelectedKm] = useState<string>("");
+  const [selectedSure, setSelectedSure] = useState<string>("");
+  const [newComment, setNewComment] = useState<string>("");
+  const [newRating, setNewRating] = useState<number>(5);
+  const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState<boolean>(false);
+  const [isVehicleAddedToGarage, setIsVehicleAddedToGarage] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const { data: aracData } = await supabase
+      const { data: aracData, error: aracError } = await supabase
         .from("Araclar")
         .select("*")
         .eq("id", params.id)
         .maybeSingle();
 
+      if (aracError) throw aracError;
+
       if (aracData) {
         const arac = aracData as Vehicle;
         setVehicle(arac);
 
-        const { data: varData } = await supabase
+        const { data: varData, error: varError } = await supabase
           .from("variations")
           .select("*")
           .eq("arac_id", params.id);
+        if (varError) throw varError;
         setVariations(varData || []);
 
-        const { data: yorumlar } = await supabase
+        const { data: yorumlar, error: yorumError } = await supabase
           .from("yorumlar")
           .select("*, kullanici:kullanicilar(ad,soyad)")
           .eq("arac_id", params.id)
           .order("created_at", { ascending: false });
+        if (yorumError) throw yorumError;
         setComments(yorumlar || []);
 
-        const { data: sessionDataVal } = await supabase.auth.getSession();
+        const { data: sessionDataVal, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
         setSession(sessionDataVal.session);
 
         const aktif = (varData || []).filter(v => v.status === "Aktif");
@@ -120,10 +127,10 @@ export default function Page({ params }: Props) {
           : "/placeholder.svg";
         setSelectedImage(initialImage);
 
-        if (sessionDataVal.session?.user?.id && arac) { // arac null kontrolü eklendi
+        if (sessionDataVal.session?.user?.id && arac) {
           await checkIfInGarage(sessionDataVal.session.user.id, arac.id);
-        } else if (arac) { // arac null kontrolü eklendi
-          const storedGarage = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
+        } else if (arac) {
+          const storedGarage = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
           if (storedGarage.includes(arac.id)) {
             setIsVehicleAddedToGarage(true);
           }
@@ -134,13 +141,19 @@ export default function Page({ params }: Props) {
     } catch (error) {
         console.error("Fetch data error:", error);
         setVehicle(null);
+        toast({title: "Veri Yükleme Hatası", description: "Araç bilgileri yüklenirken bir sorun oluştu.", variant: "destructive"});
     } finally {
         setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if(params.id) fetchData();
+    if (params.id) {
+      fetchData();
+    } else {
+      setIsLoading(false);
+      setVehicle(null); // ID yoksa aracı null yap
+    }
   }, [params.id]);
 
   const handleAddComment = async () => {
@@ -158,14 +171,18 @@ export default function Page({ params }: Props) {
     if (!error) {
       toast({ title: "Yorum Eklendi" });
       setNewComment(""); setNewRating(5);
-      fetchData();
+      await fetchData(); // Veriyi yeniden çekerek yorumları güncelle
     } else {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     }
   };
 
   const checkIfInGarage = async (userId: string, vehicleId: string) => {
-    const { data: existing } = await supabase.from("garaj").select("id").eq("user_id", userId).eq("arac_id", vehicleId).maybeSingle();
+    const { data: existing, error } = await supabase.from("garaj").select("id").eq("user_id", userId).eq("arac_id", vehicleId).maybeSingle();
+    if (error) {
+        console.error("Error checking garage status:", error);
+        return;
+    }
     setIsVehicleAddedToGarage(!!existing);
   };
 
@@ -179,7 +196,8 @@ export default function Page({ params }: Props) {
         if (isVehicleAddedToGarage) {
           toast({ title: "Zaten Garajda" }); 
         } else {
-          await supabase.from("garaj").insert([{ user_id: userId, arac_id: vehicle.id }]);
+          const {error} = await supabase.from("garaj").insert([{ user_id: userId, arac_id: vehicle.id }]);
+          if (error) throw error;
           toast({ title: "Garaja Eklendi" });
           setIsVehicleAddedToGarage(true);
         }
@@ -201,7 +219,7 @@ export default function Page({ params }: Props) {
       setIsVehicleAddingToGarage(false);
     }
   };
-
+  
   const activeVariations = variations.filter(v => v.status === "Aktif");
   const availableKms = [...new Set(activeVariations.map(v => v.kilometre))].sort((a, b) => parseInt(a) - parseInt(b));
   const availableSures = [...new Set(activeVariations.map(v => v.sure))].sort((a,b) => parseInt(a.split(" ")[0]) - parseInt(b.split(" ")[0]));
@@ -209,8 +227,10 @@ export default function Page({ params }: Props) {
   const lowestPriceFromVariations = activeVariations.length > 0 ? Math.min(...activeVariations.map(v => v.fiyat)) : null;
   const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle?.fiyat ?? null;
   
-  const gallery = vehicle ? [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(Boolean) as string[] : [];
+  const gallery = vehicle ? [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(imgKey => typeof imgKey === 'string' && imgKey.trim() !== '') as string[] : [];
   
+  const vehicleDisplayName = vehicle && year ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${year}`)) : vehicle?.isim;
+
   const keySpecs = vehicle ? [
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
     { label: "Yakıt", value: vehicle.yakit_turu, iconName: "yakit_turu" },
@@ -232,9 +252,18 @@ export default function Page({ params }: Props) {
     toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
   };
 
-  if (isLoading) return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Yükleniyor...</div>;
-  if (!vehicle) return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">Araç bilgileri bulunamadı veya yüklenirken bir sorun oluştu.</div>;
+  // ----- JavaScript Kodu Bitişi ----- //
+  // ----- JSX Başlangıcı (Loglarda hata veren bölümden hemen önce)----- //
 
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Yükleniyor...</div>;
+  }
+  
+  if (!vehicle) {
+    return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">Araç bilgileri bulunamadı veya yüklenirken bir sorun oluştu.</div>;
+  }
+
+  // Burası loglarda 238. satıra denk gelen return ifadesi olmalı
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -243,7 +272,7 @@ export default function Page({ params }: Props) {
           <span className="mx-2">/</span>
           <Link href="/araclar" className="hover:text-[#6A3C96]">Kiralık Araçlar</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-700">{vehicle.brand} {vehicle.isim.replace(vehicle.brand || "", "").trim()}</span>
+          <span className="text-gray-700">{vehicle.brand} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}</span>
         </nav>
 
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
@@ -260,17 +289,17 @@ export default function Page({ params }: Props) {
                 <div className="flex overflow-x-auto space-x-2 p-3 bg-gray-50 border-t border-gray-200">
                     {gallery.map((imgKey, i) => (
                     <button 
-                        key={i} 
-                        onClick={() => setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`)}
-                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey.replace(/^\/+/, "")) ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`}
+                        key={imgKey || i} // imgKey null olabileceği için i ile fallback
+                        onClick={() => imgKey && setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`)}
+                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey?.replace(/^\/+/, "") || '###') ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`}
                     >
-                        <Image 
+                        {imgKey && <Image 
                         src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`} 
                         alt={`Araç küçük görsel ${i + 1}`} 
                         width={80} 
                         height={80} 
                         className="object-cover w-full h-full" 
-                        />
+                        />}
                     </button>
                     ))}
                 </div>
@@ -422,7 +451,7 @@ export default function Page({ params }: Props) {
                         <div className="flex space-x-1">
                             {[5, 4, 3, 2, 1].map((r) => (
                                 <button key={r} onClick={() => setNewRating(r)} className={`p-1.5 rounded-full transition-colors ${newRating === r ? 'bg-[#6A3C96] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
-                                    <Star size={18} className={newRating === r ? "fill-white" : "fill-transparent stroke-current"}/> {/* Düzeltilmiş yıldız stili */}
+                                    <Star size={18} className={newRating === r ? "fill-white" : "fill-transparent stroke-current"}/>
                                 </button>
                             ))}
                         </div>
@@ -445,7 +474,7 @@ export default function Page({ params }: Props) {
         </section>
       </div>
 
-      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg z-40">
+      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg z-40"> {/* shadow-lg yerine shadow-top-md olabilir veya custom */}
         <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 text-left">
                 <div className="text-[#6A3C96] text-lg font-bold leading-tight">
@@ -464,4 +493,4 @@ export default function Page({ params }: Props) {
       </div>
     </div>
   );
-}
+} // Page component'inin kapanış parantezi
