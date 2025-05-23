@@ -155,7 +155,7 @@ export default function Page({ params }: Props) {
     if (!error) {
       toast({ title: "Yorum Eklendi" });
       setNewComment(""); setNewRating(5);
-      await fetchData(); // Yorum eklendikten sonra verileri yeniden çekerek yorum listesini günceller
+      await fetchData();
     } else {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     }
@@ -178,7 +178,7 @@ export default function Page({ params }: Props) {
           toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` });
           setIsVehicleAddedToGarage(true);
         }
-      } else { // Misafir kullanıcı
+      } else { 
         let stored: string[] = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
         if (isVehicleAddedToGarage) {
           stored = stored.filter(id => id !== vehicle.id);
@@ -199,10 +199,10 @@ export default function Page({ params }: Props) {
     }
   };
   
-  if (isLoading) {
+  if (isLoading) { 
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin text-[#6A3C96]" /> Yükleniyor...</div>;
   }
-  if (!vehicle) {
+  if (!vehicle) { 
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">
             <p className="text-red-500 font-semibold mb-2">Araç Bilgisi Bulunamadı!</p>
@@ -228,8 +228,8 @@ export default function Page({ params }: Props) {
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
     { label: "Yakıt", value: vehicle.yakit_turu, iconName: "yakit_turu" },
     { label: "Kapasite", value: vehicle.kisi_kapasitesi || "N/A", iconName: "kisi_kapasitesi" },
-    { label: "Segment", value: vehicle.segment, iconName: "segment" },
-    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"},
+    { label: "Segment", value: vehicle.segment, iconName: "segment" }, 
+    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"}, 
   ].filter(spec => spec.value && spec.value !== "N/A");
 
   const allSpecs = [ 
@@ -443,7 +443,7 @@ export default function Page({ params }: Props) {
                         <div className="flex space-x-1">
                             {[5, 4, 3, 2, 1].map((r) => (
                                 <button 
-      _CLIENT_PROJECT_MODIFIED_                                        key={r} 
+                                    key={r} 
                                     onClick={() => setNewRating(r)} 
                                     title={`${r} Yıldız`}
                                     className={`p-2 rounded-full transition-all duration-150 ease-in-out transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 ${newRating === r ? 'bg-[#6A3C96] text-yellow-400 shadow-md focus:ring-[#58307d]' : 'bg-gray-200 text-gray-500 hover:bg-gray-300 focus:ring-gray-400'}`}
