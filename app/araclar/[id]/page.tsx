@@ -239,16 +239,18 @@ export default function Page({ params }: Props) {
   ].filter(spec => spec.value);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Breadcrumbs */}
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/" className="hover:text-[#6A3C96] transition-colors">Ana Sayfa</Link>
-          <span className="mx-2">/</span>
-          <Link href="/araclar" className="hover:text-[#6A3C96] transition-colors">Kiralık Araçlar</Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-700 font-medium">{vehicle.brand || ""} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}</span>
-        </nav>
+  <div className="bg-gray-50 min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Breadcrumbs */}
+      <nav className="mb-6 text-sm text-gray-500">
+        <Link href="/" className="hover:text-[#6A3C96] transition-colors">Ana Sayfa</Link>
+        <span className="mx-2">/</span>
+        <Link href="/araclar" className="hover:text-[#6A3C96] transition-colors">Kiralık Araçlar</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-700 font-medium">
+          {vehicle.brand || ""} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}
+        </span>
+      </nav>
 
         {/* Ana İçerik Kartı */}
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
