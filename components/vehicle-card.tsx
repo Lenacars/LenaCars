@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Fuel, Settings2, Info, CarFront, Loader2, CheckCircle2 } from "lucide-react"; // Car yerine CarFront eklendi/değiştirildi
+import { Star, Fuel, Settings2, Info, CarFront, Loader2, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase-browser";
@@ -102,7 +102,8 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
   const vehicleDisplayName = year ? name.substring(0, name.lastIndexOf(` - ${year}`)) : name;
 
   return (
-    <div className="group flex flex-col w-full max-w-sm rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
+    // DEĞİŞİKLİK: w-full ve max-w-sm kaldırıldı. Kartın genişliği artık ebeveyn konteyner tarafından belirlenecek.
+    <div className="group flex flex-col rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden h-full"> {/* h-full eklendi, eğer kartların yüksekliklerinin eşit olması istenirse */}
       {/* ÜST BİLGİ: Marka, Yakıt, Vites - MOR ARKA PLAN, BEYAZ YAZI */}
       <div className="flex justify-between items-center px-3 py-1.5 bg-[#6A3C96] text-xs text-white border-b border-[#58307d]">
         <span className="font-semibold truncate pr-2">{make}</span>
@@ -124,7 +125,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           src={imageUrl}
           alt={name}
           fill
-          sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 25vw"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Bu sizes prop'unu ebeveyn grid yapınıza göre optimize edin
           className="object-contain p-2 transition-transform duration-300 ease-in-out group-hover:scale-105"
         />
       </div>
@@ -149,7 +150,8 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           <span className="text-[0.7rem] font-normal text-gray-500 ml-1"> + KDV / Ay</span>
         </div>
         
-        <div className="mt-auto"></div> {/* Bu div butonları aşağı iter */}
+        {/* Bu div, butonların her zaman en altta kalmasını sağlar, içerik ne kadar olursa olsun */}
+        <div className="mt-auto"></div>
       </div>
 
       {/* BUTON ALANI - MOR ARKA PLAN */}
@@ -185,7 +187,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
               </>
             ) : (
               <>
-                <CarFront size={15} className="mr-1 sm:mr-1.5" /> {/* DEĞİŞİKLİK BURADA: CarFront ikonu kullanıldı */}
+                <CarFront size={15} className="mr-1 sm:mr-1.5" />
                 Garaja Ekle
               </>
             )}
