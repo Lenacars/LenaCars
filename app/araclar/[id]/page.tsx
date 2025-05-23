@@ -7,11 +7,11 @@ import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import {
-  ChevronLeft, ChevronRight, Star, Users, Gauge, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
-  CarFront, Loader2, CheckCircle2, ShoppingCart, CreditCard, HelpCircle, FileText, BookOpen
-} from "lucide-react";
+  Star, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
+  CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText
+} from "lucide-react"; // Info ve diğer kullanılmayanları çıkardım, siz ekleyebilirsiniz.
 
-// Interface'ler (önceki gibi)
+// Interface'ler
 interface Variation {
   kilometre: string;
   sure: string;
@@ -51,12 +51,12 @@ interface Props {
   params: { id: string };
 }
 
-// Yardımcı İkon Bileşeni (önceki gibi)
+// Yardımcı İkon Bileşeni
 const SpecIcon = ({ iconName }: { iconName?: string }) => {
   switch (iconName?.toLowerCase()) {
     case "yakıt": case "yakit_turu": return <Fuel size={18} className="text-[#6A3C96]" />;
     case "vites": return <Settings2 size={18} className="text-[#6A3C96]" />;
-    case "kapasite": case "kisi_kapasitesi": return <Users size={18} className="text-[#6A3C96]" />;
+    case "kapasite": case "kisi_kapasitesi": return <Users size={18} className="text-[#6A3C96]" />; // Users ikonu import edilmeli
     case "segment": return <Package size={18} className="text-[#6A3C96]" />;
     case "marka": return <ShieldCheck size={18} className="text-[#6A3C96]" />;
     case "kasa tipi": case "bodytype": return <CarFront size={18} className="text-[#6A3C96]" />;
@@ -69,7 +69,7 @@ export default function Page({ params }: Props) {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<any>(null); // Supabase session tipi kullanılabilir
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedKm, setSelectedKm] = useState<string>("");
   const [selectedSure, setSelectedSure] = useState<string>("");
@@ -82,12 +82,18 @@ export default function Page({ params }: Props) {
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      if (!params.id) {
+        console.error("Araç ID bulunamadı.");
+        setVehicle(null);
+        setIsLoading(false);
+        return;
+      }
+
       const { data: aracData, error: aracError } = await supabase
         .from("Araclar")
         .select("*")
         .eq("id", params.id)
         .maybeSingle();
-
       if (aracError) throw aracError;
 
       if (aracData) {
@@ -137,23 +143,20 @@ export default function Page({ params }: Props) {
         }
       } else {
         setVehicle(null);
+        toast({title: "Araç Bulunamadı", description: "Belirtilen araç mevcut değil.", variant: "destructive"});
       }
     } catch (error) {
-        console.error("Fetch data error:", error);
+        const specificError = error as Error;
+        console.error("Fetch data error:", specificError);
         setVehicle(null);
-        toast({title: "Veri Yükleme Hatası", description: "Araç bilgileri yüklenirken bir sorun oluştu.", variant: "destructive"});
+        toast({title: "Veri Yükleme Hatası", description: `Araç bilgileri yüklenirken bir sorun oluştu: ${specificError.message}`, variant: "destructive"});
     } finally {
         setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (params.id) {
-      fetchData();
-    } else {
-      setIsLoading(false);
-      setVehicle(null);
-    }
+    fetchData();
   }, [params.id]);
 
   const handleAddComment = async () => {
@@ -171,7 +174,7 @@ export default function Page({ params }: Props) {
     if (!error) {
       toast({ title: "Yorum Eklendi" });
       setNewComment(""); setNewRating(5);
-      await fetchData();
+      await fetchData(); 
     } else {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     }
@@ -220,13 +223,11 @@ export default function Page({ params }: Props) {
     }
   };
   
-  // Bu değişkenler vehicle null değilken tanımlanmalı.
-  // isLoading ve !vehicle kontrollerinden sonraya taşıyacağız veya burada null check yapacağız.
-  // Şimdilik fonksiyonun sonunda, return'den hemen önceye taşıyalım.
-
   const handleRentNow = () => {
     toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
   };
+
+  // ----- JSX için veriler burada, isLoading ve !vehicle kontrollerinden sonra hesaplanacak -----
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Yükleniyor...</div>;
@@ -242,11 +243,10 @@ export default function Page({ params }: Props) {
   const availableSures = [...new Set(activeVariations.map(v => v.sure))].sort((a,b) => parseInt(a.split(" ")[0]) - parseInt(b.split(" ")[0]));
   const matchedVariation = activeVariations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
   const lowestPriceFromVariations = activeVariations.length > 0 ? Math.min(...activeVariations.map(v => v.fiyat)) : null;
-  const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle.fiyat ?? null; // vehicle.fiyat burada kesin var.
+  const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle.fiyat ?? null;
   
   const gallery = [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(imgKey => typeof imgKey === 'string' && imgKey.trim() !== '') as string[];
   
-  // DÜZELTME: `year` ve `vehicleDisplayName` burada tanımlanacak.
   const localYear = vehicle.isim.includes(" - ") ? vehicle.isim.split(" - ").pop()?.trim() : undefined;
   const vehicleDisplayName = localYear 
     ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${localYear}`)) 
@@ -269,7 +269,7 @@ export default function Page({ params }: Props) {
     { label: "Durum", value: vehicle.durum, iconName: "durum" },
   ].filter(spec => spec.value);
 
-
+  // ----- ANA RETURN BAŞLANGICI ----- //
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -278,7 +278,6 @@ export default function Page({ params }: Props) {
           <span className="mx-2">/</span>
           <Link href="/araclar" className="hover:text-[#6A3C96]">Kiralık Araçlar</Link>
           <span className="mx-2">/</span>
-          {/* vehicle.brand null olabilir, kontrol ekleyelim */}
           <span className="text-gray-700">{vehicle.brand || ""} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}</span>
         </nav>
 
@@ -314,10 +313,9 @@ export default function Page({ params }: Props) {
             </div>
 
             <div className="lg:col-span-2 p-6 flex flex-col bg-white">
-                {/* vehicleDisplayName ve localYear JSX içinde kullanılacak */}
                 <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
                     {vehicleDisplayName}
-                    {localYear && <span className="text-lg text-gray-500 font-normal ml-2">{`- ${localYear}`}</span>}
+                    {localYear && <span className="text-lg text-gray-500 font-normal ml-1">{`- ${localYear}`}</span>}
                 </h1>
                 {vehicle.kisa_aciklama && <p className="text-sm text-gray-600 mt-2 mb-4">{vehicle.kisa_aciklama}</p>}
 
