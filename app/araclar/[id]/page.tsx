@@ -8,10 +8,11 @@ import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
 import {
   Star, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
-  CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText, Users, Barcode, Home, Warehouse // Yeni ikonlar
+  CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText, Users, 
+  Home, Warehouse, QrCode // Barcode yerine QrCode eklendi, Home ve Warehouse eklendi
 } from "lucide-react";
 
-// Interface'ler
+// Interface'ler (önceki gibi)
 interface Variation {
   kilometre: string;
   sure: string;
@@ -61,7 +62,7 @@ const SpecIcon = ({ iconName }: { iconName?: string }) => {
     case "marka": return <ShieldCheck size={16} className="text-gray-600" />;
     case "kasa tipi": case "bodytype": return <CarFront size={16} className="text-gray-600" />;
     case "durum": return <CalendarDays size={16} className="text-gray-600" />;
-    case "stok_kodu": return <Barcode size={16} className="text-gray-600" />;
+    case "stok_kodu": return <QrCode size={16} className="text-gray-600" />; // Stok kodu için QrCode ikonu
     default: return <HelpCircle size={16} className="text-gray-500" />;
   }
 };
@@ -76,25 +77,22 @@ export default function Page({ params }: Props) {
   const [selectedSure, setSelectedSure] = useState<string>("");
   const [newComment, setNewComment] = useState<string>("");
   const [newRating, setNewRating] = useState<number>(5);
-  // const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState<boolean>(false); // Bu buton kaldırıldığı için şimdilik yorumda
-  // const [isVehicleAddedToGarage, setIsVehicleAddedToGarage] = useState<boolean>(false); // Bu buton kaldırıldığı için şimdilik yorumda
+  const [isVehicleAddingToGarage, setIsVehicleAddingToGarage] = useState<boolean>(false); // Geri eklendi
+  const [isVehicleAddedToGarage, setIsVehicleAddedToGarage] = useState<boolean>(false); // Geri eklendi
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  /* // Bu buton kaldırıldığı için şimdilik yorumda
-  const checkIfInGarage = async (userId: string, vehicleId: string) => {
+  const checkIfInGarage = async (userId: string, vehicleId: string) => { // Geri eklendi
     try {
       const { data: existing, error } = await supabase.from("garaj").select("id").eq("user_id", userId).eq("arac_id", vehicleId).maybeSingle();
       if (error) { console.error("Garaj durumu kontrol hatası:", error); return; }
       setIsVehicleAddedToGarage(!!existing);
     } catch (checkError) { console.error("checkIfInGarage genel hata:", checkError); }
   };
-  */
   
   const fetchData = async () => {
     setIsLoading(true);
     setVehicle(null); setVariations([]); setComments([]); setSelectedImage(null);
-    setSelectedKm(""); setSelectedSure(""); 
-    // setIsVehicleAddedToGarage(false); // Şimdilik yorumda
+    setSelectedKm(""); setSelectedSure(""); setIsVehicleAddedToGarage(false); // Geri eklendi
 
     try {
       if (!params.id) {
@@ -124,13 +122,12 @@ export default function Page({ params }: Props) {
         const initialImage = arac.cover_image ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image.replace(/^\/+/, "")}` : "/placeholder.svg";
         setSelectedImage(initialImage);
         
-        // Garaj durumu kontrolü şimdilik kaldırıldı
-        // if (sessionDataVal.session?.user?.id && arac) {
-        //   await checkIfInGarage(sessionDataVal.session.user.id, arac.id);
-        // } else if (arac) {
-        //   const storedGarage = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
-        //   if (storedGarage.includes(arac.id)) setIsVehicleAddedToGarage(true);
-        // }
+        if (sessionDataVal.session?.user?.id && arac) { // Garaj durumu kontrolü geri eklendi
+          await checkIfInGarage(sessionDataVal.session.user.id, arac.id);
+        } else if (arac) {
+          const storedGarage = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
+          if (storedGarage.includes(arac.id)) setIsVehicleAddedToGarage(true);
+        }
       } else {
         setVehicle(null); toast({title: "Araç Bulunamadı", variant: "destructive"});
       }
@@ -148,7 +145,7 @@ export default function Page({ params }: Props) {
   }, [params.id]);
 
   const handleAddComment = async () => {
-    // ... (Yorum ekleme mantığı aynı kalacak)
+    // ... (Yorum ekleme mantığı aynı) ...
     if (!session?.user) {
       toast({ title: "Giriş Yapmalısınız", description: "Yorum yapabilmek için giriş yapınız." }); return;
     }
@@ -165,25 +162,30 @@ export default function Page({ params }: Props) {
     }
   };
 
-  /* // Bu buton kaldırıldığı için şimdilik yorumda
-  const handleVehicleToggleGarage = async () => {
+  const handleVehicleToggleGarage = async () => { // Fonksiyon geri eklendi
     if (!vehicle) return;
     setIsVehicleAddingToGarage(true);
     const userId = session?.user?.id;
     try {
       if (userId) {
         if (isVehicleAddedToGarage) {
-          toast({ title: "Zaten Garajda" }); 
+          // Çıkarma mantığı eklenebilir veya sadece "Zaten Garajda" denilebilir
+          const { error } = await supabase.from("garaj").delete().match({ user_id: userId, arac_id: vehicle.id });
+          if (error) throw error;
+          toast({ title: "Garajdan Çıkarıldı", description: `${vehicle.isim} garajınızdan çıkarıldı.` });
+          setIsVehicleAddedToGarage(false);
         } else {
           const {error} = await supabase.from("garaj").insert([{ user_id: userId, arac_id: vehicle.id }]);
           if (error) throw error;
           toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` });
           setIsVehicleAddedToGarage(true);
         }
-      } else {
+      } else { // Misafir kullanıcı
         let stored: string[] = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
         if (isVehicleAddedToGarage) {
-           toast({ title: "Zaten Garajda" });
+          stored = stored.filter(id => id !== vehicle.id);
+          toast({ title: "Garajdan Çıkarıldı", description: `${vehicle.isim} garajınızdan çıkarıldı.` });
+          setIsVehicleAddedToGarage(false);
         } else {
           if (!stored.includes(vehicle.id)) stored.push(vehicle.id);
           toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` });
@@ -198,19 +200,13 @@ export default function Page({ params }: Props) {
       setIsVehicleAddingToGarage(false);
     }
   };
-  */
   
-  // handleRentNow fonksiyonu artık direkt kullanılmayacak, butonlar Link olacak.
-  // const handleRentNow = () => {
-  //   toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
-  // };
+  // handleRentNow fonksiyonu kaldırıldı, yerine direkt Link componentleri kullanılacak.
 
-
-  if (isLoading) {
+  if (isLoading) { /* ... (isLoading içeriği aynı) ... */ 
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin text-[#6A3C96]" /> Yükleniyor...</div>;
   }
-  
-  if (!vehicle) {
+  if (!vehicle) { /* ... (!vehicle içeriği aynı) ... */
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">
             <p className="text-red-500 font-semibold mb-2">Araç Bilgisi Bulunamadı!</p>
@@ -232,23 +228,22 @@ export default function Page({ params }: Props) {
   const localYear = vehicle.isim.includes(" - ") ? vehicle.isim.split(" - ").pop()?.trim() : undefined;
   const vehicleDisplayName = localYear ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${localYear}`)) : vehicle.isim;
 
-  // GÜNCELLENMİŞ keySpecs: Vites, Yakıt, Kapasite, Segment, Stok Kodu
   const keySpecs = [
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
     { label: "Yakıt", value: vehicle.yakit_turu, iconName: "yakit_turu" },
     { label: "Kapasite", value: vehicle.kisi_kapasitesi || "N/A", iconName: "kisi_kapasitesi" },
-    { label: "Segment", value: vehicle.segment, iconName: "segment" },
-    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"},
+    { label: "Segment", value: vehicle.segment, iconName: "segment" }, // EKLENDİ
+    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"}, // EKLENDİ
   ].filter(spec => spec.value && spec.value !== "N/A");
 
-  const allSpecs = [ /* ... (allSpecs tanımı önceki gibi kalabilir) ... */ 
+  const allSpecs = [ 
     { label: "Marka", value: vehicle.brand, iconName: "marka" },
     { label: "Segment", value: vehicle.segment, iconName: "segment" },
     { label: "Yakıt Türü", value: vehicle.yakit_turu, iconName: "yakit_turu" },
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
     { label: "Kasa Tipi", value: vehicle.bodyType, iconName: "bodyType" },
     { label: "Kişi Kapasitesi", value: vehicle.kisi_kapasitesi, iconName: "kisi_kapasitesi"},
-    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"}, // Stok kodu için SpecIcon'da case ekledik
+    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"},
     { label: "Durum", value: vehicle.durum, iconName: "durum" },
   ].filter(spec => spec.value);
 
@@ -269,6 +264,7 @@ export default function Page({ params }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
             {/* Sol Sütun: Görseller (önceki gibi) */}
             <div className="lg:col-span-3">
+                {/* ... (Görsel galeri JSX'i aynı) ... */}
                 <div className="relative w-full aspect-[16/10] bg-gray-100 group overflow-hidden">
                 {selectedImage ? (
                     <Image 
@@ -309,19 +305,19 @@ export default function Page({ params }: Props) {
 
                 {/* GÜNCELLENMİŞ Öne Çıkan Temel Özellikler */}
                 {keySpecs.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-2 text-xs sm:text-sm text-gray-700 my-4 py-3 border-t border-b border-gray-200">
+                    <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-700 my-4 py-3 border-t border-b border-gray-200">
                         {keySpecs.map(spec => (
                             <div key={spec.label} className="flex items-center" title={spec.label}>
                                 <SpecIcon iconName={spec.iconName} />
-                                <span className="ml-1.5 font-medium">{spec.value}</span>
+                                <span className="ml-1 font-medium">{spec.value}</span> {/* ml-1.5 yerine ml-1 */}
                             </div>
                         ))}
                     </div>
                 )}
 
                 {/* Varyasyon Seçiciler (önceki gibi) */}
-                {activeVariations.length > 0 && (
-                <>
+                {activeVariations.length > 0 && ( /* ... (Varyasyon JSX'i aynı) ... */ 
+                  <>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5">
                         <div>
                             <label htmlFor="kmSelect" className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">KM Limiti</label>
@@ -338,11 +334,12 @@ export default function Page({ params }: Props) {
                             </select>
                         </div>
                     </div>
-                </>
+                  </>
                 )}
                 
                 {/* Fiyat Alanı (önceki gibi) */}
                 <div className="my-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow">
+                   {/* ... (Fiyat JSX'i aynı) ... */}
                     <div className="text-gray-700 text-sm font-medium mb-1">Aylık Kiralama Bedeli:</div>
                     <div className="text-[#6A3C96] text-3xl lg:text-4xl font-extrabold">
                         {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : (activeVariations.length > 0 ? "Seçim Yapınız" : "Fiyat Bilgisi Yok")}
@@ -353,19 +350,35 @@ export default function Page({ params }: Props) {
                 {/* GÜNCELLENMİŞ Buton Alanı */}
                 <div className="mt-auto space-y-3 pt-4"> 
                     <Link
-                        href="/araclar" // Anasayfaya yönlendirecek
-                        className="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out transform hover:scale-[1.02]"
+                        href="/araclar" // Tüm araçlar sayfasına (veya ana sayfa ise '/')
+                        className="w-full flex items-center justify-center px-6 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
                     >
-                        <Home size={20} className="mr-2.5"/> {/* Araçları Gör ikonu */}
-                        Araçları Gör
+                        <CarFront size={18} className="mr-2"/> {/* Veya Home ikonu */}
+                        Tüm Araçları Gör
                     </Link>
                     <Link
-                        href="/garaj" // Garaj sayfasına yönlendirecek
-                        className="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-semibold text-[#6A3C96] bg-white hover:bg-gray-50 hover:border-[#6A3C96] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out transform hover:scale-[1.02]"
+                        href="/garaj" 
+                        className="w-full flex items-center justify-center px-6 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-semibold text-[#6A3C96] bg-white hover:bg-gray-50 hover:border-[#6A3C96] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
                     >
-                        <Warehouse size={20} className="mr-2.5"/> {/* Garaja Git ikonu */}
+                        <Warehouse size={18} className="mr-2"/> 
                         Garaja Git 
                     </Link>
+                    <button 
+                        onClick={handleVehicleToggleGarage} // Geri eklendi
+                        disabled={isVehicleAddingToGarage}  // isVehicleAddedToGarage durumu da eklenebilir
+                        className={`w-full flex items-center justify-center px-6 py-2.5 border rounded-lg shadow-sm text-sm font-semibold transition-all duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#4A5568] ${ // Odak rengi nötr
+                            isVehicleAddedToGarage 
+                                ? "bg-green-50 text-green-700 border-green-300 hover:bg-green-100 cursor-default" 
+                                : isVehicleAddingToGarage 
+                                    ? "bg-gray-100 text-gray-400 border-gray-300 cursor-wait" 
+                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                        }`}
+                    >
+                        {isVehicleAddedToGarage ? ( <CheckCircle2 size={18} className="mr-2"/> ) 
+                        : isVehicleAddingToGarage ? ( <Loader2 size={18} className="mr-2 animate-spin"/> ) 
+                        : ( <CarFront size={18} className="mr-2"/> )} {/* Buradaki ikon CarFront olarak kalmış, isterseniz Heart vs. olabilir */}
+                        {isVehicleAddedToGarage ? "Garajda" : isVehicleAddingToGarage ? "Ekleniyor..." : "Garaja Ekle"}
+                    </button>
                 </div>
             </div>
             </div>
@@ -373,6 +386,7 @@ export default function Page({ params }: Props) {
 
       {/* DETAYLI BİLGİ BÖLÜMLERİ (Teknik Özellikler, Açıklama, Yorumlar) - Önceki gibi */}
       <div className="mt-8 sm:mt-10 bg-white shadow-xl rounded-lg p-6 sm:p-8">
+        {/* ... (Teknik Özellikler JSX'i aynı) ... */}
         <section id="teknik-ozellikler" className="mb-10">
             <h2 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-200 flex items-center">
                 <Settings2 size={22} className="mr-3 text-[#6A3C96]" /> Teknik Özellikler
@@ -391,8 +405,8 @@ export default function Page({ params }: Props) {
                 </div>
             ) : <p className="text-gray-600">Bu araç için detaylı teknik özellik girilmemiş.</p>}
         </section>
-
-        {vehicle.aciklama && ( /* ... (Açıklama bölümü aynı) ... */
+        {/* ... (Açıklama JSX'i aynı) ... */}
+        {vehicle.aciklama && (
             <section id="aciklama" className="mb-10 pt-6 border-t border-gray-200">
             <h2 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-200 flex items-center">
                 <FileText size={22} className="mr-3 text-[#6A3C96]" /> Araç Açıklaması
@@ -400,9 +414,8 @@ export default function Page({ params }: Props) {
             <div className="text-gray-700 prose prose-sm sm:prose-base max-w-none leading-relaxed" dangerouslySetInnerHTML={{ __html: vehicle.aciklama }} />
             </section>
         )}
-
+        {/* ... (Yorumlar ve Yorum Formu JSX'i aynı) ... */}
         <section id="degerlendirmeler" className="pt-6 border-t border-gray-200">
-            {/* ... (Yorumlar ve Yorum Formu bölümü aynı) ... */}
             <h2 className="text-xl lg:text-2xl font-semibold text-gray-900 mb-6 pb-3 border-b border-gray-200 flex items-center">
                 <MessageCircle size={22} className="mr-3 text-[#6A3C96]" /> Değerlendirmeler ({comments.length})
             </h2>
@@ -468,9 +481,23 @@ export default function Page({ params }: Props) {
         </section>
       </div>
 
-      {/* MOBİL İÇİN SABİT EYLEM ÇUBUĞU ŞİMDİLİK KALDIRILDI, isteğe göre eklenebilir */}
-      {/* <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] z-50">
-        // Buraya yeni butonlara göre bir mobil CTA düzenlemesi gelebilir
+      {/* Mobil için sabit eylem çubuğu şimdilik yorumda, isterseniz açıp düzenleyebiliriz.
+      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] z-50">
+        <div className="flex items-center justify-between gap-3">
+            <div className="flex-shrink-0 text-left">
+                <div className="text-[#6A3C96] text-xl font-bold leading-tight">
+                    {typeof displayPrice === "number" ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
+                </div>
+                <div className="text-xs text-gray-500 -mt-0.5">/ Ay + KDV</div>
+            </div>
+            <Link // VEYA BUTON
+                href="/araclar" // VEYA /garaj
+                className="w-auto flex-grow flex items-center justify-center px-4 py-3 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96] transition-colors"
+            >
+                <Home size={18} className="mr-2"/> // VEYA Warehouse
+                Araçları Gör
+            </Link>
+        </div>
       </div>
       */}
     </div>
