@@ -1,272 +1,171 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Araç Kiralama Kartları</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif; /* Görseldeki fonta benzer genel bir font */
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Kartları yukarıdan başlat */
-            flex-wrap: wrap; /* Birden fazla kart sığmazsa alt satıra geçir */
-        }
+// components/VehicleCard.tsx
+"use client";
 
-        .vehicle-card-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px; /* Kartlar arası boşluk */
-            justify-content: center;
-        }
+import Image from "next/image";
+import Link from "next/link";
+import { Star, Info, Fuel, Users, Settings2, Tag, Heart, Loader2, CheckCircle2 } from "lucide-react"; // İkonları güncelledik
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast"; // toast importu korunuyor
+import { supabase } from "@/lib/supabase-browser"; // supabase importu korunuyor
 
-        .vehicle-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 320px; /* Görseldeki kart genişliğine benzer */
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            transition: transform 0.2s ease-in-out;
-        }
+interface Variation {
+  fiyat: number;
+  status: string;
+}
 
-        .vehicle-card:hover {
-            transform: translateY(-5px);
-        }
+// Yeni tasarım için eksik olabilecek veya farklılaşacak propları ekliyoruz/güncelliyoruz
+interface VehicleCardProps {
+  vehicle: {
+    id: string;
+    name: string; // Citroen C-Elysee gibi
+    make?: string; // Citroen (Opsiyonel, name'den ayrıştırılabilir veya ayrı prop)
+    modelName?: string; // C-Elysee (Opsiyonel)
+    image?: string;
+    rating?: number; // Mevcut
+    // features?: string[]; // Bu genel özellikler yerine daha spesifik olanları kullanacağız
+    price?: number; // Varsayılan fiyat, enDusukFiyat için kullanılabilir
+    variations?: Variation[]; // Mevcut
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+    // Yeni tasarım için eklenecek/güncellenecek proplar
+    fuelType?: string; // Örn: "Dizel"
+    transmission?: string; // Örn: "Manuel"
+    capacity?: string; // Örn: "5 Kişilik" veya 5 (sayı)
+    economicTag?: string; // Örn: "Ekonomik" (opsiyonel)
+    depositPrice?: string; // Örn: "₺17.600"
+    discountApplied?: string; // Örn: "₺1.539,74 İndirim Uygulandı" (opsiyonel)
+    totalPriceLabel?: string; // Örn: "₺13.154,00 Toplam" (opsiyonel)
+  };
+}
 
-        .vehicle-name {
-            font-size: 1.2em; /* Biraz daha büyük */
-            font-weight: bold;
-            color: #333;
-            margin: 0;
-        }
+export default function VehicleCard({ vehicle }: VehicleCardProps) {
+  const [isAddingToGarage, setIsAddingToGarage] = useState(false); // Garaja ekleme için state'ler
+  const [isAddedToGarage, setIsAddedToGarage] = useState(false);   // Eğer garaj işlevini farklı bir şekilde tutmak isterseniz
 
-        .vehicle-name .model-highlight {
-            font-weight: normal; /* Model adını normal ağırlıkta */
-        }
+  const {
+    id,
+    name,
+    make = name.split(" ")[0] || "Araç", // Basit bir ayrıştırma, daha iyisi prop olarak almak
+    modelName = name.split(" ").slice(1).join(" ") || "Model",
+    image,
+    rating = 4.5,
+    price = 0, // Bu, enDusukFiyat için bir temel olabilir
+    variations = [],
 
-        .details-link {
-            font-size: 0.85em;
-            color: #6A3C96; /* Kurumsal Renk */
-            text-decoration: none;
-            font-weight: bold;
-        }
+    // Yeni proplar için varsayılan değerler veya prop'tan gelenler
+    fuelType = "Belirtilmemiş", // Örnek veri
+    transmission = "Belirtilmemiş", // Örnek veri
+    capacity = "N/A", // Örnek veri
+    economicTag, // Eğer gönderilmezse gösterilmez
+    depositPrice = "Depozito Bilgisi Yok", // Örnek veri
+    discountApplied, // Eğer gönderilmezse gösterilmez
+    totalPriceLabel, // Eğer gönderilmezse gösterilmez
+  } = vehicle;
 
-        .details-link:hover {
-            text-decoration: underline;
-        }
+  const aktifVaryasyonlar = variations.filter((v) => v.status === "Aktif");
+  const enDusukFiyat = aktifVaryasyonlar.length
+    ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
+    : price;
 
-        .vehicle-image-container {
-            width: 100%;
-            height: 180px; /* Sabit yükseklik, görseldeki gibi */
-            overflow: hidden;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            position: relative; /* Etiket için */
-        }
+  const imageUrl = image || "/placeholder.svg"; // Placeholder korunuyor
 
-        .vehicle-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Resmin tamamını kapla, gerekirse kırp */
-        }
+  // Not: handleAddToGarage fonksiyonu, "Garaja Ekle" butonu kaldırıldığı için
+  // şimdilik kullanılmıyor. Eğer bu işlevi "Aracı Seç" butonuyla birleştirmek
+  // veya farklı bir UI elemanıyla tetiklemek isterseniz, bu mantığı oraya taşıyabilirsiniz.
+  // Örnek olması açısından fonksiyonu yorum satırı içinde bırakıyorum.
+  /*
+  const handleAddToGarage = async () => {
+    setIsAddingToGarage(true);
+    setIsAddedToGarage(false);
+    // ... (mevcut garaja ekleme mantığınız) ...
+    setIsAddingToGarage(false);
+  };
+  */
 
-        .vehicle-tag {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #e9e9e9; /* Açık gri */
-            color: #555;
-            padding: 5px 10px;
-            border-radius: 15px; /* Hap şeklinde */
-            font-size: 0.75em;
-            font-weight: bold;
-        }
+  return (
+    <div className="flex flex-col rounded-lg border bg-white shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 group w-[320px]"> {/* Sabit genişlik veya responsive grid için */}
+      {/* Kart Başlığı (Araç Adı ve Detay Linki) */}
+      <div className="flex justify-between items-center px-4 pt-4 pb-2">
+        <h3 className="text-base font-semibold text-gray-800">
+          {make} <span className="font-normal">{modelName}</span>
+        </h3>
+        <Link
+          href={`/araclar/${id}`} // Detaylar linki korunuyor
+          className="text-xs font-medium text-[#6A3C96] hover:underline"
+        >
+          Detay
+        </Link>
+      </div>
 
-        .ekonomik-tag {
-            /* Özel bir stil gerekirse buraya eklenebilir */
-        }
+      {/* Araç Resmi ve Ekonomik Etiketi */}
+      <div className="relative w-full aspect-[16/10] bg-gray-50 overflow-hidden"> {/* Aspect ratio güncellendi */}
+        <Image
+          src={imageUrl}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105" // object-contain yerine object-cover
+        />
+        {economicTag && (
+          <span className="absolute top-2.5 right-2.5 bg-gray-200 text-gray-700 px-2.5 py-1 text-[10px] font-semibold rounded-full">
+            {economicTag}
+          </span>
+        )}
+      </div>
 
-        .vehicle-specs {
-            display: flex;
-            justify-content: flex-start; /* Sola yaslı */
-            gap: 15px; /* Öğeler arası boşluk */
-            font-size: 0.8em;
-            color: #666;
-            margin-bottom: 10px;
-            padding-left: 5px; /* Hafif içten başlasın */
-        }
-
-        .vehicle-specs i {
-            margin-right: 5px;
-            color: #888;
-        }
-
-        .deposit-info {
-            font-size: 0.8em;
-            color: #555;
-            margin-bottom: 10px;
-            background-color: #f7f7f7;
-            padding: 6px 10px;
-            border-radius: 4px;
-            text-align: left;
-        }
-
-        .discount-banner {
-            background-color: #e8dff5; /* Kurumsal rengin açık tonu */
-            color: #6A3C96; /* Kurumsal Renk */
-            padding: 8px;
-            font-size: 0.85em;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 4px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .discount-banner i {
-            margin-right: 6px;
-        }
-
-        .price-section {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .daily-price {
-            font-size: 1.5em; /* Fiyat daha büyük */
-            font-weight: bold;
-            color: #6A3C96; /* Kurumsal Renk */
-        }
-
-        .daily-price .price-period {
-            font-size: 0.6em; /* "Günlük" yazısı daha küçük */
-            font-weight: normal;
-            color: #555;
-            margin-left: 5px;
-        }
-
-        .total-price {
-            font-size: 0.85em;
-            color: #777;
-            margin-top: 2px;
-        }
-
-        .select-vehicle-btn {
-            background-color: #6A3C96; /* Kurumsal Renk */
-            color: #fff;
-            border: none;
-            padding: 12px 15px;
-            font-size: 1em;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            transition: background-color 0.2s ease;
-            margin-top: auto; /* Kartın dibine iter */
-        }
-
-        .select-vehicle-btn:hover {
-            background-color: #562f7a; /* Kurumsal rengin koyu tonu */
-        }
-    </style>
-</head>
-<body>
-
-    <div class="vehicle-card-container">
-        <div class="vehicle-card">
-            <div class="card-header">
-                <h3 class="vehicle-name">Citroen <span class="model-highlight">C-Elysee</span></h3>
-                <a href="#" class="details-link">Detay</a>
-            </div>
-            <div class="vehicle-image-container">
-                <img src="https://i.imgur.com/YOUR_IMAGE_ID_CELYSEE.jpg" alt="Citroen C-Elysee"> <span class="vehicle-tag ekonomik-tag">Ekonomik</span>
-            </div>
-            <div class="vehicle-specs">
-                <span><i class="fas fa-gas-pump"></i> Dizel</span>
-                <span><i class="fas fa-cogs"></i> Manuel</span>
-                <span><i class="fas fa-users"></i> 5</span>
-            </div>
-            <div class="deposit-info">
-                Depozito: ₺17.600
-            </div>
-            <div class="discount-banner">
-                <i class="fas fa-tag"></i> ₺1.539,74 İndirim Uygulandı
-            </div>
-            <div class="price-section">
-                <div class="daily-price">₺1.315,38 <span class="price-period">Günlük</span></div>
-                <div class="total-price">₺13.154,00 Toplam</div>
-            </div>
-            <button class="select-vehicle-btn">Aracı Seç</button>
+      <div className="p-4 flex flex-col flex-1">
+        {/* Özellikler (İkonlu) */}
+        <div className="flex justify-start items-center gap-3 text-xs text-gray-600 mb-2.5">
+          <span className="flex items-center">
+            <Fuel className="w-3.5 h-3.5 mr-1 text-gray-500" />
+            {fuelType}
+          </span>
+          <span className="flex items-center">
+            <Settings2 className="w-3.5 h-3.5 mr-1 text-gray-500" /> {/* Vites için Settings2 veya başka bir ikon */}
+            {transmission}
+          </span>
+          <span className="flex items-center">
+            <Users className="w-3.5 h-3.5 mr-1 text-gray-500" />
+            {capacity}
+          </span>
         </div>
 
-        <div class="vehicle-card">
-            <div class="card-header">
-                <h3 class="vehicle-name">FIAT <span class="model-highlight">Egea</span></h3>
-                <a href="#" class="details-link">Detay</a>
-            </div>
-            <div class="vehicle-image-container">
-                <img src="https://i.imgur.com/YOUR_IMAGE_ID_EGEA.jpg" alt="Fiat Egea"> <span class="vehicle-tag ekonomik-tag">Ekonomik</span>
-            </div>
-            <div class="vehicle-specs">
-                <span><i class="fas fa-gas-pump"></i> Dizel</span>
-                <span><i class="fas fa-cogs"></i> Manuel</span>
-                <span><i class="fas fa-users"></i> 5</span>
-            </div>
-            <div class="deposit-info">
-                Depozito: ₺17.600
-            </div>
-            <div class="discount-banner">
-                <i class="fas fa-tag"></i> ₺1.539,74 İndirim Uygulandı
-            </div>
-            <div class="price-section">
-                <div class="daily-price">₺1.359,37 <span class="price-period">Günlük</span></div>
-                <div class="total-price">₺13.594,00 Toplam</div>
-            </div>
-            <button class="select-vehicle-btn">Aracı Seç</button>
+        {/* Depozito Bilgisi */}
+        <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded mb-2.5 w-fit">
+          Depozito: {depositPrice}
         </div>
 
-         <div class="vehicle-card">
-            <div class="card-header">
-                <h3 class="vehicle-name">Hyundai <span class="model-highlight">i-20</span></h3>
-                <a href="#" class="details-link">Detay</a>
+        {/* İndirim Bandı (Opsiyonel) */}
+        {discountApplied && (
+          <div className="bg-[#E8DFF5] text-[#6A3C96] text-xs font-semibold px-3 py-1.5 rounded mb-3 flex items-center justify-center w-full">
+            <Tag className="w-3.5 h-3.5 mr-1.5" />
+            {discountApplied}
+          </div>
+        )}
+
+        {/* Fiyat Bölümü */}
+        <div className="mb-4 text-left">
+          <div className="text-xl font-bold text-[#6A3C96]">
+            {enDusukFiyat.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 })}
+            <span className="text-xs font-normal text-gray-500 ml-1">/ Günlük</span>
+          </div>
+          {totalPriceLabel && (
+            <div className="text-xs text-gray-500 mt-0.5">
+              {totalPriceLabel}
             </div>
-            <div class="vehicle-image-container">
-                <img src="https://i.imgur.com/YOUR_IMAGE_ID_I20.jpg" alt="Hyundai i20"> <span class="vehicle-tag ekonomik-tag">Ekonomik</span>
-            </div>
-            <div class="vehicle-specs">
-                <span><i class="fas fa-gas-pump"></i> Benzin</span>
-                <span><i class="fas fa-cogs"></i> Otomatik</span>
-                <span><i class="fas fa-users"></i> 5</span>
-            </div>
-            <div class="deposit-info">
-                Depozito: ₺17.600
-            </div>
-            <div class="discount-banner">
-                <i class="fas fa-tag"></i> ₺1.539,74 İndirim Uygulandı
-            </div>
-            <div class="price-section">
-                <div class="daily-price">₺1.522,14 <span class="price-period">Günlük</span></div>
-                <div class="total-price">₺15.221,00 Toplam</div>
-            </div>
-            <button class="select-vehicle-btn">Aracı Seç</button>
-        </div>
+          )}
         </div>
 
-</body>
-</html>
+        {/* Eylem Butonu */}
+        <div className="mt-auto"> {/* Butonu en alta iter */}
+          <Link
+            href={`/araclar/${id}`} // "Aracı Seç" butonu da detay sayfasına yönlendirebilir veya farklı bir eylemi olabilir
+            className="w-full text-center text-sm font-medium px-4 py-2.5 bg-[#6A3C96] text-white rounded-md hover:bg-[#58307d] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:ring-opacity-50 flex items-center justify-center"
+          >
+            {/* <Info className="w-4 h-4 mr-2 hidden sm:inline-block" /> // İkonu kaldırabiliriz veya farklı bir ikon */}
+            Aracı Seç
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
