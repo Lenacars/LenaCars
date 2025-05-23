@@ -200,10 +200,7 @@ export default function Page({ params }: Props) {
     }
   };
   
-  // handleRentNow fonksiyonu artık "Hemen Kirala" butonu olmadığı için direkt kullanılmıyor.
-  // const handleRentNow = () => {
-  //   toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
-  // };
+  // handleRentNow kaldırıldı, direkt linkler veya farklı bir ana eylem kullanılacak.
 
   if (isLoading) { 
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin text-[#6A3C96]" /> Yükleniyor...</div>;
@@ -238,6 +235,7 @@ export default function Page({ params }: Props) {
     { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"},
   ].filter(spec => spec.value && spec.value !== "N/A");
 
+  // Stok Kodu "allSpecs" listesinden çıkarılacak
   const allSpecs = [ 
     { label: "Marka", value: vehicle.brand, iconName: "marka" },
     { label: "Segment", value: vehicle.segment, iconName: "segment" },
@@ -245,9 +243,10 @@ export default function Page({ params }: Props) {
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
     { label: "Kasa Tipi", value: vehicle.bodyType, iconName: "bodyType" },
     { label: "Kişi Kapasitesi", value: vehicle.kisi_kapasitesi, iconName: "kisi_kapasitesi"},
-    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"},
+    // { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "stok_kodu"}, // Buradan kaldırıldı
     { label: "Durum", value: vehicle.durum, iconName: "durum" },
   ].filter(spec => spec.value);
+
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -334,10 +333,13 @@ export default function Page({ params }: Props) {
                 
                 <div className="my-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg shadow">
                     <div className="text-gray-700 text-sm font-medium mb-1">Aylık Kiralama Bedeli:</div>
-                    <div className="text-[#6A3C96] text-3xl lg:text-4xl font-extrabold">
-                        {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : (activeVariations.length > 0 ? "Seçim Yapınız" : "Fiyat Bilgisi Yok")}
+                    {/* Fiyat ve KDV/Ay YAN YANA */}
+                    <div className="flex items-baseline">
+                        <span className="text-[#6A3C96] text-3xl lg:text-4xl font-extrabold">
+                            {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : (activeVariations.length > 0 ? "Seçim Yapınız" : "Fiyat Bilgisi Yok")}
+                        </span>
+                        <span className="text-xs font-medium text-gray-500 ml-1.5"> + KDV / Ay</span>
                     </div>
-                    <div className="text-xs font-medium text-gray-500 ml-0.5 mt-0.5">+ KDV / Ay</div>
                 </div>
                 
                 {/* GÜNCELLENMİŞ Buton Alanı */}
@@ -345,31 +347,31 @@ export default function Page({ params }: Props) {
                     <button 
                         onClick={handleVehicleToggleGarage}
                         disabled={isVehicleAddingToGarage}
-                        className={`w-full flex items-center justify-center px-6 py-3 border rounded-lg shadow-sm text-base font-semibold transition-all duration-150 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-1 text-white bg-[#6A3C96] hover:bg-[#58307d] border-transparent focus:ring-[#6A3C96] ${ // Varsayılan mor stil
+                        className={`w-full flex items-center justify-center px-6 py-2.5 border rounded-lg shadow-sm text-sm font-semibold transition-all duration-150 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-1 text-white bg-[#6A3C96] hover:bg-[#58307d] border-transparent focus:ring-[#6A3C96] ${
                             isVehicleAddedToGarage 
-                                ? "!bg-green-500 !text-white !border-green-600 hover:!bg-green-600 cursor-default" // Garajda ise yeşil
+                                ? "!bg-green-500 !text-white !border-green-600 hover:!bg-green-600 cursor-default" 
                                 : isVehicleAddingToGarage 
-                                    ? "!bg-gray-300 !text-gray-500 !border-gray-400 cursor-wait" // Ekleniyorsa gri
-                                    : "" // Varsayılan mor stil yukarıda zaten tanımlı
+                                    ? "!bg-gray-300 !text-gray-500 !border-gray-400 cursor-wait" 
+                                    : "" 
                         }`}
                     >
-                        {isVehicleAddedToGarage ? ( <CheckCircle2 size={20} className="mr-2"/> ) 
-                        : isVehicleAddingToGarage ? ( <Loader2 size={20} className="mr-2 animate-spin"/> ) 
-                        : ( <CarFront size={20} className="mr-2"/> )}
+                        {isVehicleAddedToGarage ? ( <CheckCircle2 size={18} className="mr-2"/> ) 
+                        : isVehicleAddingToGarage ? ( <Loader2 size={18} className="mr-2 animate-spin"/> ) 
+                        : ( <CarFront size={18} className="mr-2"/> )}
                         {isVehicleAddedToGarage ? "Garajda" : isVehicleAddingToGarage ? "Ekleniyor..." : "Garaja Ekle"}
                     </button>
                     <Link
                         href="/garaj" 
-                        className="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
+                        className="w-full flex items-center justify-center px-6 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
                     >
-                        <Warehouse size={20} className="mr-2.5"/> 
+                        <Warehouse size={18} className="mr-2.5"/> 
                         Garaja Git 
                     </Link>
                     <Link
                         href="/araclar" 
-                        className="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
+                        className="w-full flex items-center justify-center px-6 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96] transition-all duration-150 ease-in-out"
                     >
-                        <Home size={20} className="mr-2.5"/> {/* İstediğiniz ikonu belirtin */}
+                        <Home size={18} className="mr-2.5"/> {/* İstediğiniz ikonu belirtin */}
                         Tüm Araçları Gör
                     </Link>
                 </div>
@@ -474,27 +476,36 @@ export default function Page({ params }: Props) {
         </section>
       </div>
 
-      {/* MOBİL İÇİN SABİT EYLEM ÇUBUĞU (Yorumda - isteğe göre aktif edilebilir) */}
-      {/* <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] z-50">
+      {/* MOBİL İÇİN SABİT CTA BARI */}
+      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] z-50">
         <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 text-left">
-                <div className="text-[#6A3C96] text-xl font-bold leading-tight">
-                    {typeof displayPrice === "number" ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
+                {/* Fiyat ve KDV/Ay YAN YANA */}
+                <div className="flex items-baseline">
+                    <span className="text-[#6A3C96] text-lg font-bold leading-tight">
+                        {typeof displayPrice === "number" ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
+                    </span>
+                    <span className="text-xs text-gray-500 font-normal ml-1"> + KDV / Ay</span>
                 </div>
-                <div className="text-xs text-gray-500 -mt-0.5">/ Ay + KDV</div>
             </div>
-            // Hangi butonun mobilde öncelikli olacağına karar verilmeli
-            // Örneğin sadece "Tüm Araçları Gör" veya "Garaja Git"
-             <Link
-                href="/araclar" 
-                className="w-auto flex-grow flex items-center justify-center px-4 py-3 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96] transition-colors"
+            <button 
+                onClick={handleVehicleToggleGarage} // Mobil için ana eylem "Garaja Ekle"
+                disabled={isVehicleAddingToGarage}
+                className={`w-auto flex-grow flex items-center justify-center px-4 py-2.5 border rounded-md shadow-sm text-sm font-semibold transition-colors ${
+                    isVehicleAddedToGarage 
+                        ? "bg-green-500 text-white border-green-600 hover:bg-green-600" 
+                        : isVehicleAddingToGarage 
+                            ? "bg-gray-300 text-gray-500 border-gray-400 cursor-wait" 
+                            : "bg-[#6A3C96] text-white border-transparent hover:bg-[#58307d]"
+                } focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6A3C96]`}
             >
-                <Home size={18} className="mr-2"/>
-                Araçları Gör
-            </Link> 
+                {isVehicleAddedToGarage ? ( <CheckCircle2 size={18} className="mr-1.5"/> ) 
+                : isVehicleAddingToGarage ? ( <Loader2 size={18} className="mr-1.5 animate-spin"/> ) 
+                : ( <CarFront size={18} className="mr-1.5"/> )}
+                {isVehicleAddedToGarage ? "Garajda" : isVehicleAddingToGarage ? "Ekleniyor..." : "Garaja Ekle"}
+            </button>
         </div>
       </div>
-      */}
     </div>
   </div>
   );
