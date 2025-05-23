@@ -11,7 +11,7 @@ import {
   CarFront, Loader2, CheckCircle2, ShoppingCart, CreditCard, HelpCircle, FileText, BookOpen
 } from "lucide-react";
 
-// Interface'ler
+// Interface'ler (önceki gibi)
 interface Variation {
   kilometre: string;
   sure: string;
@@ -51,7 +51,7 @@ interface Props {
   params: { id: string };
 }
 
-// Yardımcı İkon Bileşeni
+// Yardımcı İkon Bileşeni (önceki gibi)
 const SpecIcon = ({ iconName }: { iconName?: string }) => {
   switch (iconName?.toLowerCase()) {
     case "yakıt": case "yakit_turu": return <Fuel size={18} className="text-[#6A3C96]" />;
@@ -152,7 +152,7 @@ export default function Page({ params }: Props) {
       fetchData();
     } else {
       setIsLoading(false);
-      setVehicle(null); // ID yoksa aracı null yap
+      setVehicle(null);
     }
   }, [params.id]);
 
@@ -171,7 +171,7 @@ export default function Page({ params }: Props) {
     if (!error) {
       toast({ title: "Yorum Eklendi" });
       setNewComment(""); setNewRating(5);
-      await fetchData(); // Veriyi yeniden çekerek yorumları güncelle
+      await fetchData();
     } else {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     }
@@ -220,40 +220,13 @@ export default function Page({ params }: Props) {
     }
   };
   
-  const activeVariations = variations.filter(v => v.status === "Aktif");
-  const availableKms = [...new Set(activeVariations.map(v => v.kilometre))].sort((a, b) => parseInt(a) - parseInt(b));
-  const availableSures = [...new Set(activeVariations.map(v => v.sure))].sort((a,b) => parseInt(a.split(" ")[0]) - parseInt(b.split(" ")[0]));
-  const matchedVariation = activeVariations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
-  const lowestPriceFromVariations = activeVariations.length > 0 ? Math.min(...activeVariations.map(v => v.fiyat)) : null;
-  const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle?.fiyat ?? null;
-  
-  const gallery = vehicle ? [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(imgKey => typeof imgKey === 'string' && imgKey.trim() !== '') as string[] : [];
-  
-  const vehicleDisplayName = vehicle && year ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${year}`)) : vehicle?.isim;
-
-  const keySpecs = vehicle ? [
-    { label: "Vites", value: vehicle.vites, iconName: "vites" },
-    { label: "Yakıt", value: vehicle.yakit_turu, iconName: "yakit_turu" },
-    { label: "Kapasite", value: vehicle.kisi_kapasitesi || "N/A", iconName: "kisi_kapasitesi" },
-  ].filter(spec => spec.value && spec.value !== "N/A") : [];
-
-  const allSpecs = vehicle ? [
-    { label: "Marka", value: vehicle.brand, iconName: "marka" },
-    { label: "Segment", value: vehicle.segment, iconName: "segment" },
-    { label: "Yakıt Türü", value: vehicle.yakit_turu, iconName: "yakit_turu" },
-    { label: "Vites", value: vehicle.vites, iconName: "vites" },
-    { label: "Kasa Tipi", value: vehicle.bodyType, iconName: "bodyType" },
-    { label: "Kişi Kapasitesi", value: vehicle.kisi_kapasitesi, iconName: "kisi_kapasitesi"},
-    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "HelpCircle"},
-    { label: "Durum", value: vehicle.durum, iconName: "durum" },
-  ].filter(spec => spec.value) : [];
+  // Bu değişkenler vehicle null değilken tanımlanmalı.
+  // isLoading ve !vehicle kontrollerinden sonraya taşıyacağız veya burada null check yapacağız.
+  // Şimdilik fonksiyonun sonunda, return'den hemen önceye taşıyalım.
 
   const handleRentNow = () => {
     toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
   };
-
-  // ----- JavaScript Kodu Bitişi ----- //
-  // ----- JSX Başlangıcı (Loglarda hata veren bölümden hemen önce)----- //
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Yükleniyor...</div>;
@@ -263,7 +236,40 @@ export default function Page({ params }: Props) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">Araç bilgileri bulunamadı veya yüklenirken bir sorun oluştu.</div>;
   }
 
-  // Burası loglarda 238. satıra denk gelen return ifadesi olmalı
+  // vehicle null değilse bu değişkenler burada güvenle tanımlanabilir.
+  const activeVariations = variations.filter(v => v.status === "Aktif");
+  const availableKms = [...new Set(activeVariations.map(v => v.kilometre))].sort((a, b) => parseInt(a) - parseInt(b));
+  const availableSures = [...new Set(activeVariations.map(v => v.sure))].sort((a,b) => parseInt(a.split(" ")[0]) - parseInt(b.split(" ")[0]));
+  const matchedVariation = activeVariations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
+  const lowestPriceFromVariations = activeVariations.length > 0 ? Math.min(...activeVariations.map(v => v.fiyat)) : null;
+  const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle.fiyat ?? null; // vehicle.fiyat burada kesin var.
+  
+  const gallery = [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(imgKey => typeof imgKey === 'string' && imgKey.trim() !== '') as string[];
+  
+  // DÜZELTME: `year` ve `vehicleDisplayName` burada tanımlanacak.
+  const localYear = vehicle.isim.includes(" - ") ? vehicle.isim.split(" - ").pop()?.trim() : undefined;
+  const vehicleDisplayName = localYear 
+    ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${localYear}`)) 
+    : vehicle.isim;
+
+  const keySpecs = [
+    { label: "Vites", value: vehicle.vites, iconName: "vites" },
+    { label: "Yakıt", value: vehicle.yakit_turu, iconName: "yakit_turu" },
+    { label: "Kapasite", value: vehicle.kisi_kapasitesi || "N/A", iconName: "kisi_kapasitesi" },
+  ].filter(spec => spec.value && spec.value !== "N/A");
+
+  const allSpecs = [
+    { label: "Marka", value: vehicle.brand, iconName: "marka" },
+    { label: "Segment", value: vehicle.segment, iconName: "segment" },
+    { label: "Yakıt Türü", value: vehicle.yakit_turu, iconName: "yakit_turu" },
+    { label: "Vites", value: vehicle.vites, iconName: "vites" },
+    { label: "Kasa Tipi", value: vehicle.bodyType, iconName: "bodyType" },
+    { label: "Kişi Kapasitesi", value: vehicle.kisi_kapasitesi, iconName: "kisi_kapasitesi"},
+    { label: "Stok Kodu", value: vehicle.stok_kodu, iconName: "HelpCircle"},
+    { label: "Durum", value: vehicle.durum, iconName: "durum" },
+  ].filter(spec => spec.value);
+
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -272,7 +278,8 @@ export default function Page({ params }: Props) {
           <span className="mx-2">/</span>
           <Link href="/araclar" className="hover:text-[#6A3C96]">Kiralık Araçlar</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-700">{vehicle.brand} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}</span>
+          {/* vehicle.brand null olabilir, kontrol ekleyelim */}
+          <span className="text-gray-700">{vehicle.brand || ""} {vehicleDisplayName?.replace(vehicle.brand || "", "").trim()}</span>
         </nav>
 
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
@@ -289,9 +296,9 @@ export default function Page({ params }: Props) {
                 <div className="flex overflow-x-auto space-x-2 p-3 bg-gray-50 border-t border-gray-200">
                     {gallery.map((imgKey, i) => (
                     <button 
-                        key={imgKey || i} // imgKey null olabileceği için i ile fallback
+                        key={imgKey || i} 
                         onClick={() => imgKey && setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`)}
-                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey?.replace(/^\/+/, "") || '###') ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`}
+                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey?.replace(/^\/+/, "") || '###_NO_MATCH_###') ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`}
                     >
                         {imgKey && <Image 
                         src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`} 
@@ -307,7 +314,11 @@ export default function Page({ params }: Props) {
             </div>
 
             <div className="lg:col-span-2 p-6 flex flex-col bg-white">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">{vehicle.isim}</h1>
+                {/* vehicleDisplayName ve localYear JSX içinde kullanılacak */}
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                    {vehicleDisplayName}
+                    {localYear && <span className="text-lg text-gray-500 font-normal ml-2">{`- ${localYear}`}</span>}
+                </h1>
                 {vehicle.kisa_aciklama && <p className="text-sm text-gray-600 mt-2 mb-4">{vehicle.kisa_aciklama}</p>}
 
                 {keySpecs.length > 0 && (
@@ -474,7 +485,7 @@ export default function Page({ params }: Props) {
         </section>
       </div>
 
-      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg z-40"> {/* shadow-lg yerine shadow-top-md olabilir veya custom */}
+      <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg z-40">
         <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 text-left">
                 <div className="text-[#6A3C96] text-lg font-bold leading-tight">
@@ -493,4 +504,4 @@ export default function Page({ params }: Props) {
       </div>
     </div>
   );
-} // Page component'inin kapanış parantezi
+}
