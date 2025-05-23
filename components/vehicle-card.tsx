@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Fuel, Settings2, Info, Heart, Loader2, CheckCircle2 } from "lucide-react";
+import { Star, Fuel, Settings2, Info, Car, Loader2, CheckCircle2 } from "lucide-react"; // Heart yerine Car eklendi
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase-browser";
@@ -130,7 +130,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       </div>
 
       {/* Kart Ana İçeriği (Butonlar Hariç) */}
-      <div className="p-3 flex flex-col flex-1"> {/* flex-1 burası için önemli */}
+      <div className="p-3 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-1.5">
           <h3 className="text-[0.9rem] font-semibold text-gray-700 leading-tight pr-2 group-hover:text-[#6A3C96]">
             {vehicleDisplayName}
@@ -144,22 +144,20 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           )}
         </div>
 
-        <div className="text-lg font-bold text-[#6A3C96] mb-2.5"> {/* Fiyat rengi mor */}
+        <div className="text-lg font-bold text-[#6A3C96] mb-2.5">
           {enDusukFiyat.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 })}
-          <span className="text-[0.7rem] font-normal text-gray-500 ml-1"> + KDV / Ay</span> {/* Fiyat formatı güncellendi */}
+          <span className="text-[0.7rem] font-normal text-gray-500 ml-1"> + KDV / Ay</span>
         </div>
         
-        {/* mt-auto bu div'i (butonları içeren) en alta itecek */}
-        <div className="mt-auto"></div>
+        <div className="mt-auto"></div> {/* Bu div butonları aşağı iter */}
       </div>
-
 
       {/* BUTON ALANI - MOR ARKA PLAN */}
       <div className="bg-[#6A3C96] p-3">
         <div className="flex flex-col sm:flex-row gap-2">
           <Link
             href={`/araclar/${id}`}
-            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-white text-[#6A3C96] rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75 flex items-center justify-center" // Beyaz buton, mor yazı
+            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-white text-[#6A3C96] rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75 flex items-center justify-center"
           >
             <Info size={15} className="mr-1 sm:mr-1.5" />
             Detaylar
@@ -169,10 +167,10 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             disabled={isAdding || isAdded}
             className={`flex-1 text-center text-xs font-medium px-3 py-2 border rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-75 flex items-center justify-center min-h-[36px] ${
               isAdded
-                ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default" // Bu stil mor zeminde iyi durabilir
+                ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default"
                 : isAdding
-                ? "bg-white/30 text-white/70 border-white/50 cursor-wait" // Mor zemine uygun disabled stili
-                : "border-white text-white hover:bg-white hover:text-[#6A3C96] focus:ring-white" // Beyaz çerçeve/yazı, hover'da beyaz bg/mor yazı
+                ? "bg-white/30 text-white/70 border-white/50 cursor-wait"
+                : "border-white text-white hover:bg-white hover:text-[#6A3C96] focus:ring-white"
             }`}
           >
             {isAdded ? (
@@ -187,7 +185,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
               </>
             ) : (
               <>
-                <Heart size={15} className="mr-1 sm:mr-1.5" />
+                <Car size={15} className="mr-1 sm:mr-1.5" /> {/* KALP YERİNE ARABA İKONU */}
                 Garaja Ekle
               </>
             )}
