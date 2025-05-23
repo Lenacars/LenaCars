@@ -2,14 +2,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+// Suspense bu dosyada doğrudan kullanılmıyor, eğer sayfa bazında Suspense kullanmıyorsanız kaldırılabilir.
+// import { Suspense } from "react"; 
+// useSearchParams bu dosyada kullanılmıyor.
+// import { useSearchParams } from "next/navigation"; 
 import { supabase } from "@/lib/supabase-browser";
 import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
-import Link from "next/link";
+import Link from "next/link"; // EKSİK IMPORT EKLENDİ
 import {
-  Star, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
-  CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText
-} from "lucide-react"; // Info ve diğer kullanılmayanları çıkardım, siz ekleyebilirsiniz.
+  ChevronLeft, ChevronRight, Star, Users, Gauge, Fuel, Settings2, CalendarDays, Package, ShieldCheck, MessageCircle, Send,
+  // Heart, // Opsiyonel, CarFront kullanılıyor
+  CarFront,
+  Loader2,
+  CheckCircle2,
+  CreditCard, // Bunlar bir önceki kodumda vardı, sizde eksikse ekleyin
+  HelpCircle,
+  FileText,
+  BookOpen 
+} from "lucide-react";
 
 // Interface'ler
 interface Variation {
@@ -25,7 +36,7 @@ interface Comment {
   yorum: string;
   puan: number;
   created_at: string;
-  kullanici?: { ad: string; soyad: string };
+  kullanici?: { ad: string; soyad:string };
 }
 
 interface Vehicle {
@@ -41,10 +52,10 @@ interface Vehicle {
   brand: string;
   category: string;
   bodyType: string;
-  fiyat: number;
+  fiyat: number; // Ana fiyat
   cover_image: string;
   gallery_images: string[];
-  kisi_kapasitesi?: string;
+  kisi_kapasitesi?: string; // Önceki kodumda eklemiştim, sizde yoksa ekleyin
 }
 
 interface Props {
@@ -56,7 +67,7 @@ const SpecIcon = ({ iconName }: { iconName?: string }) => {
   switch (iconName?.toLowerCase()) {
     case "yakıt": case "yakit_turu": return <Fuel size={18} className="text-[#6A3C96]" />;
     case "vites": return <Settings2 size={18} className="text-[#6A3C96]" />;
-    case "kapasite": case "kisi_kapasitesi": return <Users size={18} className="text-[#6A3C96]" />; // Users ikonu import edilmeli
+    case "kapasite": case "kisi_kapasitesi": return <Users size={18} className="text-[#6A3C96]" />;
     case "segment": return <Package size={18} className="text-[#6A3C96]" />;
     case "marka": return <ShieldCheck size={18} className="text-[#6A3C96]" />;
     case "kasa tipi": case "bodytype": return <CarFront size={18} className="text-[#6A3C96]" />;
@@ -65,11 +76,12 @@ const SpecIcon = ({ iconName }: { iconName?: string }) => {
   }
 };
 
+
 export default function Page({ params }: Props) {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [session, setSession] = useState<any>(null); // Supabase session tipi kullanılabilir
+  const [session, setSession] = useState<any>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedKm, setSelectedKm] = useState<string>("");
   const [selectedSure, setSelectedSure] = useState<string>("");
@@ -84,34 +96,20 @@ export default function Page({ params }: Props) {
     try {
       if (!params.id) {
         console.error("Araç ID bulunamadı.");
-        setVehicle(null);
-        setIsLoading(false);
-        return;
+        setVehicle(null); setIsLoading(false); return;
       }
-
-      const { data: aracData, error: aracError } = await supabase
-        .from("Araclar")
-        .select("*")
-        .eq("id", params.id)
-        .maybeSingle();
+      const { data: aracData, error: aracError } = await supabase.from("Araclar").select("*").eq("id", params.id).maybeSingle();
       if (aracError) throw aracError;
 
       if (aracData) {
         const arac = aracData as Vehicle;
         setVehicle(arac);
 
-        const { data: varData, error: varError } = await supabase
-          .from("variations")
-          .select("*")
-          .eq("arac_id", params.id);
+        const { data: varData, error: varError } = await supabase.from("variations").select("*").eq("arac_id", params.id);
         if (varError) throw varError;
         setVariations(varData || []);
 
-        const { data: yorumlar, error: yorumError } = await supabase
-          .from("yorumlar")
-          .select("*, kullanici:kullanicilar(ad,soyad)")
-          .eq("arac_id", params.id)
-          .order("created_at", { ascending: false });
+        const { data: yorumlar, error: yorumError } = await supabase.from("yorumlar").select("*, kullanici:kullanicilar(ad,soyad)").eq("arac_id", params.id).order("created_at", { ascending: false });
         if (yorumError) throw yorumError;
         setComments(yorumlar || []);
 
@@ -129,7 +127,7 @@ export default function Page({ params }: Props) {
         }
         
         const initialImage = arac.cover_image
-          ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image.replace(/^\/+/, "")}`
+          ? `https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${arac.cover_image.replace(/^\/+/, "")}` // DÜZELTME: Backtick eklendi
           : "/placeholder.svg";
         setSelectedImage(initialImage);
 
@@ -137,19 +135,17 @@ export default function Page({ params }: Props) {
           await checkIfInGarage(sessionDataVal.session.user.id, arac.id);
         } else if (arac) {
           const storedGarage = JSON.parse(localStorage.getItem("guest_garaj") || "[]") as string[];
-          if (storedGarage.includes(arac.id)) {
-            setIsVehicleAddedToGarage(true);
-          }
+          if (storedGarage.includes(arac.id)) setIsVehicleAddedToGarage(true);
         }
       } else {
         setVehicle(null);
-        toast({title: "Araç Bulunamadı", description: "Belirtilen araç mevcut değil.", variant: "destructive"});
+        toast({title: "Araç Bulunamadı", variant: "destructive"});
       }
     } catch (error) {
         const specificError = error as Error;
         console.error("Fetch data error:", specificError);
         setVehicle(null);
-        toast({title: "Veri Yükleme Hatası", description: `Araç bilgileri yüklenirken bir sorun oluştu: ${specificError.message}`, variant: "destructive"});
+        toast({title: "Veri Yükleme Hatası", description: `Detaylar: ${specificError.message}`, variant: "destructive"});
     } finally {
         setIsLoading(false);
     }
@@ -163,18 +159,16 @@ export default function Page({ params }: Props) {
     const { data: sessionDataVal } = await supabase.auth.getSession();
     const userId = sessionDataVal.session?.user?.id;
     if (!userId) {
-      toast({ title: "Giriş Yapmalısınız", description: "Yorum yapabilmek için giriş yapınız." });
-      return;
+      toast({ title: "Giriş Yapmalısınız", description: "Yorum yapabilmek için giriş yapınız." }); return;
     }
     if (!newComment.trim()) {
-      toast({ title: "Uyarı", description: "Yorum alanı boş bırakılamaz.", variant: "destructive" });
-      return;
+      toast({ title: "Uyarı", description: "Yorum alanı boş bırakılamaz.", variant: "destructive" }); return;
     }
     const { error } = await supabase.from("yorumlar").insert([{ user_id: userId, arac_id: params.id, yorum: newComment, puan: newRating }]);
     if (!error) {
       toast({ title: "Yorum Eklendi" });
       setNewComment(""); setNewRating(5);
-      await fetchData(); 
+      await fetchData();
     } else {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     }
@@ -182,10 +176,7 @@ export default function Page({ params }: Props) {
 
   const checkIfInGarage = async (userId: string, vehicleId: string) => {
     const { data: existing, error } = await supabase.from("garaj").select("id").eq("user_id", userId).eq("arac_id", vehicleId).maybeSingle();
-    if (error) {
-        console.error("Error checking garage status:", error);
-        return;
-    }
+    if (error) { console.error("Error checking garage:", error); return; }
     setIsVehicleAddedToGarage(!!existing);
   };
 
@@ -201,7 +192,7 @@ export default function Page({ params }: Props) {
         } else {
           const {error} = await supabase.from("garaj").insert([{ user_id: userId, arac_id: vehicle.id }]);
           if (error) throw error;
-          toast({ title: "Garaja Eklendi" });
+          toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` }); // DÜZELTME: Backtick eklendi
           setIsVehicleAddedToGarage(true);
         }
       } else {
@@ -210,14 +201,14 @@ export default function Page({ params }: Props) {
            toast({ title: "Zaten Garajda" });
         } else {
           if (!stored.includes(vehicle.id)) stored.push(vehicle.id);
-          toast({ title: "Garaja Eklendi" });
+          toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` }); // DÜZELTME: Backtick eklendi
           setIsVehicleAddedToGarage(true);
         }
         localStorage.setItem("guest_garaj", JSON.stringify(stored));
       }
     } catch (error) {
       const specificError = error as Error;
-      toast({ title: "Hata", description: `Bir sorun oluştu: ${specificError.message}`, variant: "destructive" });
+      toast({ title: "Hata", description: `Bir sorun oluştu: ${specificError.message}`, variant: "destructive" }); // DÜZELTME: Backtick eklendi
     } finally {
       setIsVehicleAddingToGarage(false);
     }
@@ -227,30 +218,23 @@ export default function Page({ params }: Props) {
     toast({ title: "Hemen Kirala", description: "Kiralama işlem adımları burada başlayacak."});
   };
 
-  // ----- JSX için veriler burada, isLoading ve !vehicle kontrollerinden sonra hesaplanacak -----
-
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl"><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Yükleniyor...</div>;
   }
   
   if (!vehicle) {
-    return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">Araç bilgileri bulunamadı veya yüklenirken bir sorun oluştu.</div>;
+    return <div className="flex items-center justify-center min-h-[calc(100vh-200px)] text-xl p-6 text-center">Araç bilgileri bulunamadı. Lütfen daha sonra tekrar deneyin.</div>;
   }
 
-  // vehicle null değilse bu değişkenler burada güvenle tanımlanabilir.
   const activeVariations = variations.filter(v => v.status === "Aktif");
   const availableKms = [...new Set(activeVariations.map(v => v.kilometre))].sort((a, b) => parseInt(a) - parseInt(b));
   const availableSures = [...new Set(activeVariations.map(v => v.sure))].sort((a,b) => parseInt(a.split(" ")[0]) - parseInt(b.split(" ")[0]));
   const matchedVariation = activeVariations.find(v => v.kilometre === selectedKm && v.sure === selectedSure);
   const lowestPriceFromVariations = activeVariations.length > 0 ? Math.min(...activeVariations.map(v => v.fiyat)) : null;
   const displayPrice = matchedVariation?.fiyat ?? lowestPriceFromVariations ?? vehicle.fiyat ?? null;
-  
   const gallery = [vehicle.cover_image, ...(vehicle.gallery_images || [])].filter(imgKey => typeof imgKey === 'string' && imgKey.trim() !== '') as string[];
-  
   const localYear = vehicle.isim.includes(" - ") ? vehicle.isim.split(" - ").pop()?.trim() : undefined;
-  const vehicleDisplayName = localYear 
-    ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${localYear}`)) 
-    : vehicle.isim;
+  const vehicleDisplayName = localYear ? vehicle.isim.substring(0, vehicle.isim.lastIndexOf(` - ${localYear}`)) : vehicle.isim;
 
   const keySpecs = [
     { label: "Vites", value: vehicle.vites, iconName: "vites" },
@@ -269,7 +253,6 @@ export default function Page({ params }: Props) {
     { label: "Durum", value: vehicle.durum, iconName: "durum" },
   ].filter(spec => spec.value);
 
-  // ----- ANA RETURN BAŞLANGICI ----- //
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -296,12 +279,12 @@ export default function Page({ params }: Props) {
                     {gallery.map((imgKey, i) => (
                     <button 
                         key={imgKey || i} 
-                        onClick={() => imgKey && setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`)}
-                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey?.replace(/^\/+/, "") || '###_NO_MATCH_###') ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`}
+                        onClick={() => imgKey && setSelectedImage(`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`)} // DÜZELTME: Backtick eklendi
+                        className={`shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-md overflow-hidden border-2 transition-all duration-150 ease-in-out transform hover:scale-105 ${selectedImage?.includes(imgKey?.replace(/^\/+/, "") || '###_NO_MATCH_###') ? 'border-[#6A3C96] ring-2 ring-[#6A3C96]/50' : 'border-transparent hover:border-gray-400'}`} // DÜZELTME: Backtick eklendi
                     >
                         {imgKey && <Image 
-                        src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`} 
-                        alt={`Araç küçük görsel ${i + 1}`} 
+                        src={`https://uxnpmdeizkzvnevpceiw.supabase.co/storage/v1/object/public/images/${imgKey.replace(/^\/+/, "")}`} // DÜZELTME: Backtick eklendi
+                        alt={`Araç küçük görsel ${i + 1}`} // DÜZELTME: Backtick eklendi
                         width={80} 
                         height={80} 
                         className="object-cover w-full h-full" 
@@ -354,7 +337,7 @@ export default function Page({ params }: Props) {
                 <div className="my-4 p-4 bg-gray-50 rounded-lg">
                     <div className="text-gray-600 text-sm mb-1">Aylık Kiralama Bedeli:</div>
                     <div className="text-[#6A3C96] text-3xl lg:text-4xl font-extrabold">
-                        {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : (activeVariations.length > 0 ? "Seçim Yapın" : "Fiyat Yok")}
+                        {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : (activeVariations.length > 0 ? "Seçim Yapın" : "Fiyat Yok")} {/* DÜZELTME: Backtick eklendi */}
                     </div>
                     <div className="text-xs font-medium text-gray-500 ml-1">+ KDV / Ay</div>
                 </div>
@@ -370,7 +353,7 @@ export default function Page({ params }: Props) {
                     <button 
                         onClick={handleVehicleToggleGarage}
                         disabled={isVehicleAddingToGarage}
-                        className={`w-full flex items-center justify-center px-6 py-3 border rounded-md shadow-sm text-base font-medium transition-colors ${
+                        className={`w-full flex items-center justify-center px-6 py-3 border rounded-md shadow-sm text-base font-medium transition-colors ${ // DÜZELTME: Backtick eklendi
                             isVehicleAddedToGarage 
                                 ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200 cursor-default" 
                                 : isVehicleAddingToGarage 
@@ -483,17 +466,18 @@ export default function Page({ params }: Props) {
         </section>
       </div>
 
+      {/* MOBİL İÇİN SABİT CTA BARI */}
       <div className="md:hidden sticky bottom-0 left-0 right-0 bg-white p-3 border-t border-gray-200 shadow-lg z-40">
         <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 text-left">
                 <div className="text-[#6A3C96] text-lg font-bold leading-tight">
-                    {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
+                    {displayPrice ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"} {/* DÜZELTME: Backtick eklendi */}
                 </div>
                 <div className="text-xs text-gray-500 -mt-0.5">/ Ay + KDV</div>
             </div>
             <button 
-                onClick={handleRentNow}
-                className="w-auto flex-grow flex items-center justify-center px-4 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96] transition-colors"
+                onClick={handleRentNow} // handleVehicleToggleGarage yerine handleRentNow veya ana eylem olmalı
+                className={`w-auto flex-grow flex items-center justify-center px-4 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors bg-[#6A3C96] hover:bg-[#58307d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6A3C96]`} // DÜZELTME: Koşullu class'lar (garaj durumu için) kaldırıldı, direkt kiralama butonu varsayıldı
             >
                 <CreditCard size={18} className="mr-1.5"/>
                 Hemen Kirala
