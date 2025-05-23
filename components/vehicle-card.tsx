@@ -16,18 +16,15 @@ interface Variation {
 interface VehicleCardProps {
   vehicle: {
     id: string;
-    name: string; // Örn: "Fiat Egea Sedan 1.3 Multijet Easy Plus 95BG - 2022"
+    name: string;
     image?: string;
     rating?: number;
-    price?: number; // Aylık fiyat için temel
+    price?: number;
     variations?: Variation[];
-    // Yeni ve güncellenmiş proplar
-    make?: string; // Örn: "Fiat" (name'den türetilebilir veya ayrı prop)
-    year?: string; // Örn: "2022" (name'den türetilebilir veya ayrı prop)
-    fuelType?: string; // İstenen: "Dizel", "Benzin"
-    transmission?: string; // İstenen: "Manuel", "Otomatik"
-    // features?: string[]; // Bu tasarımda genel 'features' dizisi yerine spesifik bilgiler kullanılıyor.
-                          // Eğer yine de ihtiyaç varsa ekleyebilirsiniz.
+    make?: string;
+    year?: string;
+    fuelType?: string;
+    transmission?: string;
   };
 }
 
@@ -39,13 +36,10 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     id,
     name,
     image,
-    rating = 0, // Varsayılan 0, veri varsa gösterilir
+    rating = 0,
     price = 0,
     variations = [],
-    // Varsayılan değerler veya name'den türetme (en iyisi ayrı prop olarak almak)
     make = vehicle.name.split(" ")[0] || "Marka",
-    // Yılı name'den almak için daha güvenli bir yol veya ayrı bir prop daha iyi olur.
-    // Örnek: "Fiat Egea Sedan 1.3 Multijet Easy Plus 95BG - 2022" formatı varsayılıyor.
     year = vehicle.name.includes(" - ") ? vehicle.name.split(" - ").pop()?.trim() : "",
     fuelType = "N/A",
     transmission = "N/A",
@@ -56,15 +50,13 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     ? Math.min(...aktifVaryasyonlar.map((v) => v.fiyat))
     : price;
 
-  const imageUrl = image || "/placeholder.svg"; // Sizin placeholder'ınız
+  const imageUrl = image || "/placeholder.svg";
 
   const handleAddToGarage = async () => {
     setIsAdding(true);
     setIsAdded(false);
-
     const { data: sessionData } = await supabase.auth.getSession();
     const userId = sessionData.session?.user?.id;
-
     try {
       if (userId) {
         const { data: existing } = await supabase
@@ -73,7 +65,6 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           .eq("user_id", userId)
           .eq("arac_id", id)
           .maybeSingle();
-
         if (existing) {
           toast({ title: "Zaten Garajda", description: "Bu araç zaten garajınızda." });
           setIsAdded(true);
@@ -108,40 +99,38 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     }
   };
 
-  // Yıl olmadan sadece araç adını almak için (name prop'u "Model Adı - YYYY" formatında varsayıldı)
   const vehicleDisplayName = year ? name.substring(0, name.lastIndexOf(` - ${year}`)) : name;
 
-
   return (
-    <div className="group flex flex-col w-full max-w-sm rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
-      {/* ÜST BİLGİ: Marka, Yakıt, Vites */}
-      <div className="flex justify-between items-center px-3 py-1.5 bg-gray-50 border-b border-gray-200 text-xs text-gray-600">
-        <span className="font-semibold text-gray-700 truncate pr-2">{make}</span>
+    <div className="group flex flex-col w-full max-w-sm rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden"> {/* Ana çerçeve border-gray-300 olarak güncellendi */}
+      {/* ÜST BİLGİ: Marka, Yakıt, Vites - MOR ARKA PLAN, BEYAZ YAZI */}
+      <div className="flex justify-between items-center px-3 py-1.5 bg-[#6A3C96] text-xs text-white border-b border-[#58307d]"> {/* Arka plan mor, yazılar beyaz, border-b koyu mor */}
+        <span className="font-semibold truncate pr-2">{make}</span>
         <div className="flex items-center gap-x-2 shrink-0">
           <span className="flex items-center">
-            <Fuel size={13} className="mr-0.5 text-gray-500" />
+            <Fuel size={13} className="mr-0.5 text-white opacity-90" /> {/* İkon rengi beyaz */}
             {fuelType}
           </span>
           <span className="flex items-center">
-            <Settings2 size={13} className="mr-0.5 text-gray-500" />
+            <Settings2 size={13} className="mr-0.5 text-white opacity-90" /> {/* İkon rengi beyaz */}
             {transmission}
           </span>
         </div>
       </div>
 
       {/* Araç Resmi */}
-      <div className="relative w-full aspect-[4/3] bg-white overflow-hidden"> {/* Arka planı beyaz yaptım, placeholder için bg-gray-50 olabilir */}
+      <div className="relative w-full aspect-[4/3] bg-white overflow-hidden">
         <Image
           src={imageUrl}
           alt={name}
           fill
-          sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 25vw" // Yeni kart genişliğine göre güncellendi
+          sizes="(max-width: 640px) 90vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 25vw"
           className="object-contain p-2 transition-transform duration-300 ease-in-out group-hover:scale-105"
         />
       </div>
 
       {/* Kart İçeriği */}
-      <div className="p-3 flex flex-col flex-1"> {/* Padding'i biraz azalttım, p-4 de olabilir */}
+      <div className="p-3 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-1.5">
           <h3 className="text-[0.9rem] font-semibold text-gray-700 leading-tight pr-2 group-hover:text-[#6A3C96]">
             {vehicleDisplayName}
@@ -172,7 +161,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           <button
             onClick={handleAddToGarage}
             disabled={isAdding || isAdded}
-            className={`flex-1 text-center text-xs font-medium px-3 py-2 border rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-50 flex items-center justify-center min-h-[36px] ${ // Buton yüksekliklerini eşitlemek için min-h
+            className={`flex-1 text-center text-xs font-medium px-3 py-2 border rounded-md transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-opacity-50 flex items-center justify-center min-h-[36px] ${
               isAdded
                 ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default"
                 : isAdding
