@@ -103,8 +103,8 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
 
   return (
     <div className="group flex flex-col w-full max-w-sm rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden">
-      {/* ÜST BİLGİ: Marka, Yakıt, Vites - KOYU TURUNCU ARKA PLAN, BEYAZ YAZI */}
-      <div className="flex justify-between items-center px-3 py-1.5 bg-orange-600 text-xs text-white border-b border-orange-700"> {/* KOYU TURUNCUYA GÜNCELLENDİ */}
+      {/* ÜST BİLGİ: Marka, Yakıt, Vites - AÇIK MAVİ ARKA PLAN, BEYAZ YAZI */}
+      <div className="flex justify-between items-center px-3 py-1.5 bg-sky-500 text-xs text-white border-b border-sky-600"> {/* AÇIK MAVİ (sky-500) OLARAK GÜNCELLENDİ */}
         <span className="font-semibold truncate pr-2">{make}</span>
         <div className="flex items-center gap-x-2 shrink-0">
           <span className="flex items-center">
@@ -132,7 +132,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       {/* Kart İçeriği */}
       <div className="p-3 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-1.5">
-          <h3 className="text-[0.9rem] font-semibold text-gray-700 leading-tight pr-2 group-hover:text-[#6A3C96]"> {/* Hover rengi MORA GERİ DÖNDÜ */}
+          <h3 className="text-[0.9rem] font-semibold text-gray-700 leading-tight pr-2 group-hover:text-[#6A3C96]">
             {vehicleDisplayName}
             {year && <span className="text-[0.7rem] text-gray-500 font-normal block">{`- ${year}`}</span>}
           </h3>
@@ -144,7 +144,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           )}
         </div>
 
-        <div className="text-lg font-bold text-[#6A3C96] mb-2.5"> {/* Fiyat rengi MORA GERİ DÖNDÜ */}
+        <div className="text-lg font-bold text-[#6A3C96] mb-2.5">
           {enDusukFiyat.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 })}
           <span className="text-[0.7rem] font-normal text-gray-500 ml-1">/aylık + KDV</span>
         </div>
@@ -153,7 +153,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         <div className="flex flex-col sm:flex-row gap-2 mt-auto">
           <Link
             href={`/araclar/${id}`}
-            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-[#6A3C96] text-white rounded-md hover:bg-[#58307d] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:ring-opacity-50 flex items-center justify-center" // Detaylar butonu MORA GERİ DÖNDÜ
+            className="flex-1 text-center text-xs font-medium px-3 py-2 bg-[#6A3C96] text-white rounded-md hover:bg-[#58307d] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#6A3C96] focus:ring-opacity-50 flex items-center justify-center"
           >
             <Info size={15} className="mr-1 sm:mr-1.5" />
             Detaylar
@@ -166,7 +166,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
                 ? "bg-green-500 text-white border-green-500 hover:bg-green-600 cursor-default"
                 : isAdding
                 ? "bg-gray-100 text-gray-400 border-gray-300 cursor-wait"
-                : "border-gray-300 text-gray-700 hover:border-[#6A3C96] hover:text-[#6A3C96] focus:border-[#6A3C96] focus:text-[#6A3C96] focus:ring-[#6A3C96]" // Garaja ekle hover/focus renkleri MORA GERİ DÖNDÜ
+                : "border-gray-300 text-gray-700 hover:border-[#6A3C96] hover:text-[#6A3C96] focus:border-[#6A3C96] focus:text-[#6A3C96] focus:ring-[#6A3C96]"
             }`}
           >
             {isAdded ? (
