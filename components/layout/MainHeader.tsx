@@ -55,7 +55,7 @@ export default function MainHeader() {
         }
         const groups: { [key: string]: any[] } = {};
         for (const page of data) {
-          if (!page || typeof page.title === 'undefined') { // Sayfa veya başlık tanımsızsa atla
+          if (!page || typeof page.title === 'undefined') {
             console.warn("Geçersiz sayfa verisi bulundu, atlanıyor:", page);
             continue;
           }
@@ -233,7 +233,7 @@ export default function MainHeader() {
               alt="LenaCars Logo"
               width={230}
               height={64}
-              className="h-10 md:h-16 w-auto" {/* MOBİL UYUMLULUK İÇİN DEĞİŞTİRİLDİ */}
+              className="h-10 md:h-16 w-auto" {/* Yalnızca bu satır değiştirildi */}
               priority
               onError={(e) => { const target = e.target as HTMLImageElement; if (target.src.endsWith(".svg")) { target.src = "/LENACARS.png"; }}}
             />
@@ -262,7 +262,7 @@ export default function MainHeader() {
                 type="submit"
                 className="px-4 sm:px-5 h-full bg-[#6A3C96] text-white hover:bg-[#5a3080] focus:outline-none transition-colors text-sm font-medium border-0"
                 aria-label="Ara"
-                style={{ paddingBlock: '0.75rem' }} // py-3 ile eşdeğer dikey padding
+                style={{ paddingBlock: '0.75rem' }}
               >
                 Ara
               </button>
@@ -369,14 +369,13 @@ export default function MainHeader() {
                 type="submit"
                 className="px-3 h-full bg-[#6A3C96] text-white hover:bg-[#5a3080] focus:outline-none transition-colors text-sm font-medium border-0"
                 aria-label="Ara"
-                style={{ paddingBlock: '0.625rem' }} // py-2.5 ile eşdeğer
+                style={{ paddingBlock: '0.625rem' }}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </button>
           </form>
             {isMobile && suggestions.length > 0 && (
               <ul className="mt-1.5 z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-250px)] overflow-y-auto py-1.5">
-                {/* ... mobil öneri listesi içeriği aynı ... */}
                  {suggestions.map((vehicle) => (
                   <li key={vehicle.id}>
                     <button
