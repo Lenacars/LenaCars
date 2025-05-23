@@ -11,7 +11,7 @@ import {
   CarFront, Loader2, CheckCircle2, CreditCard, HelpCircle, FileText, Users
 } from "lucide-react";
 
-// Interface'ler (önceki gibi)
+// Interface'ler
 interface Variation {
   kilometre: string;
   sure: string;
@@ -51,7 +51,7 @@ interface Props {
   params: { id: string };
 }
 
-// Yardımcı İkon Bileşeni (önceki gibi)
+// Yardımcı İkon Bileşeni
 const SpecIcon = ({ iconName }: { iconName?: string }) => {
   switch (iconName?.toLowerCase()) {
     case "yakıt": case "yakit_turu": return <Fuel size={16} className="text-gray-600" />;
@@ -175,7 +175,7 @@ export default function Page({ params }: Props) {
       } else {
         let stored: string[] = JSON.parse(localStorage.getItem("guest_garaj") || "[]");
         if (isVehicleAddedToGarage) {
-           toast({ title: "Zaten Garajda" });
+            toast({ title: "Zaten Garajda" });
         } else {
           if (!stored.includes(vehicle.id)) stored.push(vehicle.id);
           toast({ title: "Garaja Eklendi", description: `${vehicle.isim} garajınıza eklendi.` });
@@ -476,7 +476,7 @@ export default function Page({ params }: Props) {
         <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 text-left">
                 <div className="text-[#6A3C96] text-xl font-bold leading-tight">
-                   {typeof displayPrice === "number" ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
+                  {typeof displayPrice === "number" ? `${displayPrice.toLocaleString('tr-TR')} ₺` : "Fiyat Seçin"}
                 </div>
                 <div className="text-xs text-gray-500 -mt-0.5">/ Ay + KDV</div>
             </div>
@@ -490,5 +490,6 @@ export default function Page({ params }: Props) {
         </div>
       </div>
     </div>
+  </div>
   );
 }
