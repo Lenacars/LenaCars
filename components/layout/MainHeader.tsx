@@ -233,7 +233,7 @@ export default function MainHeader() {
               alt="LenaCars Logo"
               width={230}
               height={64}
-              className="h-10 md:h-16 w-auto" {/* Yalnızca bu satır değiştirildi */}
+              className="h-10 md:h-16 w-auto"
               priority
               onError={(e) => { const target = e.target as HTMLImageElement; if (target.src.endsWith(".svg")) { target.src = "/LENACARS.png"; }}}
             />
