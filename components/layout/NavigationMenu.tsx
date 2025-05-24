@@ -15,25 +15,25 @@ interface PageItem {
   sort_order: number | null;
 }
 
-// Bu MenuItem arayüzü, fetchMenuItems içinde oluşturulan yapıya uygun olmalı
 interface FetchedMenuItem {
   groupName: string;
   pages: { title: string; slug: string }[];
 }
 
 interface Props {
-  isMobileFromParent: boolean; // MainHeader'dan gelen mobil durumu
-  setIsMobileMenuOpenFromParent: (isOpen: boolean) => void; // MainHeader'dan gelen menü kapatma fonksiyonu
-  // menuItems prop'u kaldırıldı, bileşen kendi verisini çekiyor gibi görünüyor
+  isMobileFromParent: boolean;
+  setIsMobileMenuOpenFromParent: (isOpen: boolean) => void;
+  userName?: string | null; // userName prop'u eklendi
 }
 
 export default function NavigationMenu({
   isMobileFromParent,
   setIsMobileMenuOpenFromParent,
+  userName, // userName prop'u alındı
 }: Props) {
   const pathname = usePathname();
-  const [menuItems, setMenuItems] = useState<FetchedMenuItem[]>([]); // FetchedMenuItem tipini kullanın
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null); // Mobil alt menü için
+  const [menuItems, setMenuItems] = useState<FetchedMenuItem[]>([]);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -78,8 +78,8 @@ export default function NavigationMenu({
         Object.entries(grouped).forEach(([groupName, pages]) => {
           orderedMenu.push({ groupName, pages });
         });
-        ungrouped.forEach((page) => { // Grupsuz sayfalar için düzeltme
-          orderedMenu.push({ groupName: page.title, pages: [] }); // Veya doğrudan link olarak işleyin
+        ungrouped.forEach((page) => {
+          orderedMenu.push({ groupName: page.title, pages: [] });
         });
         setMenuItems(orderedMenu);
       } else if (error) {
@@ -94,21 +94,26 @@ export default function NavigationMenu({
     setActiveDropdown(activeDropdown === groupName ? null : groupName);
   };
 
-  // MainHeader bu bileşeni mobilde sadece menü açıkken render edeceği için,
-  // burada isMobileMenuOpen kontrolüne gerek yok. Sadece isMobileFromParent'a göre mobil veya masaüstü menüsünü göster.
+  const handleMobileLinkClick = () => {
+    setIsMobileMenuOpenFromParent(false);
+    setActiveDropdown(null); // Alt menüleri de kapat
+  };
+
 
   return (
-    <nav className="bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm md:sticky md:top-16 lg:top-[76px]"> {/* MainHeader'daki 2. barın yüksekliğine göre ayarlayın */}
-      {/* BU BİLEŞENİN KENDİ MOBİL TOGGLE BUTONU KALDIRILDI */}
-
-      {/* Mobile Menu (isMobileFromParent true ise gösterilir) */}
+    // Mobil menü açıkken `nav` sticky olmamalı, MainHeader'daki fixed div zaten pozisyonu yönetiyor.
+    // Masaüstünde ise sticky kalabilir.
+    <nav className={`bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm ${!isMobileFromParent ? "md:sticky md:top-16 lg:top-[76px]" : ""}`}>
       {isMobileFromParent && (
-        // Bu div md:hidden OLMAMALI, çünkü MainHeader zaten bu bileşeni mobilde gizliyor/gösteriyor.
-        // MainHeader bu NavigationMenu'yü mobilde çağırdığında, menünün görünür olması istenir.
-        <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-30">
-          <div className="px-3 py-3 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto"> {/* Yükseklik ve scroll eklendi */}
+        // Bu div, MainHeader'daki fixed div'in içinde tam yükseklik ve genişlikte olacak şekilde ayarlanabilir
+        // veya MainHeader'daki fixed div'in doğrudan content'i olabilir.
+        // Şimdiki yapı `MainHeader` içindeki `fixed top-0` div'in içine yerleşecek şekilde.
+        // `NavigationMenu` kendi `absolute top-full` vs. gibi pozisyonlandırmasını içermiyorsa,
+        // `MainHeader`'daki fixed div'in içeriğini direkt olarak bu `div` oluşturmalı.
+        // Kullanıcının orijinal NavigationMenu.tsx'inde `absolute top-full` vardı, bunu koruyalım.
+        <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-30 max-h-[calc(100vh-76px-0px)]"> {/* 76px header, 0px mobil butonlar (kaldırıldı) */}
+          <div className="px-3 py-3 space-y-1 max-h-[inherit] overflow-y-auto"> {/* max-h-[calc(100vh-120px)] yerine inherit kullandık, üst div yönetecek */}
             {menuItems.map((group) => (
-              // DEĞİŞİKLİK BURADA: <li> yerine <div> kullanıldı ve className="list-none" kaldırıldı.
               <div key={group.groupName}>
                 {group.pages.length === 0 ? (
                   <Link
@@ -116,7 +121,7 @@ export default function NavigationMenu({
                     className={`block py-2.5 px-3.5 text-base text-gray-700 font-medium hover:bg-purple-50 hover:text-[#6A3C96] rounded-lg transition-colors duration-150 ${
                       pathname === `/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}` ? "bg-purple-100 text-[#6A3C96]" : ""
                     }`}
-                    onClick={() => { setIsMobileMenuOpenFromParent(false); setActiveDropdown(null); }}
+                    onClick={handleMobileLinkClick}
                   >
                     {group.groupName}
                   </Link>
@@ -140,7 +145,7 @@ export default function NavigationMenu({
                               className={`block py-2 px-3 text-sm text-gray-600 hover:text-[#6A3C96] hover:bg-purple-50 rounded-md transition-colors duration-150 ${
                                 pathname === `/${page.slug}` ? "text-[#6A3C96] bg-purple-100 font-semibold" : ""
                               }`}
-                              onClick={() => { setIsMobileMenuOpenFromParent(false); setActiveDropdown(null); }}
+                              onClick={handleMobileLinkClick}
                             >
                               {page.title}
                             </Link>
@@ -152,11 +157,51 @@ export default function NavigationMenu({
                 )}
               </div>
             ))}
+
+            {/* === MOBİL MENÜ İÇİN GARAJ VE GİRİŞ/PROFİL LİNKLERİ === */}
+            <div className="mt-4 pt-4 border-t border-gray-200 space-y-1">
+              <Link
+                href="/garaj"
+                className="block py-2.5 px-3.5 text-base text-gray-700 font-medium hover:bg-purple-50 hover:text-[#6A3C96] rounded-lg transition-colors duration-150"
+                onClick={handleMobileLinkClick}
+              >
+                Garaj
+              </Link>
+              <Link
+                href={userName ? "/profil" : "/giris"}
+                className={`block py-2.5 px-3.5 text-base font-medium rounded-lg transition-colors duration-150 ${
+                  userName
+                    ? "text-green-700 hover:bg-green-100"
+                    : "text-gray-700 hover:bg-purple-50 hover:text-[#6A3C96]"
+                }`}
+                onClick={handleMobileLinkClick}
+              >
+                {userName || "Giriş Yap"}
+              </Link>
+            </div>
+            {/* === MOBİL MENÜ GARAJ VE GİRİŞ/PROFİL LİNKLERİ SONU === */}
+
+            {/* MOBİL MENÜ İÇİN SOSYAL MEDYA İKONLARI */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex justify-center items-center space-x-5 px-4 py-2">
+                <Link href="https://www.facebook.com/lenacars2020/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#6A3C96] transition-colors" aria-label="Facebook">
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg>
+                </Link>
+                <Link href="https://www.instagram.com/lena.cars/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#6A3C96] transition-colors" aria-label="Instagram">
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                </Link>
+                <Link href="https://tr.linkedin.com/company/lenacars" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#6A3C96] transition-colors" aria-label="LinkedIn">
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>
+                </Link>
+                <Link href="https://www.youtube.com/channel/UCHSB4vxpEegkVmop4qJqCPQ" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#6A3C96] transition-colors" aria-label="YouTube">
+                  <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Desktop Menu (isMobileFromParent false ise gösterilir) */}
       {!isMobileFromParent && (
         <div className="max-w-screen-xl mx-auto flex justify-center items-center px-4 py-3 space-x-6 lg:space-x-8 text-sm">
           {menuItems.map((group) => (
