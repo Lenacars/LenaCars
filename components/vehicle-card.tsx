@@ -105,7 +105,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     // DEĞİŞİKLİK: w-full ve max-w-sm kaldırıldı. Kartın genişliği artık ebeveyn konteyner tarafından belirlenecek.
     <div className="group flex flex-col rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-300 hover:shadow-md overflow-hidden h-full"> {/* h-full eklendi, eğer kartların yüksekliklerinin eşit olması istenirse */}
       {/* ÜST BİLGİ: Marka, Yakıt, Vites - MOR ARKA PLAN, BEYAZ YAZI */}
-      <div className="flex justify-between items-center px-3 py-1.5 bg-[#D3D3D3] text-xs text-white border-b border-[#58307d]">
+      <div className="flex justify-between items-center px-3 py-1.5 bg-[#F5F5F5] text-xs text-white border-b border-[#58307d]">
         <span className="font-semibold truncate pr-2">{make}</span>
         <div className="flex items-center gap-x-2 shrink-0">
           <span className="flex items-center">
