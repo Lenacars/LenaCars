@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "@/lib/supabase-browser";
-import NavigationMenu from "@/components/layout/NavigationMenu"; // Bu componentin güncel halini kullandığını varsayıyoruz
+import NavigationMenu from "@/components/layout/NavigationMenu";
 import { useSearch } from "@/context/SearchContext";
 import { getMenuPages } from "@/lib/getMenuPages";
 
@@ -35,13 +35,10 @@ interface VehicleSuggestion {
 
 export default function MainHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
-  // mainMenuItems ve ilgili fetchMenuItems, NavigationMenu kendi verisini çektiği için
-  // bu componentte NavigationMenu için artık doğrudan kullanılmıyor olabilir.
-  // Ancak başka bir yerde kullanılıyorsa veya ileride kullanılacaksa dokunmuyorum.
-  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [menuItems, setMenuItems] = useState<any[]>([]); // NavigationMenu kendi verisini çektiği için bu state'in NavigationMenu için kullanımı kalktı.
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null); // Bu state NavigationMenu'ye direkt geçilmiyor.
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
   const [suggestions, setSuggestions] = useState<VehicleSuggestion[]>([]);
@@ -94,7 +91,7 @@ export default function MainHeader() {
           })
           .flat()
           .sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
-        setMenuItems(sortedMenuItems); // Bu state'i NavigationMenu artık kullanmıyor.
+        setMenuItems(sortedMenuItems);
       } catch (error) {
         console.error("fetchMenuItems sırasında hata oluştu:", error);
         setMenuItems([]);
@@ -193,14 +190,6 @@ export default function MainHeader() {
       vehicleListElement.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  // toggleDropdown fonksiyonu artık NavigationMenu'ye prop olarak geçilmiyor.
-  // const toggleDropdown = (menuGroup: string) => {
-  // setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
-  // };
-
-  // mainMenuItems sabiti de NavigationMenu'ye prop olarak geçilmiyor.
-  // const mainMenuItems = [...menuItems].sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
 
   return (
     <header className="sticky top-0 z-50 bg-white">
@@ -316,8 +305,9 @@ export default function MainHeader() {
             )}
           </div>
 
+          {/* === GARAJ VE GİRİŞ/PROFİL BUTONLARI (MASAÜSTÜ) === */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="md:hidden">
+            <div className="md:hidden"> {/* Hamburger Butonu */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#6A3C96]"
@@ -328,6 +318,7 @@ export default function MainHeader() {
                                 : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
               </button>
             </div>
+            {/* Masaüstü için görünür (Garaj ve Giriş/Profil Linkleri) */}
             <div className="hidden md:flex items-center space-x-3">
               <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 hover:text-[#5a3080] transition-colors duration-150">
                 Garaj
@@ -342,13 +333,31 @@ export default function MainHeader() {
               </Link>
             </div>
           </div>
+          {/* === GARAJ VE GİRİŞ/PROFİL BUTONLARI (MASAÜSTÜ) SONU === */}
         </div>
       </div>
 
-      {/* === DEĞİŞTİRİLEN NAVIGATIONMENU ÇAĞRISI === */}
+      {/* === YENİ EKLENEN MOBİL GARAJ VE GİRİŞ/PROFİL BUTONLARI === */}
+      {/* Mobil için görünür */}
+      <div className="flex md:hidden items-center justify-end mt-3 space-x-2 px-4 pb-3 border-b border-gray-200"> {/* Mobil butonlar için alt boşluk ve border eklendi */}
+        <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-purple-50 transition">
+          Garaj
+        </Link>
+        <Link
+          href={userName ? "/profil" : "/giris"}
+          className={`${
+            userName ? "bg-green-100 text-green-600 hover:bg-green-200" : "bg-[#6A3C96] text-white hover:bg-[#5a3080]"
+          } px-3 py-1.5 rounded-md text-sm font-medium transition`}
+        >
+          {userName || "Giriş Yap"}
+        </Link>
+      </div>
+      {/* === YENİ EKLENEN MOBİL BUTONLARIN SONU === */}
+
+
       {/* Mobil Menü: Hamburger tıklanınca açılır */}
       {isMobile && isMobileMenuOpen && (
-        <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200">
+        <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200"> {/* top-[120px] mobil butonların yüksekliğine göre ayarlanabilir */}
           <NavigationMenu
             isMobileFromParent={true}
             setIsMobileMenuOpenFromParent={setIsMobileMenuOpen}
@@ -360,10 +369,9 @@ export default function MainHeader() {
       {!isMobile && (
         <NavigationMenu
           isMobileFromParent={false}
-          setIsMobileMenuOpenFromParent={() => {}} // Masaüstü için boş fonksiyon
+          setIsMobileMenuOpenFromParent={() => {}}
         />
       )}
-      {/* === DEĞİŞİKLİĞİN SONU === */}
 
       {/* MOBİL ARAMA KUTUSU */}
       {isMobile && (
