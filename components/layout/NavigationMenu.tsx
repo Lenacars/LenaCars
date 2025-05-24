@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase-browser";
 
+// interface'ler önceki gibi kalır...
 interface PageItem {
   id: string;
   title: string;
@@ -23,13 +24,13 @@ interface FetchedMenuItem {
 interface Props {
   isMobileFromParent: boolean;
   setIsMobileMenuOpenFromParent: (isOpen: boolean) => void;
-  userName?: string | null; // userName prop'u eklendi
+  userName?: string | null;
 }
 
 export default function NavigationMenu({
   isMobileFromParent,
   setIsMobileMenuOpenFromParent,
-  userName, // userName prop'u alındı
+  userName,
 }: Props) {
   const pathname = usePathname();
   const [menuItems, setMenuItems] = useState<FetchedMenuItem[]>([]);
@@ -96,23 +97,28 @@ export default function NavigationMenu({
 
   const handleMobileLinkClick = () => {
     setIsMobileMenuOpenFromParent(false);
-    setActiveDropdown(null); // Alt menüleri de kapat
+    setActiveDropdown(null);
   };
 
 
   return (
-    // Mobil menü açıkken `nav` sticky olmamalı, MainHeader'daki fixed div zaten pozisyonu yönetiyor.
-    // Masaüstünde ise sticky kalabilir.
-    <nav className={`bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm ${!isMobileFromParent ? "md:sticky md:top-16 lg:top-[76px]" : ""}`}>
+    <nav className={`bg-white/95 backdrop-blur ${isMobileFromParent ? 'h-full flex flex-col' : 'border-b border-gray-200 shadow-sm md:sticky md:top-16 lg:top-[76px]'}`}>
       {isMobileFromParent && (
-        // Bu div, MainHeader'daki fixed div'in içinde tam yükseklik ve genişlikte olacak şekilde ayarlanabilir
-        // veya MainHeader'daki fixed div'in doğrudan content'i olabilir.
-        // Şimdiki yapı `MainHeader` içindeki `fixed top-0` div'in içine yerleşecek şekilde.
-        // `NavigationMenu` kendi `absolute top-full` vs. gibi pozisyonlandırmasını içermiyorsa,
-        // `MainHeader`'daki fixed div'in içeriğini direkt olarak bu `div` oluşturmalı.
-        // Kullanıcının orijinal NavigationMenu.tsx'inde `absolute top-full` vardı, bunu koruyalım.
-        <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-30 max-h-[calc(100vh-76px-0px)]"> {/* 76px header, 0px mobil butonlar (kaldırıldı) */}
-          <div className="px-3 py-3 space-y-1 max-h-[inherit] overflow-y-auto"> {/* max-h-[calc(100vh-120px)] yerine inherit kullandık, üst div yönetecek */}
+        // Mobil menü container'ı MainHeader'da fixed pozisyonlu. Bu div onun içinde yer alacak.
+        // Dolayısıyla `absolute top-full` yerine direkt içeriği render edebilir.
+        // Ya da kendi pozisyonunu koruyacaksa, MainHeader'daki fixed container'ın tam ekran olmasına dikkat edilmeli.
+        // MainHeader'daki `fixed inset-0` ve içindeki `fixed top-0 left-0 h-full w-[85%]` yapısı ile uyumlu.
+        // Bu component artık direkt content'i sağlıyor.
+        <div className="flex flex-col h-full">
+          {/* Mobil menü başlığı ve kapatma butonu (isteğe bağlı eklenebilir) */}
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <span className="font-semibold text-lg text-[#6A3C96]">Menü</span>
+            <button onClick={() => setIsMobileMenuOpenFromParent(false)} className="p-1">
+              <svg className="h-6 w-6 text-gray-600 hover:text-[#6A3C96]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div className="flex-grow px-3 py-3 space-y-1 overflow-y-auto">
             {menuItems.map((group) => (
               <div key={group.groupName}>
                 {group.pages.length === 0 ? (
@@ -158,31 +164,30 @@ export default function NavigationMenu({
               </div>
             ))}
 
-            {/* === MOBİL MENÜ İÇİN GARAJ VE GİRİŞ/PROFİL LİNKLERİ === */}
-            <div className="mt-4 pt-4 border-t border-gray-200 space-y-1">
+            {/* GARAJ VE GİRİŞ/PROFİL BUTONLARI (Belirginleştirilmiş) */}
+            <div className="mt-4 pt-4 border-t border-gray-200 space-y-3 px-1"> {/* px-1 ile butonların kenar boşluğunu ayarla */}
               <Link
                 href="/garaj"
-                className="block py-2.5 px-3.5 text-base text-gray-700 font-medium hover:bg-purple-50 hover:text-[#6A3C96] rounded-lg transition-colors duration-150"
+                className="block w-full text-center py-3 px-4 text-base font-medium rounded-lg transition-colors duration-150 border border-[#6A3C96] text-[#6A3C96] hover:bg-purple-50"
                 onClick={handleMobileLinkClick}
               >
                 Garaj
               </Link>
               <Link
                 href={userName ? "/profil" : "/giris"}
-                className={`block py-2.5 px-3.5 text-base font-medium rounded-lg transition-colors duration-150 ${
+                className={`block w-full text-center py-3 px-4 text-base font-medium rounded-lg transition-colors duration-150 ${
                   userName
-                    ? "text-green-700 hover:bg-green-100"
-                    : "text-gray-700 hover:bg-purple-50 hover:text-[#6A3C96]"
+                    ? "bg-green-500 text-white hover:bg-green-600" // Kullanıcı giriş yapmışsa yeşil buton
+                    : "bg-[#6A3C96] text-white hover:bg-[#5a3080]" // Giriş yap butonu mor
                 }`}
                 onClick={handleMobileLinkClick}
               >
                 {userName || "Giriş Yap"}
               </Link>
             </div>
-            {/* === MOBİL MENÜ GARAJ VE GİRİŞ/PROFİL LİNKLERİ SONU === */}
 
-            {/* MOBİL MENÜ İÇİN SOSYAL MEDYA İKONLARI */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
+            {/* SOSYAL MEDYA İKONLARI */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
               <div className="flex justify-center items-center space-x-5 px-4 py-2">
                 <Link href="https://www.facebook.com/lenacars2020/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#6A3C96] transition-colors" aria-label="Facebook">
                   <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg>
@@ -203,49 +208,49 @@ export default function NavigationMenu({
       )}
 
       {!isMobileFromParent && (
-        <div className="max-w-screen-xl mx-auto flex justify-center items-center px-4 py-3 space-x-6 lg:space-x-8 text-sm">
-          {menuItems.map((group) => (
-            <div key={group.groupName} className="relative group">
-              {group.pages.length === 0 ? (
-                <Link
-                  href={`/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}`}
-                  className={`relative py-2 text-gray-600 hover:text-[#6A3C96] font-medium transition-colors duration-200 whitespace-nowrap ${
-                    pathname === `/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}` ? "text-[#6A3C96]" : ""
-                  } after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:bg-[#6A3C96] after:transition-all after:duration-300 ${
-                    pathname === `/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}` ? "after:w-full" : "after:w-0 group-hover:after:w-3/4"
-                  }`}
-                >
-                  {group.groupName}
-                </Link>
-              ) : (
-                <>
-                  <span className="cursor-default py-2 flex items-center text-gray-600 group-hover:text-[#6A3C96] font-medium transition-colors duration-200 whitespace-nowrap relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:bg-[#6A3C96] after:transition-all after:duration-300 after:w-0 group-hover:after:w-3/4">
-                    {group.groupName}
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1.5 text-gray-400 group-hover:text-[#6A3C96] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </span>
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-1.5 w-auto min-w-[200px] bg-white shadow-xl border border-gray-100 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:mt-1 transition-all duration-200 ease-out z-50">
-                    <ul className="py-2">
-                      {group.pages.map((page) => (
-                        <li key={page.slug}>
-                          <Link
-                            href={`/${page.slug}`}
-                            className={`block w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#6A3C96] transition-colors duration-150 whitespace-nowrap ${
-                              pathname === `/${page.slug}` ? "bg-purple-100 text-[#6A3C96] font-semibold" : ""
-                            }`}
-                          >
-                            {page.title}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
+         <div className="max-w-screen-xl mx-auto flex justify-center items-center px-4 py-3 space-x-6 lg:space-x-8 text-sm">
+         {menuItems.map((group) => (
+           <div key={group.groupName} className="relative group">
+             {group.pages.length === 0 ? (
+               <Link
+                 href={`/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}`}
+                 className={`relative py-2 text-gray-600 hover:text-[#6A3C96] font-medium transition-colors duration-200 whitespace-nowrap ${
+                   pathname === `/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}` ? "text-[#6A3C96]" : ""
+                 } after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:bg-[#6A3C96] after:transition-all after:duration-300 ${
+                   pathname === `/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}` ? "after:w-full" : "after:w-0 group-hover:after:w-3/4"
+                 }`}
+               >
+                 {group.groupName}
+               </Link>
+             ) : (
+               <>
+                 <span className="cursor-default py-2 flex items-center text-gray-600 group-hover:text-[#6A3C96] font-medium transition-colors duration-200 whitespace-nowrap relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[3px] after:bg-[#6A3C96] after:transition-all after:duration-300 after:w-0 group-hover:after:w-3/4">
+                   {group.groupName}
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1.5 text-gray-400 group-hover:text-[#6A3C96] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </span>
+                 <div className="absolute left-1/2 -translate-x-1/2 mt-1.5 w-auto min-w-[200px] bg-white shadow-xl border border-gray-100 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:mt-1 transition-all duration-200 ease-out z-50">
+                   <ul className="py-2">
+                     {group.pages.map((page) => (
+                       <li key={page.slug}>
+                         <Link
+                           href={`/${page.slug}`}
+                           className={`block w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-[#6A3C96] transition-colors duration-150 whitespace-nowrap ${
+                             pathname === `/${page.slug}` ? "bg-purple-100 text-[#6A3C96] font-semibold" : ""
+                           }`}
+                         >
+                           {page.title}
+                         </Link>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
+               </>
+             )}
+           </div>
+         ))}
+       </div>
       )}
     </nav>
   );
