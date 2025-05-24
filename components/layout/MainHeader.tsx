@@ -35,7 +35,7 @@ interface VehicleSuggestion {
 
 export default function MainHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
-  const [menuItems, setMenuItems] = useState<any[]>([]); // NavigationMenu kendi verisini çektiği için bu state'in NavigationMenu için kullanımı kalktı.
+  const [menuItems, setMenuItems] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -210,6 +210,7 @@ export default function MainHeader() {
           <div className="text-center hidden md:block">
             <h2 className="text-sm md:text-base font-medium">Yüzlerce Araç Tek Ekranda Seç Beğen Güvenle Kirala</h2>
           </div>
+          {/* Sosyal medya ikonları - Sadece masaüstünde görünür */}
           <div className="hidden md:flex items-center space-x-3">
             <Link href="https://www.facebook.com/lenacars2020/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Facebook"><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" /></svg></Link>
             <Link href="https://www.instagram.com/lena.cars/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Instagram"><svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg></Link>
@@ -233,7 +234,6 @@ export default function MainHeader() {
             />
           </Link>
 
-          {/* MASAÜSTÜ ARAMA KUTUSU */}
           <div ref={searchContainerRef} className="hidden md:flex flex-grow items-center mx-6 max-w-xl relative">
             <form
               onSubmit={handleSearchFormSubmit}
@@ -305,9 +305,8 @@ export default function MainHeader() {
             )}
           </div>
 
-          {/* === GARAJ VE GİRİŞ/PROFİL BUTONLARI (MASAÜSTÜ) === */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="md:hidden"> {/* Hamburger Butonu */}
+            <div className="md:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#6A3C96]"
@@ -318,7 +317,6 @@ export default function MainHeader() {
                                 : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
               </button>
             </div>
-            {/* Masaüstü için görünür (Garaj ve Giriş/Profil Linkleri) */}
             <div className="hidden md:flex items-center space-x-3">
               <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 hover:text-[#5a3080] transition-colors duration-150">
                 Garaj
@@ -333,13 +331,10 @@ export default function MainHeader() {
               </Link>
             </div>
           </div>
-          {/* === GARAJ VE GİRİŞ/PROFİL BUTONLARI (MASAÜSTÜ) SONU === */}
         </div>
       </div>
 
-      {/* === YENİ EKLENEN MOBİL GARAJ VE GİRİŞ/PROFİL BUTONLARI === */}
-      {/* Mobil için görünür */}
-      <div className="flex md:hidden items-center justify-end mt-3 space-x-2 px-4 pb-3 border-b border-gray-200"> {/* Mobil butonlar için alt boşluk ve border eklendi */}
+      <div className="flex md:hidden items-center justify-end mt-3 space-x-2 px-4 pb-3 border-b border-gray-200">
         <Link href="/garaj" className="border border-[#6A3C96] text-[#6A3C96] px-3 py-1.5 rounded-md text-sm font-medium hover:bg-purple-50 transition">
           Garaj
         </Link>
@@ -352,12 +347,9 @@ export default function MainHeader() {
           {userName || "Giriş Yap"}
         </Link>
       </div>
-      {/* === YENİ EKLENEN MOBİL BUTONLARIN SONU === */}
 
-
-      {/* Mobil Menü: Hamburger tıklanınca açılır */}
       {isMobile && isMobileMenuOpen && (
-        <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200"> {/* top-[120px] mobil butonların yüksekliğine göre ayarlanabilir */}
+        <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200">
           <NavigationMenu
             isMobileFromParent={true}
             setIsMobileMenuOpenFromParent={setIsMobileMenuOpen}
@@ -365,7 +357,6 @@ export default function MainHeader() {
         </div>
       )}
 
-      {/* Masaüstü Menü */}
       {!isMobile && (
         <NavigationMenu
           isMobileFromParent={false}
@@ -373,7 +364,6 @@ export default function MainHeader() {
         />
       )}
 
-      {/* MOBİL ARAMA KUTUSU */}
       {isMobile && (
         <div className="bg-gray-50 p-3 border-t border-gray-200">
            <form onSubmit={handleSearchFormSubmit} className="relative flex items-center group border border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md focus-within:ring-2 focus-within:ring-[#6A3C96] focus-within:border-transparent transition-all duration-200">
