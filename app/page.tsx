@@ -78,15 +78,14 @@ export default function Home() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Sayfalama için state'ler
   const pageSizeOptions = [
     { value: 20, label: "20 Araç Göster" },
     { value: 40, label: "40 Araç Göster" },
     { value: 60, label: "60 Araç Göster" },
     { value: 80, label: "80 Araç Göster" },
-    { value: Infinity, label: "Tümünü Göster"}, // Tümünü gösterme seçeneği
+    { value: Infinity, label: "Tümünü Göster"},
   ];
-  const [currentPageSize, setCurrentPageSize] = useState(pageSizeOptions[0].value); // Varsayılan 20
+  const [currentPageSize, setCurrentPageSize] = useState(pageSizeOptions[0].value);
   const [visibleVehicleCount, setVisibleVehicleCount] = useState(pageSizeOptions[0].value);
 
   useEffect(() => {
@@ -100,7 +99,6 @@ export default function Home() {
 
   useEffect(() => {
     const fetchVehicles = async () => {
-      // ... (araç çekme ve işleme kodunuz aynı kalır) ...
       const res = await fetch("https://adminpanel-green-two.vercel.app/api/araclar", {
         cache: "no-store",
       });
@@ -166,17 +164,14 @@ export default function Home() {
       results.sort((a, b) => b.rating - a.rating);
     }
     setFiltered(results);
-    // Filtreler veya sıralama değiştiğinde görünür araç sayısını sıfırla
     setVisibleVehicleCount(currentPageSize === Infinity ? results.length : currentPageSize);
-  }, [filters, sortType, vehicles, searchTerm, currentPageSize]); // currentPageSize eklendi
+  }, [filters, sortType, vehicles, searchTerm, currentPageSize]);
 
-  // "Daha Fazla Göster" butonuna tıklandığında
   const handleLoadMore = () => {
     setVisibleVehicleCount(prevCount => 
-        Math.min(prevCount + currentPageSize, filtered.length)
+        Math.min(prevCount + (currentPageSize === Infinity ? 20 : currentPageSize) , filtered.length) // Tümünü göster seçiliyken 20 ekle
     );
   };
-
 
   const yakitSecenekleri = ["Benzin", "Dizel", "Elektrik", "Hibrit", "Benzin + LPG"];
   const vitesSecenekleri = ["Manuel", "Otomatik"];
@@ -194,8 +189,7 @@ export default function Home() {
       {/* MARKA FİLTRESİ */}
       <div className="relative">
         <Listbox value={filters.brand} onChange={(value) => setFilters({ ...filters, brand: value })}>
-          {/* ... Listbox içeriği ... */}
-          <div className="relative">
+           <div className="relative">
             <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2.5 pl-4 pr-10 text-left shadow-sm focus:outline-none focus-visible:border-purple-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-300 text-sm border border-gray-300 h-[42px] flex items-center">
               <span className={`block truncate ${filters.brand ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
                 {filters.brand || "Marka Seçin"}
@@ -224,8 +218,7 @@ export default function Home() {
           </div>
         </Listbox>
       </div>
-      {/* Diğer 5 filtre (Segment, Kasa Tipi, Yakıt, Vites, Durum) de benzer şekilde buraya gelecek */}
-       {/* SEGMENT FİLTRESİ */}
+      {/* SEGMENT FİLTRESİ */}
        <div className="relative">
         <Listbox value={filters.segment} onChange={(value) => setFilters({ ...filters, segment: value })}>
           <div className="relative">
@@ -257,7 +250,6 @@ export default function Home() {
           </div>
         </Listbox>
       </div>
-      
       {/* KASA TİPİ FİLTRESİ */}
       <div className="relative">
         <Listbox value={filters.bodyType} onChange={(value) => setFilters({ ...filters, bodyType: value })}>
@@ -290,7 +282,6 @@ export default function Home() {
           </div>
         </Listbox>
       </div>
-
       {/* YAKIT TÜRÜ FİLTRESİ */}
       <div className="relative">
         <Listbox value={filters.yakit_turu} onChange={(value) => setFilters({ ...filters, yakit_turu: value })}>
@@ -323,7 +314,6 @@ export default function Home() {
           </div>
         </Listbox>
       </div>
-      
       {/* VİTES TÜRÜ FİLTRESİ */}
       <div className="relative">
         <Listbox value={filters.vites} onChange={(value) => setFilters({ ...filters, vites: value })}>
@@ -356,7 +346,6 @@ export default function Home() {
           </div>
         </Listbox>
       </div>
-
       {/* DURUM FİLTRESİ */}
       <div className="relative">
         <Listbox value={filters.durum} onChange={(value) => setFilters({ ...filters, durum: value })}>
@@ -396,79 +385,81 @@ export default function Home() {
     <>
       <HeroSlider />
       <div className="container mx-auto px-4 py-8">
-        {/* Filtreler Card'ı "Araç Filomuz" başlığının altına taşındı */}
         <div id="vehicle-list" className="mb-12">
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-y-4">
-            <h2 className="text-3xl font-extrabold text-gray-800">Araç Filomuz</h2>
-            <div className="flex items-center gap-x-2 sm:gap-x-3 flex-wrap"> {/* Gap ayarlandı, flex-wrap eklendi */}
-              <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full mb-2 sm:mb-0"> {/* Padding ve margin ayarlandı */}
+          {/* === BAŞLIK VE KONTROLLER BÖLÜMÜ (MOBİL İÇİN YENİ DÜZEN) === */}
+          <div className="mb-6">
+            <h2 className="text-3xl font-extrabold text-gray-800 mb-4 text-center sm:text-left">Araç Filomuz</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4"> {/* Mobil için gap-3, sm+ için gap-4 */}
+              <span className="text-sm text-gray-600 bg-gray-100 px-3 py-2 rounded-full text-center sm:text-left order-1 sm:order-none"> {/* Mobil için py-2 */}
                 {filtered.length} sonuç bulundu
               </span>
-              {/* Sayfa Başına Gösterilecek Araç Sayısı Seçimi */}
-              <div className="relative min-w-[160px] sm:min-w-[180px] mb-2 sm:mb-0"> {/* Genişlik ayarlandı */}
-                 <Listbox value={currentPageSize} onChange={(value) => {
-                    setCurrentPageSize(value);
-                    setVisibleVehicleCount(value === Infinity ? filtered.length : value);
-                 }}>
-                  <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none focus-visible:border-purple-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-300 text-sm border border-gray-300 h-[42px] flex items-center">
-                      <span className="block truncate text-gray-800 font-medium">
-                        {pageSizeOptions.find(opt => opt.value === currentPageSize)?.label || `${currentPageSize} Araç Göster`}
-                      </span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                      </span>
-                    </Listbox.Button>
-                    <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                      <Listbox.Options className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                        {pageSizeOptions.map((option) => (
-                          <Listbox.Option key={option.value} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[#6A3C96] text-white' : 'text-gray-900'}`} value={option.value}>
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{option.label}</span>
-                                {selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#6A3C96]"><CheckIcon /></span>) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
-                    </Transition>
-                  </div>
-                </Listbox>
-              </div>
-              {/* Sıralama Seçimi */}
-              <div className="relative min-w-[160px] sm:min-w-[200px] mb-2 sm:mb-0"> {/* Genişlik ayarlandı */}
-                 <Listbox value={sortType} onChange={setSortType}>
-                  <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none focus-visible:border-purple-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-purple-300 text-sm border border-gray-300 h-[42px] flex items-center">
-                      <span className="block truncate text-gray-800 font-medium">
-                        {sortOptions.find(opt => opt.value === sortType)?.label || "Sırala"}
-                      </span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                      </span>
-                    </Listbox.Button>
-                    <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                      <Listbox.Options className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-                        {sortOptions.map((option) => (
-                          <Listbox.Option key={option.value} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[#6A3C96] text-white' : 'text-gray-900'}`} value={option.value}>
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{option.label}</span>
-                                {selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#6A3C96]"><CheckIcon /></span>) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
-                    </Transition>
-                  </div>
-                </Listbox>
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto order-2 sm:order-none"> {/* Kontroller için sarmalayıcı */}
+                {/* Sayfa Başına Gösterilecek Araç Sayısı Seçimi */}
+                <div className="relative w-full sm:min-w-[180px]">
+                  <Listbox value={currentPageSize} onChange={(value) => {
+                      setCurrentPageSize(value);
+                      setVisibleVehicleCount(value === Infinity ? filtered.length : value);
+                  }}>
+                    <div className="relative">
+                      <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm border border-gray-300 h-[42px] flex items-center">
+                        <span className="block truncate text-gray-800 font-medium">
+                          {pageSizeOptions.find(opt => opt.value === currentPageSize)?.label || `${currentPageSize} Araç`}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </span>
+                      </Listbox.Button>
+                      <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                        <Listbox.Options className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                          {pageSizeOptions.map((option) => (
+                            <Listbox.Option key={option.value} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[#6A3C96] text-white' : 'text-gray-900'}`} value={option.value}>
+                              {({ selected }) => (
+                                <>
+                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{option.label}</span>
+                                  {selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#6A3C96]"><CheckIcon /></span>) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
+                </div>
+                {/* Sıralama Seçimi */}
+                <div className="relative w-full sm:min-w-[200px]">
+                  <Listbox value={sortType} onChange={setSortType}>
+                    <div className="relative">
+                      <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm border border-gray-300 h-[42px] flex items-center">
+                        <span className="block truncate text-gray-800 font-medium">
+                          {sortOptions.find(opt => opt.value === sortType)?.label || "Sırala"}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </span>
+                      </Listbox.Button>
+                      <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                        <Listbox.Options className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                          {sortOptions.map((option) => (
+                            <Listbox.Option key={option.value} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-[#6A3C96] text-white' : 'text-gray-900'}`} value={option.value}>
+                              {({ selected }) => (
+                                <>
+                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{option.label}</span>
+                                  {selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-[#6A3C96]"><CheckIcon /></span>) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* === FİLTRELERİN YENİ YERİ === */}
+          {/* === BAŞLIK VE KONTROLLER BÖLÜMÜ SONU === */}
+          
           <Card className="mb-8 shadow-xl bg-gray-50 rounded-xl">
             <CardContent className="p-5 sm:p-6">
               <div className="md:hidden mb-4">
@@ -484,7 +475,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Filtrelerin gösterileceği alan */}
               {isMobile ? (
                 <Transition
                   show={isMobileFiltersOpen}
@@ -507,8 +497,6 @@ export default function Home() {
               )}
             </CardContent>
           </Card>
-          {/* === FİLTRELERİN YENİ YERİ SONU === */}
-
 
           {filtered.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -522,7 +510,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Daha Fazla Göster Butonu */}
           {filtered.length > 0 && visibleVehicleCount < filtered.length && currentPageSize !== Infinity && (
             <div className="mt-10 text-center">
               <button
