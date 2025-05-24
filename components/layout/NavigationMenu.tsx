@@ -108,7 +108,8 @@ export default function NavigationMenu({
         <div className="absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-200 z-30">
           <div className="px-3 py-3 space-y-1 max-h-[calc(100vh-120px)] overflow-y-auto"> {/* Yükseklik ve scroll eklendi */}
             {menuItems.map((group) => (
-              <li key={group.groupName} className="list-none">
+              // DEĞİŞİKLİK BURADA: <li> yerine <div> kullanıldı ve className="list-none" kaldırıldı.
+              <div key={group.groupName}>
                 {group.pages.length === 0 ? (
                   <Link
                     href={`/${group.groupName.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-")}`}
@@ -149,7 +150,7 @@ export default function NavigationMenu({
                     )}
                   </>
                 )}
-              </li>
+              </div>
             ))}
           </div>
         </div>
