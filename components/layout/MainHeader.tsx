@@ -279,7 +279,7 @@ export default function MainHeader() {
                       <Image
                         src={vehicle.cover_image || "/placeholder.svg"}
                         alt={vehicle.name}
-                        width={72} 
+                        width={72}
                         height={48}
                         className="object-cover rounded-md flex-shrink-0 bg-gray-100 aspect-[3/2]"
                       />
@@ -299,7 +299,7 @@ export default function MainHeader() {
                 {searchTerm.trim().length > 0 && (
                     <li className="border-t border-gray-100 mt-1 pt-1">
                     <a
-                      href="#vehicle-list" 
+                      href="#vehicle-list"
                       onClick={(e) => { e.preventDefault(); handleSearchFormSubmit(e as any); }}
                       className="block text-center py-2.5 text-sm font-medium text-[#6A3C96] hover:bg-purple-50 transition-colors duration-150 rounded-b-md"
                     >
@@ -319,8 +319,8 @@ export default function MainHeader() {
                 aria-label={isMobileMenuOpen ? "Menüyü Kapat" : "Menüyü Aç"}
                 aria-expanded={isMobileMenuOpen}
               >
-                {isMobileMenuOpen ? ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> ) 
-                                  : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
+                {isMobileMenuOpen ? ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> )
+                                : ( <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg> )}
               </button>
             </div>
             <div className="hidden md:flex items-center space-x-3">
@@ -339,6 +339,16 @@ export default function MainHeader() {
           </div>
         </div>
       </div>
+
+      {/* Mobil Menü (Hamburger tıklanınca açılan) - YENİ EKLENEN KISIM */}
+      {isMobile && isMobileMenuOpen && (
+        <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200">
+          <NavigationMenu
+            isMobileFromParent={true}
+            setIsMobileMenuOpenFromParent={setIsMobileMenuOpen}
+          />
+        </div>
+      )}
 
       <NavigationMenu
         menuItems={mainMenuItems}
@@ -365,7 +375,7 @@ export default function MainHeader() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-             <button
+              <button
                 type="submit"
                 className="px-3 h-full bg-[#6A3C96] text-white hover:bg-[#5a3080] focus:outline-none transition-colors text-sm font-medium border-0"
                 aria-label="Ara"
@@ -376,44 +386,44 @@ export default function MainHeader() {
           </form>
             {isMobile && suggestions.length > 0 && (
               <ul className="mt-1.5 z-[60] w-full bg-white border border-gray-200 rounded-lg shadow-xl max-h-[calc(100vh-250px)] overflow-y-auto py-1.5">
-                 {suggestions.map((vehicle) => (
-                  <li key={vehicle.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleSuggestionClick(vehicle)}
-                      className="w-full text-left px-3.5 py-3 hover:bg-purple-50 hover:text-[#6A3C96] flex items-center gap-3 transition-colors duration-150 rounded-md mx-1 my-0.5 group"
-                    >
-                      <Image
-                        src={vehicle.cover_image || "/placeholder.svg"}
-                        alt={vehicle.name}
-                        width={60}
-                        height={40}
-                        className="object-cover rounded-md flex-shrink-0 bg-gray-100 aspect-[3/2]"
-                      />
-                      <div className="flex-grow overflow-hidden">
-                        <p className="font-medium text-sm text-gray-800 group-hover:text-[#6A3C96] truncate transition-colors">
-                          {vehicle.name}
-                        </p>
-                        {vehicle.price !== undefined && vehicle.price > 0 && (
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {vehicle.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 })} / Gün
+                  {suggestions.map((vehicle) => (
+                    <li key={vehicle.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleSuggestionClick(vehicle)}
+                        className="w-full text-left px-3.5 py-3 hover:bg-purple-50 hover:text-[#6A3C96] flex items-center gap-3 transition-colors duration-150 rounded-md mx-1 my-0.5 group"
+                      >
+                        <Image
+                          src={vehicle.cover_image || "/placeholder.svg"}
+                          alt={vehicle.name}
+                          width={60}
+                          height={40}
+                          className="object-cover rounded-md flex-shrink-0 bg-gray-100 aspect-[3/2]"
+                        />
+                        <div className="flex-grow overflow-hidden">
+                          <p className="font-medium text-sm text-gray-800 group-hover:text-[#6A3C96] truncate transition-colors">
+                            {vehicle.name}
                           </p>
-                        )}
-                      </div>
-                    </button>
-                  </li>
-                ))}
-                 {searchTerm.trim().length > 0 && (
+                          {vehicle.price !== undefined && vehicle.price > 0 && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {vehicle.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0, maximumFractionDigits: 0 })} / Gün
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    </li>
+                  ))}
+                  {searchTerm.trim().length > 0 && (
                     <li className="border-t border-gray-100 mt-1 pt-1">
                     <a
-                      href="#vehicle-list" 
+                      href="#vehicle-list"
                       onClick={(e) => { e.preventDefault(); handleSearchFormSubmit(e as any); }}
                       className="block text-center py-2.5 text-sm font-medium text-[#6A3C96] hover:bg-purple-50 transition-colors duration-150 rounded-b-md"
                     >
                       Tüm sonuçları gör "{searchTerm}"
                     </a>
                   </li>
-                )}
+                  )}
               </ul>
             )}
         </div>
