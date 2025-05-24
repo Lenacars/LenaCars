@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// useEffect veya useState'e gerek kalmadı, tüm state'ler MainHeader'dan geliyor.
 
 // MainHeader'dan gelen menuItems yapısına uygun arayüzler
-// Bu tipler MainHeader'da da tanımlı olabilir veya buradan export edilebilir.
 export interface SubNavigationMenuItem {
   title: string;
   slug: string;
@@ -17,11 +15,15 @@ export interface NavigationMenuItem {
   slug: string;
   isExternal?: boolean;
   subItems?: SubNavigationMenuItem[];
+  // group_sort_order gibi alanlar MainHeader'da sıralama için kullanıldı,
+  // buraya sıralanmış liste geldiği için burada tekrar kullanılması gerekmeyebilir.
 }
 
 interface Props {
   menuItems: NavigationMenuItem[];
   isMobileFromParent: boolean;
+  // isMobileMenuOpenFromParent prop'u artık gereksiz, çünkü MainHeader
+  // bu bileşeni mobilde sadece menü açıkken render edecek.
   setIsMobileMenuOpenFromParent: (isOpen: boolean) => void;
   activeDropdownFromParent: string | null;
   toggleDropdownFromParent: (title: string) => void;
@@ -36,15 +38,16 @@ export default function NavigationMenu({
 }: Props) {
   const pathname = usePathname();
 
-  const handleLinkClick = (isSubItemClick: boolean = false) => {
-    // Mobilde bir linke tıklandığında ana menüyü kapat
+  const handleLinkClick = () => {
+    // Mobilde herhangi bir linke (ana veya alt menü) tıklandığında ana menüyü kapat
     if (isMobileFromParent) {
       setIsMobileMenuOpenFromParent(false);
-      // Eğer bir alt menü linkine tıklandıysa ve ana menü kapanıyorsa,
-      // aktif alt menüyü de kapat (MainHeader'daki toggle fonksiyonunu kullanarak)
-      // Bu, bir sonraki menü açılışında alt menünün kapalı başlamasını sağlar.
+      // ve eğer bir alt menü açıksa onu da kapat (toggleDropdownFromParent bunu yapmalı)
       if (activeDropdownFromParent) {
-        toggleDropdownFromParent(activeDropdownFromParent); // Aktif olanı tekrar toggle ederek kapatır
+        // Aktif olan dropdown'ı tekrar toggle'layarak kapatmak yerine null/boş string ile kapatmayı deneyebiliriz
+        // Bu, toggleDropdownFromParent fonksiyonunun nasıl implemente edildiğine bağlı.
+        // toggleDropdownFromParent(activeDropdownFromParent); // Veya
+        toggleDropdownFromParent(""); // Daha güvenli olabilir, MainHeader'daki toggleDropdown'a bağlı
       }
     }
   };
@@ -52,37 +55,22 @@ export default function NavigationMenu({
   const handleMobileSubMenuToggle = (title: string) => {
     toggleDropdownFromParent(title); // MainHeader'daki state'i günceller
   };
-  
-  // Bu bileşen mobilde ana menü (MainHeader'daki hamburger) açıkken render edilir.
-  // Dolayısıyla, isMobileFromParent true ise, mobil menü içeriği doğrudan gösterilmelidir.
+
   return (
     <nav 
-      className={`bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm 
+      className={`bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm w-full
                  ${isMobileFromParent 
-                   ? 'absolute top-full left-0 w-full z-30 border-t'  // Mobil: Ana header'ın altında açılır
-                   : 'sticky z-40'                                   // Masaüstü: Normal akışta sticky
+                   ? 'absolute left-0 border-t' // Mobil: MainHeader'ın altına açılır
+                   : 'relative z-10' // Masaüstü: Normal akışta, MainHeader'ın genel sticky'liğine güvenir
                  }`}
       style={isMobileFromParent 
-        // Mobilde, NavigationMenu'nün top değeri, üstteki iki barın toplam yüksekliği olmalı.
-        // Bu CSS değişkenleri MainHeader.tsx içinde ayarlanır.
-        ? { top: 'var(--main-header-total-height, 116px)' } 
-        // Masaüstünde, NavigationMenu, ikinci barın (logo barı) altından sticky olur.
-        // Veya kendi yüksekliği varsa (örneğin 57px), sticky top değeri buna göre ayarlanır.
-        // Şu anki sticky top değeri, üstteki iki barın toplam yüksekliği.
-        // Eğer NavigationMenu'nün kendi bir yüksekliği varsa ve o yükseklik içinde sticky olacaksa,
-        // top: 'var(--top-bar-height)' gibi bir ayar düşünülebilir veya sticky konumu kaldırılabilir.
-        // Şimdilik iki barın altında sticky kalacak şekilde ayarlı.
-        // Eğer NavigationMenu'nün kendi yüksekliği varsa ve sticky olması isteniyorsa,
-        // Örneğin, ikinci bar 76px, NavigationMenu 57px ise, top: calc(var(--top-bar-height) + var(--main-header-height)) olur.
-        // Eğer direkt main header'ın altına yapışacaksa bu `md:sticky md:top-[calc(var(--top-bar-height)+var(--main-header-height))]`
-        // veya Tailwind'de `md:sticky md:top-[var(--main-header-total-height)]` gibi.
-        // Şimdilik `top-[calc(var(--top-bar-height,40px)+var(--main-header-height,76px))]` doğru görünüyor.
-        : { top: 'calc(var(--top-bar-height, 40px) + var(--main-header-height, 76px))' } 
+        ? { top: 'var(--main-header-total-height, 116px)', zIndex: 30 } // Mobilde açıldığında doğru pozisyon ve z-index
+        : { zIndex: 10 } // Masaüstü için daha düşük bir z-index yeterli olabilir veya kaldırılabilir. Nav'ın kendi sticky top'u olmayacak.
       }
     >
-      {/* Mobile Menu Content - isMobileFromParent true ise render edilir */}
+      {/* Mobile Menu Content - isMobileFromParent true ise ve MainHeader bu bileşeni render ettiyse gösterilir */}
       {isMobileFromParent && (
-        <div className="w-full bg-white"> 
+        <div className="w-full bg-white"> {/* md:hidden kaldırıldı */}
           <div className="px-3 py-3 space-y-1 max-h-[calc(100vh-var(--main-header-total-height,116px)-var(--mobile-search-height,56px)-20px)] overflow-y-auto">
             {menuItems.map((item) => (
               <li key={item.slug || item.title} className="list-none">
@@ -94,7 +82,7 @@ export default function NavigationMenu({
                     className={`block py-2.5 px-3.5 text-base text-gray-700 font-medium hover:bg-purple-50 hover:text-[#6A3C96] rounded-lg transition-colors duration-150 ${
                       pathname === `/${item.slug.startsWith('/') ? item.slug.substring(1) : item.slug}` ? "bg-purple-100 text-[#6A3C96]" : ""
                     }`}
-                    onClick={() => handleLinkClick(false)}
+                    onClick={handleLinkClick}
                   >
                     {item.title}
                     {item.isExternal && <span className="ml-1 text-sm">↗</span>}
@@ -121,7 +109,7 @@ export default function NavigationMenu({
                               className={`block py-2 px-3 text-sm text-gray-600 hover:text-[#6A3C96] hover:bg-purple-50 rounded-md transition-colors duration-150 ${
                                 pathname === `/${subPage.slug.startsWith('/') ? subPage.slug.substring(1) : subPage.slug}` ? "text-[#6A3C96] bg-purple-100 font-semibold" : ""
                               }`}
-                              onClick={() => handleLinkClick(true)}
+                              onClick={handleLinkClick}
                             >
                               {subPage.title}
                               {subPage.isExternal && <span className="ml-1 text-xs">↗</span>}
@@ -140,7 +128,8 @@ export default function NavigationMenu({
 
       {/* Desktop Menu */}
       {!isMobileFromParent && (
-        <div className="max-w-screen-xl mx-auto flex justify-center items-center px-4 h-[57px]"> {/* Desktop menü için sabit bir yükseklik */}
+        // Desktop menü için sabit bir yükseklik ve ortalama
+        <div className="max-w-screen-xl mx-auto flex justify-center items-center px-4 h-[57px]"> 
           {menuItems.map((item) => (
             <div key={item.slug || item.title} className="relative group h-full flex items-center">
               {!item.subItems || item.subItems.length === 0 ? (
