@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { supabase } from "@/lib/supabase-browser";
-import NavigationMenu from "@/components/layout/NavigationMenu";
+import NavigationMenu from "@/components/layout/NavigationMenu"; // Bu componentin güncel halini kullandığını varsayıyoruz
 import { useSearch } from "@/context/SearchContext";
 import { getMenuPages } from "@/lib/getMenuPages";
 
@@ -35,10 +35,13 @@ interface VehicleSuggestion {
 
 export default function MainHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
+  // mainMenuItems ve ilgili fetchMenuItems, NavigationMenu kendi verisini çektiği için
+  // bu componentte NavigationMenu için artık doğrudan kullanılmıyor olabilir.
+  // Ancak başka bir yerde kullanılıyorsa veya ileride kullanılacaksa dokunmuyorum.
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null); // Bu state NavigationMenu'ye direkt geçilmiyor.
   const [userName, setUserName] = useState<string | null>(null);
 
   const [suggestions, setSuggestions] = useState<VehicleSuggestion[]>([]);
@@ -91,7 +94,7 @@ export default function MainHeader() {
           })
           .flat()
           .sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
-        setMenuItems(sortedMenuItems);
+        setMenuItems(sortedMenuItems); // Bu state'i NavigationMenu artık kullanmıyor.
       } catch (error) {
         console.error("fetchMenuItems sırasında hata oluştu:", error);
         setMenuItems([]);
@@ -191,11 +194,13 @@ export default function MainHeader() {
     }
   };
 
-  const toggleDropdown = (menuGroup: string) => {
-    setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
-  };
+  // toggleDropdown fonksiyonu artık NavigationMenu'ye prop olarak geçilmiyor.
+  // const toggleDropdown = (menuGroup: string) => {
+  // setActiveDropdown(activeDropdown === menuGroup ? null : menuGroup);
+  // };
 
-  const mainMenuItems = [...menuItems].sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
+  // mainMenuItems sabiti de NavigationMenu'ye prop olarak geçilmiyor.
+  // const mainMenuItems = [...menuItems].sort((a: any, b: any) => (a.group_sort_order ?? 0) - (b.group_sort_order ?? 0));
 
   return (
     <header className="sticky top-0 z-50 bg-white">
@@ -340,7 +345,8 @@ export default function MainHeader() {
         </div>
       </div>
 
-      {/* Mobil Menü (Hamburger tıklanınca açılan) - YENİ EKLENEN KISIM */}
+      {/* === DEĞİŞTİRİLEN NAVIGATIONMENU ÇAĞRISI === */}
+      {/* Mobil Menü: Hamburger tıklanınca açılır */}
       {isMobile && isMobileMenuOpen && (
         <div className="fixed top-[120px] left-0 w-full z-40 bg-white shadow-lg border-t border-gray-200">
           <NavigationMenu
@@ -350,14 +356,14 @@ export default function MainHeader() {
         </div>
       )}
 
-      <NavigationMenu
-        menuItems={mainMenuItems}
-        isMobile={isMobile}
-        isMobileMenuOpen={isMobileMenuOpen}
-        setIsMobileMenuOpen={setIsMobileMenuOpen}
-        activeDropdown={activeDropdown}
-        toggleDropdown={toggleDropdown}
-      />
+      {/* Masaüstü Menü */}
+      {!isMobile && (
+        <NavigationMenu
+          isMobileFromParent={false}
+          setIsMobileMenuOpenFromParent={() => {}} // Masaüstü için boş fonksiyon
+        />
+      )}
+      {/* === DEĞİŞİKLİĞİN SONU === */}
 
       {/* MOBİL ARAMA KUTUSU */}
       {isMobile && (
