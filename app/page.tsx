@@ -109,7 +109,7 @@ export default function Home() {
         return;
       }
       const json = await res.json();
-      const rawVehicles = json.data || [];
+      const rawVehicles = Array.isArray(json) ? json : (json.data || []);
       const transformed = rawVehicles.map((vehicle: any) => {
         const aktifVaryasyonlar = vehicle.variations?.filter((v: any) => v.status === "Aktif") || [];
         const enDusukFiyat =
